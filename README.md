@@ -6,12 +6,12 @@
 
 
 ## 示例下载
-[JavaEngineDemo](app_image/demo.apk)
+[JavaEngineDemo](app_image/demo.apk?raw=true)
 
 ## 截图预览
 |   |   |   |
 |:--|:--|:--|
-|  ![截图预览](app_image/1.jpg?raw=true) |![截图预览](app_image/1.jpg?raw=true)   | ![截图预览](app_image/1.jpg?raw=true)  |
+|  ![截图预览](app_image/1.jpg?raw=true) |![截图预览](app_image/2.jpg?raw=true)   | ![截图预览](app_image/3.jpg?raw=true)  |
 
 ## 1.安装
 第一步：在`Project`的`build.gradle`内添加`jitpack.io`仓库
