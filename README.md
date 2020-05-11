@@ -16,22 +16,22 @@
 ## 1.安装
 第一步：在`Project`的`build.gradle`内添加`jitpack.io`仓库
 ```kotlin
-	allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
-	}
+    allprojects {
+        repositories {
+            ...
+            maven { url 'https://jitpack.io' }
+        }
+    }
 ```
 第二步：添加依赖
 ```kotlin
-	dependencies {
-		...
-		// 两个都是必须，dx这个引用是转换dex文件相关
-    	implementation 'com.github.xiaoyvyv.JavaCompileEngine:library:1.1'
-    	implementation 'com.github.xiaoyvyv.JavaCompileEngine:dx:1.1'
-		...
-	}
+    dependencies {
+        ...
+        // 两个都是必须，dx这个引用是转换dex文件相关
+        implementation 'com.github.xiaoyvyv.JavaCompileEngine:library:1.1'
+        implementation 'com.github.xiaoyvyv.JavaCompileEngine:dx:1.1'
+        ...
+    }
 ```
 
 ## 2.继承 JavaEngineAplication
@@ -51,7 +51,7 @@ public class YourApplication extends JavaEngineApplication {
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
-		...
+        ...
     </application>
 ```
 ## 3.创建JavaConsole
@@ -67,11 +67,11 @@ public class YourApplication extends JavaEngineApplication {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		
-		...
+        
+        ...
         printView = findViewById(R.id.printView);
-		...
-		
+        ...
+        
         // 新建一个控制台对象，传入输出监听（回调为主线程）
         javaConsole = new JavaConsole(new JavaConsole.AppendStdListener() {
             @Override
@@ -187,9 +187,9 @@ public class YourApplication extends JavaEngineApplication {
     }
 ```
 ## 7.输入数据 如 Scanner等等的处理
-直接调用`	JavaConsole.`的`inputStdin(String stdin)`方法即可输入数据。
+直接调用`    JavaConsole.`的`inputStdin(String stdin)`方法即可输入数据。
 ```java
-	javaConsole.inputStdin(str);
+    javaConsole.inputStdin(str);
 ```
 
 ## 8.问题
