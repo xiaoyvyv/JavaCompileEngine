@@ -30,9 +30,10 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'com.blankj:utilcodex:1.25.9'
 
-//    implementation project(':library')
-    implementation 'com.github.xiaoyvyv.JavaCompileEngine:dx:v1.0.1'
-    implementation 'com.github.xiaoyvyv.JavaCompileEngine:library:v1.0.1'
+    implementation project(':library')
+
+    //implementation 'com.github.xiaoyvyv.JavaCompileEngine:library:1.0'
+    //implementation 'com.github.xiaoyvyv.JavaCompileEngine:dx:1.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
