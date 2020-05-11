@@ -1,0 +1,4 @@
+rootProject.name='JavaCompileEngine'
+include ':app'
+include ':library'
+include ':dx'
