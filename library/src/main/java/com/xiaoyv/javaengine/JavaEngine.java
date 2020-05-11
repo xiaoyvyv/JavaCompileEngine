@@ -32,7 +32,7 @@ public class JavaEngine {
         String rtPath = JavaEngineSetting.getRtPath();
         Log.e("checkRtJar", rtPath);
 
-        //不存在时从 Assets 复制
+        // 不存在时从 Assets 复制
         boolean fileExists = FileUtils.isFileExists(rtPath);
         if (!fileExists) {
             return ResourceUtils.copyFileFromAssets("rt.jar", rtPath);
