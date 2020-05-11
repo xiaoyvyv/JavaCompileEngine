@@ -121,7 +121,6 @@ public class SingleSampleActivity extends AppCompatActivity {
      * 开始编译
      */
     private void compileJava() {
-
         printView.setText(null);
 
         // 创建Java文件，写入代码内容
@@ -147,7 +146,6 @@ public class SingleSampleActivity extends AppCompatActivity {
                 printView.setText(Html.fromHtml("<font color=\"#F00\">" + error.toString() + "</font>"));
             }
         });
-
     }
 
     /**
