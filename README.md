@@ -154,6 +154,7 @@ public class YourApplication extends JavaEngineApplication {
 ```
 ## 6.运行 dex文件
 运行 Dex文件前，必须开启控制台`javaConsole.start()`，程序执行完成后必须关闭控制台`javaConsole.stop()`。程序运行中时禁止重复运行（如，程序等待用户输入时会挂起，此时严禁再次运行程序，需要完成挂起的程序方可继续运行新程序）
+`DexExecutor`提供了相关的方法，具体请查阅 [DexExecutor.java](https://github.com/xiaoyvyv/JavaCompileEngine/blob/master/library/src/main/java/com/xiaoyv/javaengine/executor/DexExecutor.java)
 ```java
     /**
      * 运行 Dex文件
