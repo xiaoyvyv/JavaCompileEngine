@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
@@ -7,7 +21,6 @@ import com.xiaoyv.dx.rop.cst.CstNat;
 import com.xiaoyv.dx.rop.cst.CstString;
 import com.xiaoyv.dx.util.AnnotatedOutput;
 import com.xiaoyv.dx.util.Hex;
-
 import java.util.Collection;
 import java.util.TreeMap;
 
@@ -33,17 +46,13 @@ public final class StringIdsSection
         strings = new TreeMap<CstString, StringIdItem>();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Collection<? extends Item> items() {
         return strings.values();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public IndexedItem get(Constant cst) {
         if (cst == null) {
@@ -52,7 +61,7 @@ public final class StringIdsSection
 
         throwIfNotPrepared();
 
-        IndexedItem result = strings.get(cst);
+        IndexedItem result = strings.get((CstString) cst);
 
         if (result == null) {
             throw new IllegalArgumentException("not found");
@@ -85,7 +94,7 @@ public final class StringIdsSection
      * Interns an element into this instance.
      *
      * @param string {@code non-null;} the string to intern, as a regular Java
-     *               {@code String}
+     * {@code String}
      * @return {@code non-null;} the interned string
      */
     public StringIdItem intern(String string) {
@@ -159,9 +168,7 @@ public final class StringIdsSection
         return s.getIndex();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void orderItems() {
         int idx = 0;

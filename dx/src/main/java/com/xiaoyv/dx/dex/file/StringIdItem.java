@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
@@ -12,14 +26,10 @@ import com.xiaoyv.dx.util.Hex;
  */
 public final class StringIdItem
         extends IndexedItem implements Comparable {
-    /**
-     * {@code non-null;} the string value
-     */
+    /** {@code non-null;} the string value */
     private final CstString value;
 
-    /**
-     * {@code null-ok;} associated string data object, if known
-     */
+    /** {@code null-ok;} associated string data object, if known */
     private StringDataItem data;
 
     /**
@@ -36,9 +46,7 @@ public final class StringIdItem
         this.data = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof StringIdItem)) {
@@ -49,41 +57,32 @@ public final class StringIdItem
         return value.equals(otherString.value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return value.hashCode();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int compareTo(Object other) {
         StringIdItem otherString = (StringIdItem) other;
         return value.compareTo(otherString.value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public ItemType itemType() {
         return ItemType.TYPE_STRING_ID_ITEM;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int writeSize() {
         return SizeOf.STRING_ID_ITEM;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void addContents(DexFile file) {
         if (data == null) {
@@ -94,9 +93,7 @@ public final class StringIdItem
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void writeTo(DexFile file, AnnotatedOutput out) {
         int dataOff = data.getAbsoluteOffset();

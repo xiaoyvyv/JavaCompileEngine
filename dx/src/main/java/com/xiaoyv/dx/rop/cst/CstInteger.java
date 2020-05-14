@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.cst;
 
@@ -10,44 +24,28 @@ import com.xiaoyv.dx.util.Hex;
  */
 public final class CstInteger
         extends CstLiteral32 {
-    /**
-     * {@code non-null;} array of cached instances
-     */
+    /** {@code non-null;} array of cached instances */
     private static final CstInteger[] cache = new CstInteger[511];
 
-    /**
-     * {@code non-null;} instance representing {@code -1}
-     */
+    /** {@code non-null;} instance representing {@code -1} */
     public static final CstInteger VALUE_M1 = make(-1);
 
-    /**
-     * {@code non-null;} instance representing {@code 0}
-     */
+    /** {@code non-null;} instance representing {@code 0} */
     public static final CstInteger VALUE_0 = make(0);
 
-    /**
-     * {@code non-null;} instance representing {@code 1}
-     */
+    /** {@code non-null;} instance representing {@code 1} */
     public static final CstInteger VALUE_1 = make(1);
 
-    /**
-     * {@code non-null;} instance representing {@code 2}
-     */
+    /** {@code non-null;} instance representing {@code 2} */
     public static final CstInteger VALUE_2 = make(2);
 
-    /**
-     * {@code non-null;} instance representing {@code 3}
-     */
+    /** {@code non-null;} instance representing {@code 3} */
     public static final CstInteger VALUE_3 = make(3);
 
-    /**
-     * {@code non-null;} instance representing {@code 4}
-     */
+    /** {@code non-null;} instance representing {@code 4} */
     public static final CstInteger VALUE_4 = make(4);
 
-    /**
-     * {@code non-null;} instance representing {@code 5}
-     */
+    /** {@code non-null;} instance representing {@code 5} */
     public static final CstInteger VALUE_5 = make(5);
 
     /**
@@ -84,33 +82,27 @@ public final class CstInteger
         super(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         int value = getIntBits();
         return "int{0x" + Hex.u4(value) + " / " + value + '}';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public Type getType() {
         return Type.INT;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String typeName() {
         return "int";
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public String toHuman() {
         return Integer.toString(getIntBits());
     }

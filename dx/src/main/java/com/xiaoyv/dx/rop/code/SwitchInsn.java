@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.code;
 
@@ -12,19 +26,17 @@ import com.xiaoyv.dx.util.IntList;
  */
 public final class SwitchInsn
         extends Insn {
-    /**
-     * {@code non-null;} list of switch cases
-     */
+    /** {@code non-null;} list of switch cases */
     private final IntList cases;
 
     /**
      * Constructs an instance.
      *
-     * @param opcode   {@code non-null;} the opcode
+     * @param opcode {@code non-null;} the opcode
      * @param position {@code non-null;} source position
-     * @param result   {@code null-ok;} spec for the result, if any
-     * @param sources  {@code non-null;} specs for all the sources
-     * @param cases    {@code non-null;} list of switch cases
+     * @param result {@code null-ok;} spec for the result, if any
+     * @param sources {@code non-null;} specs for all the sources
+     * @param cases {@code non-null;} list of switch cases
      */
     public SwitchInsn(Rop opcode, SourcePosition position, RegisterSpec result,
                       RegisterSpecList sources, IntList cases) {
@@ -41,47 +53,37 @@ public final class SwitchInsn
         this.cases = cases;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getInlineString() {
         return cases.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public TypeList getCatches() {
         return StdTypeList.EMPTY;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void accept(Visitor visitor) {
         visitor.visitSwitchInsn(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Insn withAddedCatch(Type type) {
         throw new UnsupportedOperationException("unsupported");
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Insn withRegisterOffset(int delta) {
         return new SwitchInsn(getOpcode(), getPosition(),
-                getResult().withOffset(delta),
-                getSources().withOffset(delta),
-                cases);
+                              getResult().withOffset(delta),
+                              getSources().withOffset(delta),
+                              cases);
     }
 
     /**
@@ -95,17 +97,15 @@ public final class SwitchInsn
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Insn withNewRegisters(RegisterSpec result,
-                                 RegisterSpecList sources) {
+            RegisterSpecList sources) {
 
         return new SwitchInsn(getOpcode(), getPosition(),
-                result,
-                sources,
-                cases);
+                              result,
+                              sources,
+                              cases);
     }
 
     /**

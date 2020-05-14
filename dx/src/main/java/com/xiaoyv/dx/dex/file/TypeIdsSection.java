@@ -1,16 +1,28 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
 import com.xiaoyv.dex.DexFormat;
 import com.xiaoyv.dex.DexIndexOverflowException;
-import com.xiaoyv.dx.command.dexer.Main;
 import com.xiaoyv.dx.rop.cst.Constant;
 import com.xiaoyv.dx.rop.cst.CstType;
 import com.xiaoyv.dx.rop.type.Type;
 import com.xiaoyv.dx.util.AnnotatedOutput;
 import com.xiaoyv.dx.util.Hex;
-
 import java.util.Collection;
 import java.util.TreeMap;
 
@@ -34,17 +46,13 @@ public final class TypeIdsSection extends UniformItemSection {
         typeIds = new TreeMap<Type, TypeIdItem>();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Collection<? extends Item> items() {
         return typeIds.values();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public IndexedItem get(Constant cst) {
         if (cst == null) {
@@ -75,9 +83,11 @@ public final class TypeIdsSection extends UniformItemSection {
         int offset = (sz == 0) ? 0 : getFileOffset();
 
         if (sz > DexFormat.MAX_TYPE_IDX + 1) {
-            throw new DexIndexOverflowException("Too many type references: " + sz +
-                    "; max is " + (DexFormat.MAX_TYPE_IDX + 1) + ".\n" +
-                    Main.getTooManyIdsErrorMessage());
+            throw new DexIndexOverflowException(
+                    String.format("Too many type identifiers to fit in one dex file: %1$d; max is %2$d.%n"
+                                    + "You may try using multi-dex. If multi-dex is enabled then the list of "
+                                    + "classes for the main dex list is too large.",
+                            items().size(), DexFormat.MAX_MEMBER_IDX + 1));
         }
 
         if (out.annotates()) {
@@ -174,9 +184,7 @@ public final class TypeIdsSection extends UniformItemSection {
         return indexOf(type.getClassType());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void orderItems() {
         int idx = 0;

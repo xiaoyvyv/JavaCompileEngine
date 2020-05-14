@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.command.annotool;
 
@@ -33,25 +47,19 @@ public class Main {
          */
         String aclass;
 
-        /**
-         * from --eTypes
-         */
+        /** from --eTypes */
         EnumSet<ElementType> eTypes = EnumSet.noneOf(ElementType.class);
 
-        /**
-         * from --print
-         */
+        /** from --print */
         EnumSet<PrintType> printTypes = EnumSet.noneOf(PrintType.class);
 
-        /**
-         * remaining positional arguments
-         */
+        /** remaining positional arguments */
         String[] files;
 
         Arguments() {
         }
 
-        void parse(String[] argArray) throws InvalidArgumentException {
+        void parse (String[] argArray) throws InvalidArgumentException {
             for (int i = 0; i < argArray.length; i++) {
                 String arg = argArray[i];
 
@@ -61,7 +69,7 @@ public class Main {
                         throw new InvalidArgumentException(
                                 "--annotation can only be specified once.");
                     }
-                    aclass = argParam.replace('.', '/');
+                    aclass = argParam.replace('.','/');
                 } else if (arg.startsWith("--element=")) {
                     String argParam = arg.substring(arg.indexOf('=') + 1);
 

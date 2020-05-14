@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
@@ -8,7 +22,6 @@ import com.xiaoyv.dx.rop.type.Type;
 import com.xiaoyv.dx.rop.type.TypeList;
 import com.xiaoyv.dx.util.AnnotatedOutput;
 import com.xiaoyv.dx.util.Hex;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
@@ -23,9 +36,7 @@ public final class ClassDefsSection extends UniformItemSection {
      */
     private final TreeMap<Type, ClassDefItem> classDefs;
 
-    /**
-     * {@code null-ok;} ordered list of classes; set in {@link #orderItems}
-     */
+    /** {@code null-ok;} ordered list of classes; set in {@link #orderItems} */
     private ArrayList<ClassDefItem> orderedDefs;
 
     /**
@@ -40,9 +51,7 @@ public final class ClassDefsSection extends UniformItemSection {
         orderedDefs = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Collection<? extends Item> items() {
         if (orderedDefs != null) {
@@ -52,9 +61,7 @@ public final class ClassDefsSection extends UniformItemSection {
         return classDefs.values();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public IndexedItem get(Constant cst) {
         if (cst == null) {
@@ -118,9 +125,7 @@ public final class ClassDefsSection extends UniformItemSection {
         classDefs.put(type, clazz);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void orderItems() {
         int sz = classDefs.size();
@@ -143,10 +148,10 @@ public final class ClassDefsSection extends UniformItemSection {
      * Helper for {@link #orderItems}, which recursively assigns indices
      * to classes.
      *
-     * @param type     {@code null-ok;} type ref to assign, if any
-     * @param idx      {@code >= 0;} the next index to assign
+     * @param type {@code null-ok;} type ref to assign, if any
+     * @param idx {@code >= 0;} the next index to assign
      * @param maxDepth maximum recursion depth; if negative, this will
-     *                 throw an exception indicating class definition circularity
+     * throw an exception indicating class definition circularity
      * @return {@code >= 0;} the next index to assign
      */
     private int orderItems0(Type type, int idx, int maxDepth) {

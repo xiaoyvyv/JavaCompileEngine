@@ -1,26 +1,35 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa;
 
 import com.xiaoyv.dx.util.IntSet;
-
 import java.util.ArrayList;
 import java.util.BitSet;
 
 /**
- * Calculates the dominance-frontiers of a methot's basic blocks.
+ * Calculates the dominance-frontiers of a method's basic blocks.
  * Algorithm from "A Simple, Fast Dominance Algorithm" by Cooper,
  * Harvey, and Kennedy; transliterated to Java.
  */
 public class DomFront {
-    /**
-     * local debug flag
-     */
-    private static boolean DEBUG = false;
+    /** local debug flag */
+    private static final boolean DEBUG = false;
 
-    /**
-     * {@code non-null;} method being processed
-     */
+    /** {@code non-null;} method being processed */
     private final SsaMethod meth;
 
     private final ArrayList<SsaBasicBlock> nodes;
@@ -37,9 +46,7 @@ public class DomFront {
          */
         public IntSet dominanceFrontiers;
 
-        /**
-         * {@code >= 0 after run();} the index of the immediate dominator
-         */
+        /** {@code >= 0 after run();} the index of the immediate dominator */
         public int idom = -1;
     }
 

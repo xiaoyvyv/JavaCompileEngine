@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.code;
 
@@ -8,7 +22,6 @@ import com.xiaoyv.dx.rop.cst.CstString;
 import com.xiaoyv.dx.rop.cst.CstType;
 import com.xiaoyv.dx.rop.type.Type;
 import com.xiaoyv.dx.util.FixedSizeList;
-
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,14 +32,10 @@ import java.util.Arrays;
  * and a type.
  */
 public final class LocalList extends FixedSizeList {
-    /**
-     * {@code non-null;} empty instance
-     */
+    /** {@code non-null;} empty instance */
     public static final LocalList EMPTY = new LocalList(0);
 
-    /**
-     * whether to run the self-check code
-     */
+    /** whether to run the self-check code */
     private static final boolean DEBUG = false;
 
     /**
@@ -53,7 +62,7 @@ public final class LocalList extends FixedSizeList {
     /**
      * Sets the entry at the given index.
      *
-     * @param n     {@code >= 0, < size();} which index
+     * @param n {@code >= 0, < size();} which index
      * @param entry {@code non-null;} the entry to set at {@code n}
      */
     public void set(int n, Entry entry) {
@@ -63,7 +72,7 @@ public final class LocalList extends FixedSizeList {
     /**
      * Does a human-friendly dump of this instance.
      *
-     * @param out    {@code non-null;} where to dump
+     * @param out {@code non-null;} where to dump
      * @param prefix {@code non-null;} prefix to attach to each line of output
      */
     public void debugPrint(PrintStream out, String prefix) {
@@ -79,24 +88,16 @@ public final class LocalList extends FixedSizeList {
      * Disposition of a local entry.
      */
     public static enum Disposition {
-        /**
-         * local started (introduced)
-         */
+        /** local started (introduced) */
         START,
 
-        /**
-         * local ended without being replaced
-         */
+        /** local ended without being replaced */
         END_SIMPLY,
 
-        /**
-         * local ended because it was directly replaced
-         */
+        /** local ended because it was directly replaced */
         END_REPLACED,
 
-        /**
-         * local ended because it was moved to a different register
-         */
+        /** local ended because it was moved to a different register */
         END_MOVED,
 
         /**
@@ -116,33 +117,25 @@ public final class LocalList extends FixedSizeList {
      * Entry in a local list.
      */
     public static class Entry implements Comparable<Entry> {
-        /**
-         * {@code >= 0;} address
-         */
+        /** {@code >= 0;} address */
         private final int address;
 
-        /**
-         * {@code non-null;} disposition of the local
-         */
+        /** {@code non-null;} disposition of the local */
         private final Disposition disposition;
 
-        /**
-         * {@code non-null;} register spec representing the variable
-         */
+        /** {@code non-null;} register spec representing the variable */
         private final RegisterSpec spec;
 
-        /**
-         * {@code non-null;} variable type (derived from {@code spec})
-         */
+        /** {@code non-null;} variable type (derived from {@code spec}) */
         private final CstType type;
 
         /**
          * Constructs an instance.
          *
-         * @param address     {@code >= 0;} address
+         * @param address {@code >= 0;} address
          * @param disposition {@code non-null;} disposition of the local
-         * @param spec        {@code non-null;} register spec representing
-         *                    the variable
+         * @param spec {@code non-null;} register spec representing
+         * the variable
          */
         public Entry(int address, Disposition disposition, RegisterSpec spec) {
             if (address < 0) {
@@ -169,17 +162,15 @@ public final class LocalList extends FixedSizeList {
             this.type = CstType.intern(spec.getType());
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public String toString() {
             return Integer.toHexString(address) + " " + disposition + " " +
-                    spec;
+                spec;
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public boolean equals(Object other) {
             if (!(other instanceof Entry)) {
                 return false;
@@ -196,6 +187,7 @@ public final class LocalList extends FixedSizeList {
          * @param other {@code non-null;} entry to compare to
          * @return {@code -1..1;} standard result of comparison
          */
+        @Override
         public int compareTo(Entry other) {
             if (address < other.address) {
                 return -1;
@@ -359,7 +351,7 @@ public final class LocalList extends FixedSizeList {
 
             if (insn instanceof LocalSnapshot) {
                 RegisterSpecSet snapshot =
-                        ((LocalSnapshot) insn).getLocals();
+                    ((LocalSnapshot) insn).getLocals();
                 state.snapshot(insn.getAddress(), snapshot);
             } else if (insn instanceof LocalStart) {
                 RegisterSpec local = ((LocalStart) insn).getLocal();
@@ -435,13 +427,13 @@ public final class LocalList extends FixedSizeList {
                                     != Disposition.END_REPLACED) {
                                 throw new RuntimeException(
                                         "improperly marked end at " +
-                                                Integer.toHexString(addr));
+                                        Integer.toHexString(addr));
                             }
                             foundStart = true;
                         } else {
                             throw new RuntimeException(
                                     "redundant end at " +
-                                            Integer.toHexString(addr));
+                                    Integer.toHexString(addr));
                         }
                     }
                 }
@@ -450,7 +442,7 @@ public final class LocalList extends FixedSizeList {
                         (e.getDisposition() == Disposition.END_REPLACED)) {
                     throw new RuntimeException(
                             "improper end replacement claim at " +
-                                    Integer.toHexString(addr));
+                            Integer.toHexString(addr));
                 }
 
                 active[reg] = null;
@@ -462,9 +454,7 @@ public final class LocalList extends FixedSizeList {
      * Intermediate state when constructing a local list.
      */
     public static class MakeState {
-        /**
-         * {@code non-null;} result being collected
-         */
+        /** {@code non-null;} result being collected */
         private final ArrayList<Entry> result;
 
         /**
@@ -473,20 +463,14 @@ public final class LocalList extends FixedSizeList {
          */
         private int nullResultCount;
 
-        /**
-         * {@code null-ok;} current register mappings
-         */
+        /** {@code null-ok;} current register mappings */
         private RegisterSpecSet regs;
 
-        /**
-         * {@code null-ok;} result indices where local ends are stored
-         */
+        /** {@code null-ok;} result indices where local ends are stored */
         private int[] endIndices;
 
-        /**
-         * {@code >= 0;} last address seen
-         */
-        private int lastAddress;
+        /** {@code >= 0;} last address seen */
+        private final int lastAddress;
 
         /**
          * Constructs an instance.
@@ -504,7 +488,7 @@ public final class LocalList extends FixedSizeList {
          * further processing.
          *
          * @param address {@code >= 0;} address about to be processed
-         * @param reg     {@code >= 0;} register number about to be processed
+         * @param reg {@code >= 0;} register number about to be processed
          */
         private void aboutToProcess(int address, int reg) {
             boolean first = (endIndices == null);
@@ -546,7 +530,7 @@ public final class LocalList extends FixedSizeList {
          * the register state can be properly sized.
          *
          * @param address {@code >= 0;} the address
-         * @param specs   {@code non-null;} spec set representing the locals
+         * @param specs {@code non-null;} spec set representing the locals
          */
         public void snapshot(int address, RegisterSpecSet specs) {
             if (DEBUG) {
@@ -566,7 +550,7 @@ public final class LocalList extends FixedSizeList {
                     }
                 } else if (newSpec == null) {
                     endLocal(address, oldSpec);
-                } else if (!newSpec.equalsUsingSimpleType(oldSpec)) {
+                } else if (! newSpec.equalsUsingSimpleType(oldSpec)) {
                     endLocal(address, oldSpec);
                     startLocal(address, newSpec);
                 }
@@ -580,9 +564,9 @@ public final class LocalList extends FixedSizeList {
         /**
          * Starts a local at the given address.
          *
-         * @param address      {@code >= 0;} the address
+         * @param address {@code >= 0;} the address
          * @param startedLocal {@code non-null;} spec representing the
-         *                     started local
+         * started local
          */
         public void startLocal(int address, RegisterSpec startedLocal) {
             if (DEBUG) {
@@ -703,9 +687,9 @@ public final class LocalList extends FixedSizeList {
          * Ends a local at the given address, using the disposition
          * {@code END_SIMPLY}.
          *
-         * @param address    {@code >= 0;} the address
+         * @param address {@code >= 0;} the address
          * @param endedLocal {@code non-null;} spec representing the
-         *                   local being ended
+         * local being ended
          */
         public void endLocal(int address, RegisterSpec endedLocal) {
             endLocal(address, endedLocal, Disposition.END_SIMPLY);
@@ -714,13 +698,13 @@ public final class LocalList extends FixedSizeList {
         /**
          * Ends a local at the given address.
          *
-         * @param address     {@code >= 0;} the address
-         * @param endedLocal  {@code non-null;} spec representing the
-         *                    local being ended
+         * @param address {@code >= 0;} the address
+         * @param endedLocal {@code non-null;} spec representing the
+         * local being ended
          * @param disposition reason for the end
          */
         public void endLocal(int address, RegisterSpec endedLocal,
-                             Disposition disposition) {
+                Disposition disposition) {
             if (DEBUG) {
                 System.err.printf("%04x end %s\n", address, endedLocal);
             }
@@ -757,14 +741,14 @@ public final class LocalList extends FixedSizeList {
          * if needed update the newly-active end to reflect an altered
          * disposition.
          *
-         * @param address    {@code >= 0;} the address
+         * @param address {@code >= 0;} the address
          * @param endedLocal {@code non-null;} spec representing the
-         *                   local being ended
+         * local being ended
          * @return {@code true} iff this method found the case in question
          * and adjusted things accordingly
          */
         private boolean checkForEmptyRange(int address,
-                                           RegisterSpec endedLocal) {
+                RegisterSpec endedLocal) {
             int at = result.size() - 1;
             Entry entry;
 
@@ -857,12 +841,12 @@ public final class LocalList extends FixedSizeList {
          * Adds an entry to the result, updating the adjunct tables
          * accordingly.
          *
-         * @param address     {@code >= 0;} the address
+         * @param address {@code >= 0;} the address
          * @param disposition {@code non-null;} the disposition
-         * @param spec        {@code non-null;} spec representing the local
+         * @param spec {@code non-null;} spec representing the local
          */
         private void add(int address, Disposition disposition,
-                         RegisterSpec spec) {
+                RegisterSpec spec) {
             int regNum = spec.getReg();
 
             result.add(new Entry(address, disposition, spec));
@@ -881,12 +865,12 @@ public final class LocalList extends FixedSizeList {
          * this would cause an empty range for a local, this instead
          * removes the local entirely.
          *
-         * @param address     {@code >= 0;} the address
+         * @param address {@code >= 0;} the address
          * @param disposition {@code non-null;} the disposition
-         * @param spec        {@code non-null;} spec representing the local
+         * @param spec {@code non-null;} spec representing the local
          */
         private void addOrUpdateEnd(int address, Disposition disposition,
-                                    RegisterSpec spec) {
+                RegisterSpec spec) {
             if (disposition == Disposition.START) {
                 throw new RuntimeException("shouldn't happen");
             }

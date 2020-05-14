@@ -1,9 +1,22 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
 import com.xiaoyv.dx.util.AnnotatedOutput;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.TreeMap;
@@ -12,9 +25,7 @@ import java.util.TreeMap;
  * Statistics about the contents of a file.
  */
 public final class Statistics {
-    /**
-     * {@code non-null;} data about each type of item
-     */
+    /** {@code non-null;} data about each type of item */
     private final HashMap<String, Data> dataMap;
 
     /**
@@ -97,29 +108,19 @@ public final class Statistics {
      * Statistical data about a particular class.
      */
     private static class Data {
-        /**
-         * {@code non-null;} name to use as a label
-         */
+        /** {@code non-null;} name to use as a label */
         private final String name;
 
-        /**
-         * {@code >= 0;} number of instances
-         */
+        /** {@code >= 0;} number of instances */
         private int count;
 
-        /**
-         * {@code >= 0;} total size of instances in bytes
-         */
+        /** {@code >= 0;} total size of instances in bytes */
         private int totalSize;
 
-        /**
-         * {@code >= 0;} largest size of any individual item
-         */
+        /** {@code >= 0;} largest size of any individual item */
         private int largestSize;
 
-        /**
-         * {@code >= 0;} smallest size of any individual item
-         */
+        /** {@code >= 0;} smallest size of any individual item */
         private int smallestSize;
 
         /**
@@ -176,15 +177,15 @@ public final class Statistics {
             StringBuilder sb = new StringBuilder();
 
             sb.append("  " + name + ": " +
-                    count + " item" + (count == 1 ? "" : "s") + "; " +
-                    totalSize + " bytes total\n");
+                         count + " item" + (count == 1 ? "" : "s") + "; " +
+                         totalSize + " bytes total\n");
 
             if (smallestSize == largestSize) {
                 sb.append("    " + smallestSize + " bytes/item\n");
             } else {
                 int average = totalSize / count;
                 sb.append("    " + smallestSize + ".." + largestSize +
-                        " bytes/item; average " + average + "\n");
+                             " bytes/item; average " + average + "\n");
             }
 
             return sb.toString();

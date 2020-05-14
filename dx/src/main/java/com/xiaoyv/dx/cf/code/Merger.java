@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.code;
 
@@ -26,7 +40,7 @@ public final class Merger {
      * @return {@code non-null;} the result of merging the two locals arrays
      */
     public static OneLocalsArray mergeLocals(OneLocalsArray locals1,
-                                             OneLocalsArray locals2) {
+                                          OneLocalsArray locals2) {
         if (locals1 == locals2) {
             // Easy out.
             return locals1;
@@ -108,7 +122,7 @@ public final class Merger {
                 try {
                     if (resultType == null) {
                         throw new SimException("incompatible: " + tb1 + ", " +
-                                tb2);
+                                               tb2);
                     } else {
                         result.change(i, resultType);
                     }
@@ -160,8 +174,8 @@ public final class Merger {
                     return type1;
                 } else if (type1.isArray() && type2.isArray()) {
                     TypeBearer componentUnion =
-                            mergeType(type1.getComponentType(),
-                                    type2.getComponentType());
+                        mergeType(type1.getComponentType(),
+                                type2.getComponentType());
                     if (componentUnion == null) {
                         /*
                          * At least one of the types is a primitive type,
@@ -200,10 +214,10 @@ public final class Merger {
      * {@code Serializable} and {@code Cloneable}.
      *
      * @param supertypeBearer {@code non-null;} the supertype
-     * @param subtypeBearer   {@code non-null;} the subtype
+     * @param subtypeBearer {@code non-null;} the subtype
      */
     public static boolean isPossiblyAssignableFrom(TypeBearer supertypeBearer,
-                                                   TypeBearer subtypeBearer) {
+            TypeBearer subtypeBearer) {
         Type supertype = supertypeBearer.getType();
         Type subtype = subtypeBearer.getType();
 
@@ -257,7 +271,7 @@ public final class Merger {
             return true;
         } else if (supertype.isArray()) {
             // The supertype is an array type.
-            if (!subtype.isArray()) {
+            if (! subtype.isArray()) {
                 // The subtype isn't an array, and so can't be assignable.
                 return false;
             }
@@ -279,7 +293,7 @@ public final class Merger {
              * assignable only to Serializable and Cloneable.
              */
             return (supertype == Type.SERIALIZABLE) ||
-                    (supertype == Type.CLONEABLE);
+                (supertype == Type.CLONEABLE);
         } else {
             /*
              * All other unequal reference types are considered at

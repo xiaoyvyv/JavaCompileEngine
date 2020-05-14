@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
@@ -14,14 +28,10 @@ import com.xiaoyv.dx.util.Hex;
  * Representation of a method prototype reference inside a Dalvik file.
  */
 public final class ProtoIdItem extends IndexedItem {
-    /**
-     * {@code non-null;} the wrapped prototype
-     */
+    /** {@code non-null;} the wrapped prototype */
     private final Prototype prototype;
 
-    /**
-     * {@code non-null;} the short-form of the prototype
-     */
+    /** {@code non-null;} the short-form of the prototype */
     private final CstString shortForm;
 
     /**
@@ -45,7 +55,7 @@ public final class ProtoIdItem extends IndexedItem {
 
         StdTypeList parameters = prototype.getParameterTypes();
         this.parameterTypes = (parameters.size() == 0) ? null
-                : new TypeListItem(parameters);
+            : new TypeListItem(parameters);
     }
 
     /**
@@ -84,25 +94,19 @@ public final class ProtoIdItem extends IndexedItem {
         return descriptorChar;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public ItemType itemType() {
         return ItemType.TYPE_PROTO_ID_ITEM;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int writeSize() {
         return SizeOf.PROTO_ID_ITEM;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void addContents(DexFile file) {
         StringIdsSection stringIds = file.getStringIds();
@@ -117,9 +121,7 @@ public final class ProtoIdItem extends IndexedItem {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void writeTo(DexFile file, AnnotatedOutput out) {
         int shortyIdx = file.getStringIds().indexOf(shortForm);

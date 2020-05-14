@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.direct;
 
@@ -18,47 +32,35 @@ import com.xiaoyv.dx.util.Hex;
  * Parser for lists of class file members (that is, fields and methods).
  */
 abstract /*package*/ class MemberListParser {
-    /**
-     * {@code non-null;} the class file to parse from
-     */
+    /** {@code non-null;} the class file to parse from */
     private final DirectClassFile cf;
 
-    /**
-     * {@code non-null;} class being defined
-     */
+    /** {@code non-null;} class being defined */
     private final CstType definer;
 
-    /**
-     * offset in the byte array of the classfile to the start of the list
-     */
+    /** offset in the byte array of the classfile to the start of the list */
     private final int offset;
 
-    /**
-     * {@code non-null;} attribute factory to use
-     */
+    /** {@code non-null;} attribute factory to use */
     private final AttributeFactory attributeFactory;
 
-    /**
-     * {@code >= -1;} the end offset of this list in the byte array of the
-     * classfile, or {@code -1} if not yet parsed
-     */
+    /** {@code >= -1;} the end offset of this list in the byte array of the
+     * classfile, or {@code -1} if not yet parsed */
     private int endOffset;
 
-    /**
-     * {@code null-ok;} parse observer, if any
-     */
+    /** {@code null-ok;} parse observer, if any */
     private ParseObserver observer;
 
     /**
      * Constructs an instance.
      *
-     * @param cf               {@code non-null;} the class file to parse from
-     * @param definer          {@code non-null;} class being defined
-     * @param offset           offset in {@code bytes} to the start of the list
+     * @param cf {@code non-null;} the class file to parse from
+     * @param definer {@code non-null;} class being defined
+     * @param offset offset in {@code bytes} to the start of the list
      * @param attributeFactory {@code non-null;} attribute factory to use
      */
     public MemberListParser(DirectClassFile cf, CstType definer,
-                            int offset, AttributeFactory attributeFactory) {
+            int offset, AttributeFactory attributeFactory) {
         if (cf == null) {
             throw new NullPointerException("cf == null");
         }
@@ -154,15 +156,15 @@ abstract /*package*/ class MemberListParser {
     /**
      * Sets an element in the list. Subclasses must override this method.
      *
-     * @param n           which element
+     * @param n which element
      * @param accessFlags the {@code access_flags}
-     * @param nat         the interpreted name and type (based on the two
-     *                    {@code *_index} fields)
-     * @param attributes  list of parsed attributes
+     * @param nat the interpreted name and type (based on the two
+     * {@code *_index} fields)
+     * @param attributes list of parsed attributes
      * @return {@code non-null;} the constructed member
      */
     protected abstract Member set(int n, int accessFlags, CstNat nat,
-                                  AttributeList attributes);
+            AttributeList attributes);
 
     /**
      * Does the actual parsing.
@@ -177,7 +179,7 @@ abstract /*package*/ class MemberListParser {
 
         if (observer != null) {
             observer.parsed(bytes, offset, 2,
-                    humanName() + "s_count: " + Hex.u2(count));
+                            humanName() + "s_count: " + Hex.u2(count));
         }
 
         for (int i = 0; i < count; i++) {
@@ -190,23 +192,23 @@ abstract /*package*/ class MemberListParser {
 
                 if (observer != null) {
                     observer.startParsingMember(bytes, at, name.getString(),
-                            desc.getString());
+                                                desc.getString());
                     observer.parsed(bytes, at, 0, "\n" + humanName() +
-                            "s[" + i + "]:\n");
+                                    "s[" + i + "]:\n");
                     observer.changeIndent(1);
                     observer.parsed(bytes, at, 2,
-                            "access_flags: " +
+                                    "access_flags: " +
                                     humanAccessFlags(accessFlags));
                     observer.parsed(bytes, at + 2, 2,
-                            "name: " + name.toHuman());
+                                    "name: " + name.toHuman());
                     observer.parsed(bytes, at + 4, 2,
-                            "descriptor: " + desc.toHuman());
+                                    "descriptor: " + desc.toHuman());
                 }
 
                 at += 6;
                 AttributeListParser parser =
-                        new AttributeListParser(cf, attributeContext, at,
-                                attributeFactory);
+                    new AttributeListParser(cf, attributeContext, at,
+                                            attributeFactory);
                 parser.setObserver(observer);
                 at = parser.getEndOffset();
                 StdAttributeList attributes = parser.getList();
@@ -217,18 +219,18 @@ abstract /*package*/ class MemberListParser {
                 if (observer != null) {
                     observer.changeIndent(-1);
                     observer.parsed(bytes, at, 0, "end " + humanName() +
-                            "s[" + i + "]\n");
+                                    "s[" + i + "]\n");
                     observer.endParsingMember(bytes, at, name.getString(),
-                            desc.getString(), member);
+                                              desc.getString(), member);
                 }
             } catch (ParseException ex) {
                 ex.addContext("...while parsing " + humanName() + "s[" + i +
-                        "]");
+                              "]");
                 throw ex;
             } catch (RuntimeException ex) {
                 ParseException pe = new ParseException(ex);
                 pe.addContext("...while parsing " + humanName() + "s[" + i +
-                        "]");
+                              "]");
                 throw pe;
             }
         }

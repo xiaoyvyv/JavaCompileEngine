@@ -1,10 +1,23 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.code;
 
 import com.xiaoyv.dx.rop.type.TypeBearer;
 import com.xiaoyv.dx.util.MutabilityControl;
-
 import java.util.HashMap;
 
 /**
@@ -13,9 +26,7 @@ import java.util.HashMap;
  */
 public final class LocalVariableInfo
         extends MutabilityControl {
-    /**
-     * {@code >= 0;} the register count for the method
-     */
+    /** {@code >= 0;} the register count for the method */
     private final int regCount;
 
     /**
@@ -32,9 +43,7 @@ public final class LocalVariableInfo
      */
     private final RegisterSpecSet[] blockStarts;
 
-    /**
-     * {@code non-null;} map from instructions to the variable each assigns
-     */
+    /** {@code non-null;} map from instructions to the variable each assigns */
     private final HashMap<Insn, RegisterSpec> insnAssignments;
 
     /**
@@ -54,7 +63,7 @@ public final class LocalVariableInfo
         this.emptySet = new RegisterSpecSet(regCount);
         this.blockStarts = new RegisterSpecSet[maxLabel];
         this.insnAssignments =
-                new HashMap<Insn, RegisterSpec>(blocks.getInstructionCount());
+            new HashMap<Insn, RegisterSpec>(blocks.getInstructionCount());
 
         emptySet.setImmutable();
     }
@@ -90,7 +99,7 @@ public final class LocalVariableInfo
      *
      * @param label {@code >= 0;} the block label
      * @param specs {@code non-null;} the register set to merge into the start set
-     *              for the block
+     * for the block
      * @return {@code true} if the merge resulted in an actual change
      * to the associated set (including storing one for the first time) or
      * {@code false} if there was no change
@@ -160,7 +169,7 @@ public final class LocalVariableInfo
         RegisterSpecSet result = getStarts0(label);
 
         return (result != null) ?
-                result.mutableCopy() : new RegisterSpecSet(regCount);
+            result.mutableCopy() : new RegisterSpecSet(regCount);
     }
 
     /**
@@ -212,7 +221,7 @@ public final class LocalVariableInfo
     }
 
     public void debugDump() {
-        for (int label = 0; label < blockStarts.length; label++) {
+        for (int label = 0 ; label < blockStarts.length; label++) {
             if (blockStarts[label] == null) {
                 continue;
             }

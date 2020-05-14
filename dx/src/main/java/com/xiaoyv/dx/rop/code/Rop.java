@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.code;
 
@@ -11,49 +25,31 @@ import com.xiaoyv.dx.util.Hex;
  * Class that describes all the immutable parts of register-based operations.
  */
 public final class Rop {
-    /**
-     * minimum {@code BRANCH_*} value
-     */
+    /** minimum {@code BRANCH_*} value */
     public static final int BRANCH_MIN = 1;
 
-    /**
-     * indicates a non-branching op
-     */
+    /** indicates a non-branching op */
     public static final int BRANCH_NONE = 1;
 
-    /**
-     * indicates a function/method return
-     */
+    /** indicates a function/method return */
     public static final int BRANCH_RETURN = 2;
 
-    /**
-     * indicates an unconditional goto
-     */
+    /** indicates an unconditional goto */
     public static final int BRANCH_GOTO = 3;
 
-    /**
-     * indicates a two-way branch
-     */
+    /** indicates a two-way branch */
     public static final int BRANCH_IF = 4;
 
-    /**
-     * indicates a switch-style branch
-     */
+    /** indicates a switch-style branch */
     public static final int BRANCH_SWITCH = 5;
 
-    /**
-     * indicates a throw-style branch (both always-throws and may-throw)
-     */
+    /** indicates a throw-style branch (both always-throws and may-throw) */
     public static final int BRANCH_THROW = 6;
 
-    /**
-     * maximum {@code BRANCH_*} value
-     */
+    /** maximum {@code BRANCH_*} value */
     public static final int BRANCH_MAX = 6;
 
-    /**
-     * the opcode; one of the constants in {@link RegOps}
-     */
+    /** the opcode; one of the constants in {@link RegOps} */
     private final int opcode;
 
     /**
@@ -62,14 +58,10 @@ public final class Rop {
      */
     private final Type result;
 
-    /**
-     * {@code non-null;} types of all the sources of this operation
-     */
+    /** {@code non-null;} types of all the sources of this operation */
     private final TypeList sources;
 
-    /**
-     * {@code non-null;} list of possible types thrown by this operation
-     */
+    /** {@code non-null;} list of possible types thrown by this operation */
     private final TypeList exceptions;
 
     /**
@@ -78,30 +70,26 @@ public final class Rop {
      */
     private final int branchingness;
 
-    /**
-     * whether this is a function/method call op or similar
-     */
+    /** whether this is a function/method call op or similar */
     private final boolean isCallLike;
 
-    /**
-     * {@code null-ok;} nickname, if specified (used for debugging)
-     */
+    /** {@code null-ok;} nickname, if specified (used for debugging) */
     private final String nickname;
 
     /**
      * Constructs an instance. This method is private. Use one of the
      * public constructors.
      *
-     * @param opcode        the opcode; one of the constants in {@link RegOps}
-     * @param result        {@code non-null;} result type of this operation; {@link
-     *                      Type#VOID} for no-result operations
-     * @param sources       {@code non-null;} types of all the sources of this operation
-     * @param exceptions    {@code non-null;} list of possible types thrown by this
-     *                      operation
+     * @param opcode the opcode; one of the constants in {@link RegOps}
+     * @param result {@code non-null;} result type of this operation; {@link
+     * Type#VOID} for no-result operations
+     * @param sources {@code non-null;} types of all the sources of this operation
+     * @param exceptions {@code non-null;} list of possible types thrown by this
+     * operation
      * @param branchingness the branchingness of this op; one of the
-     *                      {@code BRANCH_*} constants
-     * @param isCallLike    whether the op is a function/method call or similar
-     * @param nickname      {@code null-ok;} optional nickname (used for debugging)
+     * {@code BRANCH_*} constants
+     * @param isCallLike whether the op is a function/method call or similar
+     * @param nickname {@code null-ok;} optional nickname (used for debugging)
      */
     public Rop(int opcode, Type result, TypeList sources,
                TypeList exceptions, int branchingness, boolean isCallLike,
@@ -119,12 +107,12 @@ public final class Rop {
         }
 
         if ((branchingness < BRANCH_MIN) || (branchingness > BRANCH_MAX)) {
-            throw new IllegalArgumentException("bogus branchingness");
+            throw new IllegalArgumentException("invalid branchingness: " + branchingness);
         }
 
         if ((exceptions.size() != 0) && (branchingness != BRANCH_THROW)) {
             throw new IllegalArgumentException("exceptions / branchingness " +
-                    "mismatch");
+                                               "mismatch");
         }
 
         this.opcode = opcode;
@@ -140,38 +128,38 @@ public final class Rop {
      * Constructs an instance. The constructed instance is never a
      * call-like op (see {@link #isCallLike}).
      *
-     * @param opcode        the opcode; one of the constants in {@link RegOps}
-     * @param result        {@code non-null;} result type of this operation; {@link
-     *                      Type#VOID} for no-result operations
-     * @param sources       {@code non-null;} types of all the sources of this operation
-     * @param exceptions    {@code non-null;} list of possible types thrown by this
-     *                      operation
+     * @param opcode the opcode; one of the constants in {@link RegOps}
+     * @param result {@code non-null;} result type of this operation; {@link
+     * Type#VOID} for no-result operations
+     * @param sources {@code non-null;} types of all the sources of this operation
+     * @param exceptions {@code non-null;} list of possible types thrown by this
+     * operation
      * @param branchingness the branchingness of this op; one of the
-     *                      {@code BRANCH_*} constants
-     * @param nickname      {@code null-ok;} optional nickname (used for debugging)
+     * {@code BRANCH_*} constants
+     * @param nickname {@code null-ok;} optional nickname (used for debugging)
      */
     public Rop(int opcode, Type result, TypeList sources,
                TypeList exceptions, int branchingness, String nickname) {
         this(opcode, result, sources, exceptions, branchingness, false,
-                nickname);
+             nickname);
     }
 
     /**
      * Constructs a no-exception instance. The constructed instance is never a
      * call-like op (see {@link #isCallLike}).
      *
-     * @param opcode        the opcode; one of the constants in {@link RegOps}
-     * @param result        {@code non-null;} result type of this operation; {@link
-     *                      Type#VOID} for no-result operations
-     * @param sources       {@code non-null;} types of all the sources of this operation
+     * @param opcode the opcode; one of the constants in {@link RegOps}
+     * @param result {@code non-null;} result type of this operation; {@link
+     * Type#VOID} for no-result operations
+     * @param sources {@code non-null;} types of all the sources of this operation
      * @param branchingness the branchingness of this op; one of the
-     *                      {@code BRANCH_*} constants
-     * @param nickname      {@code null-ok;} optional nickname (used for debugging)
+     * {@code BRANCH_*} constants
+     * @param nickname {@code null-ok;} optional nickname (used for debugging)
      */
     public Rop(int opcode, Type result, TypeList sources, int branchingness,
                String nickname) {
         this(opcode, result, sources, StdTypeList.EMPTY, branchingness, false,
-                nickname);
+             nickname);
     }
 
     /**
@@ -179,15 +167,15 @@ public final class Rop {
      * {@code branchingness} is always {@code BRANCH_NONE},
      * and it is never a call-like op (see {@link #isCallLike}).
      *
-     * @param opcode   the opcode; one of the constants in {@link RegOps}
-     * @param result   {@code non-null;} result type of this operation; {@link
-     *                 Type#VOID} for no-result operations
-     * @param sources  {@code non-null;} types of all the sources of this operation
+     * @param opcode the opcode; one of the constants in {@link RegOps}
+     * @param result {@code non-null;} result type of this operation; {@link
+     * Type#VOID} for no-result operations
+     * @param sources {@code non-null;} types of all the sources of this operation
      * @param nickname {@code null-ok;} optional nickname (used for debugging)
      */
     public Rop(int opcode, Type result, TypeList sources, String nickname) {
         this(opcode, result, sources, StdTypeList.EMPTY, Rop.BRANCH_NONE,
-                false, nickname);
+             false, nickname);
     }
 
     /**
@@ -195,18 +183,18 @@ public final class Rop {
      * {@code branchingness} is always {@code BRANCH_THROW},
      * but it is never a call-like op (see {@link #isCallLike}).
      *
-     * @param opcode     the opcode; one of the constants in {@link RegOps}
-     * @param result     {@code non-null;} result type of this operation; {@link
-     *                   Type#VOID} for no-result operations
-     * @param sources    {@code non-null;} types of all the sources of this operation
+     * @param opcode the opcode; one of the constants in {@link RegOps}
+     * @param result {@code non-null;} result type of this operation; {@link
+     * Type#VOID} for no-result operations
+     * @param sources {@code non-null;} types of all the sources of this operation
      * @param exceptions {@code non-null;} list of possible types thrown by this
-     *                   operation
-     * @param nickname   {@code null-ok;} optional nickname (used for debugging)
+     * operation
+     * @param nickname {@code null-ok;} optional nickname (used for debugging)
      */
     public Rop(int opcode, Type result, TypeList sources, TypeList exceptions,
                String nickname) {
         this(opcode, result, sources, exceptions, Rop.BRANCH_THROW, false,
-                nickname);
+             nickname);
     }
 
     /**
@@ -214,19 +202,17 @@ public final class Rop {
      * is always a call-like op (see {@link #isCallLike}). Its
      * {@code branchingness} is always {@code BRANCH_THROW}.
      *
-     * @param opcode     the opcode; one of the constants in {@link RegOps}
-     * @param sources    {@code non-null;} types of all the sources of this operation
+     * @param opcode the opcode; one of the constants in {@link RegOps}
+     * @param sources {@code non-null;} types of all the sources of this operation
      * @param exceptions {@code non-null;} list of possible types thrown by this
-     *                   operation
+     * operation
      */
     public Rop(int opcode, TypeList sources, TypeList exceptions) {
         this(opcode, Type.VOID, sources, exceptions, Rop.BRANCH_THROW, true,
-                null);
+             null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object other) {
         if (this == other) {
@@ -241,15 +227,13 @@ public final class Rop {
         Rop rop = (Rop) other;
 
         return (opcode == rop.opcode) &&
-                (branchingness == rop.branchingness) &&
-                (result == rop.result) &&
-                sources.equals(rop.sources) &&
-                exceptions.equals(rop.exceptions);
+            (branchingness == rop.branchingness) &&
+            (result == rop.result) &&
+            sources.equals(rop.sources) &&
+            exceptions.equals(rop.exceptions);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         int h = (opcode * 31) + branchingness;
@@ -260,12 +244,10 @@ public final class Rop {
         return h;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer(40);
+        StringBuilder sb = new StringBuilder(40);
 
         sb.append("Rop{");
 
@@ -308,24 +290,12 @@ public final class Rop {
             }
         } else {
             switch (branchingness) {
-                case BRANCH_NONE:
-                    sb.append(" flows");
-                    break;
-                case BRANCH_RETURN:
-                    sb.append(" returns");
-                    break;
-                case BRANCH_GOTO:
-                    sb.append(" gotos");
-                    break;
-                case BRANCH_IF:
-                    sb.append(" ifs");
-                    break;
-                case BRANCH_SWITCH:
-                    sb.append(" switches");
-                    break;
-                default:
-                    sb.append(" " + Hex.u1(branchingness));
-                    break;
+                case BRANCH_NONE:   sb.append(" flows"); break;
+                case BRANCH_RETURN: sb.append(" returns"); break;
+                case BRANCH_GOTO:   sb.append(" gotos"); break;
+                case BRANCH_IF:     sb.append(" ifs"); break;
+                case BRANCH_SWITCH: sb.append(" switches"); break;
+                default: sb.append(" " + Hex.u1(branchingness)); break;
             }
         }
 

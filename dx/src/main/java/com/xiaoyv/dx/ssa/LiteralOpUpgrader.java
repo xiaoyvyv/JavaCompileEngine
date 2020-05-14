@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa;
 
@@ -15,7 +29,6 @@ import com.xiaoyv.dx.rop.cst.Constant;
 import com.xiaoyv.dx.rop.cst.CstLiteralBits;
 import com.xiaoyv.dx.rop.type.Type;
 import com.xiaoyv.dx.rop.type.TypeBearer;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,9 +39,7 @@ import java.util.List;
  */
 public class LiteralOpUpgrader {
 
-    /**
-     * method we're processing
-     */
+    /** method we're processing */
     private final SsaMethod ssaMeth;
 
     /**
@@ -71,14 +82,17 @@ public class LiteralOpUpgrader {
         final TranslationAdvice advice = Optimizer.getAdvice();
 
         ssaMeth.forEachInsn(new SsaInsn.Visitor() {
+            @Override
             public void visitMoveInsn(NormalSsaInsn insn) {
                 // do nothing
             }
 
+            @Override
             public void visitPhiInsn(PhiInsn insn) {
                 // do nothing
             }
 
+            @Override
             public void visitNonMoveInsn(NormalSsaInsn insn) {
 
                 Insn originalRopInsn = insn.getOriginalRopInsn();
@@ -88,7 +102,7 @@ public class LiteralOpUpgrader {
                 // Replace insns with constant results with const insns
                 if (tryReplacingWithConstant(insn)) return;
 
-                if (sources.size() != 2) {
+                if (sources.size() != 2 ) {
                     // We're only dealing with two-source insns here.
                     return;
                 }
@@ -99,15 +113,15 @@ public class LiteralOpUpgrader {
                      */
                     if (isConstIntZeroOrKnownNull(sources.get(0))) {
                         replacePlainInsn(insn, sources.withoutFirst(),
-                                RegOps.flippedIfOpcode(opcode.getOpcode()), null);
+                              RegOps.flippedIfOpcode(opcode.getOpcode()), null);
                     } else if (isConstIntZeroOrKnownNull(sources.get(1))) {
                         replacePlainInsn(insn, sources.withoutLast(),
-                                opcode.getOpcode(), null);
+                              opcode.getOpcode(), null);
                     }
                 } else if (advice.hasConstantOperation(
                         opcode, sources.get(0), sources.get(1))) {
                     insn.upgradeToLiteral();
-                } else if (opcode.isCommutative()
+                } else  if (opcode.isCommutative()
                         && advice.hasConstantOperation(
                         opcode, sources.get(1), sources.get(0))) {
                     /*
@@ -150,7 +164,7 @@ public class LiteralOpUpgrader {
                     ArrayList<SsaInsn> predInsns =
                             ssaMeth.getBlocks().get(pred).getInsns();
                     NormalSsaInsn sourceInsn =
-                            (NormalSsaInsn) predInsns.get(predInsns.size() - 1);
+                            (NormalSsaInsn) predInsns.get(predInsns.size()-1);
                     replacePlainInsn(sourceInsn, RegisterSpecList.EMPTY,
                             RegOps.GOTO, null);
                 }
@@ -163,16 +177,16 @@ public class LiteralOpUpgrader {
     /**
      * Replaces an SsaInsn containing a PlainInsn with a new PlainInsn. The
      * new PlainInsn is constructed with a new RegOp and new sources.
-     * <p>
+     *
      * TODO move this somewhere else.
      *
-     * @param insn       {@code non-null;} an SsaInsn containing a PlainInsn
+     * @param insn {@code non-null;} an SsaInsn containing a PlainInsn
      * @param newSources {@code non-null;} new sources list for new insn
-     * @param newOpcode  A RegOp from {@link RegOps}
-     * @param cst        {@code null-ok;} constant for new instruction, if any
+     * @param newOpcode A RegOp from {@link RegOps}
+     * @param cst {@code null-ok;} constant for new instruction, if any
      */
     private void replacePlainInsn(NormalSsaInsn insn,
-                                  RegisterSpecList newSources, int newOpcode, Constant cst) {
+            RegisterSpecList newSources, int newOpcode, Constant cst) {
 
         Insn originalRopInsn = insn.getOriginalRopInsn();
         Rop newRop = Rops.ropFor(newOpcode, insn.getResult(), newSources, cst);

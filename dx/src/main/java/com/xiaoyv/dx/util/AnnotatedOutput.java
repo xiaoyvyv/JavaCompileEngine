@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.util;
 
@@ -13,7 +27,7 @@ public interface AnnotatedOutput
      *
      * @return {@code true} iff annotations are being kept
      */
-    boolean annotates();
+    public boolean annotates();
 
     /**
      * Get whether this instance is intended to keep verbose annotations.
@@ -22,7 +36,7 @@ public interface AnnotatedOutput
      *
      * @return {@code true} iff annotations are to be verbose
      */
-    boolean isVerbose();
+    public boolean isVerbose();
 
     /**
      * Add an annotation for the subsequent output. Any previously
@@ -32,7 +46,7 @@ public interface AnnotatedOutput
      *
      * @param msg {@code non-null;} the annotation message
      */
-    void annotate(String msg);
+    public void annotate(String msg);
 
     /**
      * Add an annotation for a specified amount of subsequent
@@ -42,16 +56,16 @@ public interface AnnotatedOutput
      * after all the output covered by the previous calls.
      *
      * @param amt {@code >= 0;} the amount of output for this annotation to
-     *            cover
+     * cover
      * @param msg {@code non-null;} the annotation message
      */
-    void annotate(int amt, String msg);
+    public void annotate(int amt, String msg);
 
     /**
      * End the most recent annotation. Subsequent output will be unannotated,
      * until the next call to {@link #annotate}.
      */
-    void endAnnotation();
+    public void endAnnotation();
 
     /**
      * Get the maximum width of the annotated output. This is advisory:
@@ -61,5 +75,5 @@ public interface AnnotatedOutput
      *
      * @return {@code >= 1;} the maximum width
      */
-    int getAnnotationWidth();
+    public int getAnnotationWidth();
 }

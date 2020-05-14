@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
@@ -10,7 +24,6 @@ import com.xiaoyv.dx.rop.cst.CstString;
 import com.xiaoyv.dx.rop.type.TypeList;
 import com.xiaoyv.dx.util.AnnotatedOutput;
 import com.xiaoyv.dx.util.Hex;
-
 import java.io.PrintWriter;
 
 /**
@@ -18,9 +31,7 @@ import java.io.PrintWriter;
  */
 public final class EncodedMethod extends EncodedMember
         implements Comparable<EncodedMethod> {
-    /**
-     * {@code non-null;} constant for the method
-     */
+    /** {@code non-null;} constant for the method */
     private final CstMethodRef method;
 
     /**
@@ -32,15 +43,15 @@ public final class EncodedMethod extends EncodedMember
     /**
      * Constructs an instance.
      *
-     * @param method      {@code non-null;} constant for the method
+     * @param method {@code non-null;} constant for the method
      * @param accessFlags access flags
-     * @param code        {@code null-ok;} code for the method, if it is neither
-     *                    {@code abstract} nor {@code native}
-     * @param throwsList  {@code non-null;} list of possibly-thrown exceptions,
-     *                    just used in generating debugging output (listings)
+     * @param code {@code null-ok;} code for the method, if it is neither
+     * {@code abstract} nor {@code native}
+     * @param throwsList {@code non-null;} list of possibly-thrown exceptions,
+     * just used in generating debugging output (listings)
      */
     public EncodedMethod(CstMethodRef method, int accessFlags,
-                         DalvCode code, TypeList throwsList) {
+            DalvCode code, TypeList throwsList) {
         super(accessFlags);
 
         if (method == null) {
@@ -57,11 +68,10 @@ public final class EncodedMethod extends EncodedMember
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public boolean equals(Object other) {
-        if (!(other instanceof EncodedMethod)) {
+        if (! (other instanceof EncodedMethod)) {
             return false;
         }
 
@@ -76,16 +86,15 @@ public final class EncodedMethod extends EncodedMember
      * case that two different items with the same method constant
      * ever appear in the same list (or same file, even).</p>
      */
+    @Override
     public int compareTo(EncodedMethod other) {
         return method.compareTo(other.method);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer(100);
+        StringBuilder sb = new StringBuilder(100);
 
         sb.append(getClass().getName());
         sb.append('{');
@@ -103,9 +112,7 @@ public final class EncodedMethod extends EncodedMember
         return sb.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void addContents(DexFile file) {
         MethodIdsSection methodIds = file.getMethodIds();
@@ -118,24 +125,19 @@ public final class EncodedMethod extends EncodedMember
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public final String toHuman() {
         return method.toHuman();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final CstString getName() {
         return method.getNat().getName();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void debugPrint(PrintWriter out, boolean verbose) {
         if (code == null) {
@@ -154,12 +156,10 @@ public final class EncodedMethod extends EncodedMember
         return method;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int encode(DexFile file, AnnotatedOutput out,
-                      int lastIndex, int dumpSeq) {
+            int lastIndex, int dumpSeq) {
         int methodIdx = file.getMethodIds().indexOf(method);
         int diff = methodIdx - lastIndex;
         int accessFlags = getAccessFlags();
@@ -179,12 +179,12 @@ public final class EncodedMethod extends EncodedMember
 
         if (out.annotates()) {
             out.annotate(0, String.format("  [%x] %s", dumpSeq,
-                    method.toHuman()));
+                            method.toHuman()));
             out.annotate(Leb128.unsignedLeb128Size(diff),
                     "    method_idx:   " + Hex.u4(methodIdx));
             out.annotate(Leb128.unsignedLeb128Size(accessFlags),
                     "    access_flags: " +
-                            AccessFlags.methodString(accessFlags));
+                    AccessFlags.methodString(accessFlags));
             out.annotate(Leb128.unsignedLeb128Size(codeOff),
                     "    code_off:     " + Hex.u4(codeOff));
         }

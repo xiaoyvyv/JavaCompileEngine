@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2011 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.io.instructions;
 
@@ -7,7 +21,6 @@ import com.xiaoyv.dx.io.IndexType;
 import com.xiaoyv.dx.io.OpcodeInfo;
 import com.xiaoyv.dx.io.Opcodes;
 import com.xiaoyv.dx.util.Hex;
-
 import java.io.EOFException;
 
 /**
@@ -24,24 +37,16 @@ import java.io.EOFException;
  * consistently named alphabetically.</p>
  */
 public abstract class DecodedInstruction {
-    /**
-     * non-null; instruction format / codec
-     */
+    /** non-null; instruction format / codec */
     private final InstructionCodec format;
 
-    /**
-     * opcode number
-     */
+    /** opcode number */
     private final int opcode;
 
-    /**
-     * constant index argument
-     */
+    /** constant index argument */
     private final int index;
 
-    /**
-     * null-ok; index type
-     */
+    /** null-ok; index type */
     private final IndexType indexType;
 
     /**
@@ -94,7 +99,7 @@ public abstract class DecodedInstruction {
      * Constructs an instance.
      */
     public DecodedInstruction(InstructionCodec format, int opcode,
-                              int index, IndexType indexType, int target, long literal) {
+            int index, IndexType indexType, int target, long literal) {
         if (format == null) {
             throw new NullPointerException("format == null");
         }
@@ -470,4 +475,14 @@ public abstract class DecodedInstruction {
      * with the given one.
      */
     public abstract DecodedInstruction withIndex(int newIndex);
+
+    /** Update the instruction with a new 45cc or 4rcc proto index. */
+    public DecodedInstruction withProtoIndex(int newIndex, int newProtoIndex) {
+        throw new IllegalStateException(getClass().toString());
+    }
+
+    /** Returns a 45cc or 4rcc proto index. */
+    public short getProtoIndex() {
+        throw new IllegalStateException(getClass().toString());
+    }
 }

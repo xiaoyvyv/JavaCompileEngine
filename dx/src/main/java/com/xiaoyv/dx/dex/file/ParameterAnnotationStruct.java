@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
@@ -8,7 +22,6 @@ import com.xiaoyv.dx.rop.cst.CstMethodRef;
 import com.xiaoyv.dx.util.AnnotatedOutput;
 import com.xiaoyv.dx.util.Hex;
 import com.xiaoyv.dx.util.ToHuman;
-
 import java.util.ArrayList;
 
 /**
@@ -16,30 +29,24 @@ import java.util.ArrayList;
  */
 public final class ParameterAnnotationStruct
         implements ToHuman, Comparable<ParameterAnnotationStruct> {
-    /**
-     * {@code non-null;} the method in question
-     */
+    /** {@code non-null;} the method in question */
     private final CstMethodRef method;
 
-    /**
-     * {@code non-null;} the associated annotations list
-     */
+    /** {@code non-null;} the associated annotations list */
     private final AnnotationsList annotationsList;
 
-    /**
-     * {@code non-null;} the associated annotations list, as an item
-     */
+    /** {@code non-null;} the associated annotations list, as an item */
     private final UniformListItem<AnnotationSetRefItem> annotationsItem;
 
     /**
      * Constructs an instance.
      *
-     * @param method          {@code non-null;} the method in question
+     * @param method {@code non-null;} the method in question
      * @param annotationsList {@code non-null;} the associated annotations list
-     * @param dexFile         {@code non-null;} dex output
+     * @param dexFile {@code non-null;} dex output
      */
     public ParameterAnnotationStruct(CstMethodRef method,
-                                     AnnotationsList annotationsList, DexFile dexFile) {
+            AnnotationsList annotationsList, DexFile dexFile) {
         if (method == null) {
             throw new NullPointerException("method == null");
         }
@@ -58,7 +65,7 @@ public final class ParameterAnnotationStruct
 
         int size = annotationsList.size();
         ArrayList<AnnotationSetRefItem> arrayList = new
-                ArrayList<AnnotationSetRefItem>(size);
+            ArrayList<AnnotationSetRefItem>(size);
 
         for (int i = 0; i < size; i++) {
             Annotations annotations = annotationsList.get(i);
@@ -70,34 +77,29 @@ public final class ParameterAnnotationStruct
                 ItemType.TYPE_ANNOTATION_SET_REF_LIST, arrayList);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int hashCode() {
         return method.hashCode();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public boolean equals(Object other) {
-        if (!(other instanceof ParameterAnnotationStruct)) {
+        if (! (other instanceof ParameterAnnotationStruct)) {
             return false;
         }
 
         return method.equals(((ParameterAnnotationStruct) other).method);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int compareTo(ParameterAnnotationStruct other) {
         return method.compareTo(other.method);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     public void addContents(DexFile file) {
         MethodIdsSection methodIds = file.getMethodIds();
         MixedItemSection wordData = file.getWordData();
@@ -106,9 +108,7 @@ public final class ParameterAnnotationStruct
         wordData.add(annotationsItem);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     public void writeTo(DexFile file, AnnotatedOutput out) {
         int methodIdx = file.getMethodIds().indexOf(method);
         int annotationsOff = annotationsItem.getAbsoluteOffset();
@@ -124,9 +124,8 @@ public final class ParameterAnnotationStruct
         out.writeInt(annotationsOff);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public String toHuman() {
         StringBuilder sb = new StringBuilder();
 

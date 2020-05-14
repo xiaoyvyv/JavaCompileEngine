@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.cst;
 
@@ -10,19 +24,13 @@ import com.xiaoyv.dx.util.Hex;
  */
 public final class CstFloat
         extends CstLiteral32 {
-    /**
-     * {@code non-null;} instance representing {@code 0}
-     */
+    /** {@code non-null;} instance representing {@code 0} */
     public static final CstFloat VALUE_0 = make(Float.floatToIntBits(0.0f));
 
-    /**
-     * {@code non-null;} instance representing {@code 1}
-     */
+    /** {@code non-null;} instance representing {@code 1} */
     public static final CstFloat VALUE_1 = make(Float.floatToIntBits(1.0f));
 
-    /**
-     * {@code non-null;} instance representing {@code 2}
-     */
+    /** {@code non-null;} instance representing {@code 2} */
     public static final CstFloat VALUE_2 = make(Float.floatToIntBits(2.0f));
 
     /**
@@ -48,34 +56,28 @@ public final class CstFloat
         super(bits);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         int bits = getIntBits();
         return "float{0x" + Hex.u4(bits) + " / " +
-                Float.intBitsToFloat(bits) + '}';
+            Float.intBitsToFloat(bits) + '}';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public Type getType() {
         return Type.FLOAT;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String typeName() {
         return "float";
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public String toHuman() {
         return Float.toString(Float.intBitsToFloat(getIntBits()));
     }

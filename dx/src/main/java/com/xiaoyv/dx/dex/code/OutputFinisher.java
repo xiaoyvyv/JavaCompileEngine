@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.code;
 
@@ -16,7 +30,6 @@ import com.xiaoyv.dx.rop.cst.CstString;
 import com.xiaoyv.dx.rop.cst.CstType;
 import com.xiaoyv.dx.rop.type.Type;
 import com.xiaoyv.dx.ssa.BasicRegisterMapper;
-
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
@@ -27,9 +40,7 @@ import java.util.HashSet;
  * form of a {@link DalvInsnList} instance.
  */
 public final class OutputFinisher {
-    /**
-     * {@code non-null;} options for dex output
-     */
+    /** {@code non-null;} options for dex output */
     private final DexOptions dexOptions;
 
     /**
@@ -38,19 +49,13 @@ public final class OutputFinisher {
      */
     private final int unreservedRegCount;
 
-    /**
-     * {@code non-null;} the list of instructions, per se
-     */
+    /** {@code non-null;} the list of instructions, per se */
     private ArrayList<DalvInsn> insns;
 
-    /**
-     * whether any instruction has position info
-     */
+    /** whether any instruction has position info */
     private boolean hasAnyPositionInfo;
 
-    /**
-     * whether any instruction has local variable info
-     */
+    /** whether any instruction has local variable info */
     private boolean hasAnyLocalInfo;
 
     /**
@@ -74,11 +79,11 @@ public final class OutputFinisher {
     /**
      * Constructs an instance. It initially contains no instructions.
      *
-     * @param dexOptions      {@code non-null;} options for dex output
+     * @param dexOptions {@code non-null;} options for dex output
      * @param initialCapacity {@code >= 0;} initial capacity of the
-     *                        instructions list
-     * @param regCount        {@code >= 0;} register count for the method
-     * @param paramSize       size, in register units, of all the parameters for this method
+     * instructions list
+     * @param regCount {@code >= 0;} register count for the method
+     * @param paramSize size, in register units, of all the parameters for this method
      */
     public OutputFinisher(DexOptions dexOptions, int initialCapacity, int regCount, int paramSize) {
         this.dexOptions = dexOptions;
@@ -147,7 +152,7 @@ public final class OutputFinisher {
      */
     private static boolean hasLocalInfo(RegisterSpec spec) {
         return (spec != null)
-                && (spec.getLocalItem().getName() != null);
+            && (spec.getLocalItem().getName() != null);
     }
 
     /**
@@ -171,13 +176,18 @@ public final class OutputFinisher {
      * a single instruction.
      *
      * @param result {@code non-null;} result set to add to
-     * @param insn   {@code non-null;} instruction to scrutinize
+     * @param insn {@code non-null;} instruction to scrutinize
      */
     private static void addConstants(HashSet<Constant> result,
-                                     DalvInsn insn) {
+            DalvInsn insn) {
         if (insn instanceof CstInsn) {
             Constant cst = ((CstInsn) insn).getConstant();
             result.add(cst);
+        } else if (insn instanceof MultiCstInsn) {
+            MultiCstInsn m = (MultiCstInsn) insn;
+            for (int i = 0; i < m.getNumberOfConstants(); i++) {
+                result.add(m.getConstant(i));
+            }
         } else if (insn instanceof LocalSnapshot) {
             RegisterSpecSet specs = ((LocalSnapshot) insn).getLocals();
             int size = specs.size();
@@ -195,10 +205,10 @@ public final class OutputFinisher {
      * a single {@code RegisterSpec}.
      *
      * @param result {@code non-null;} result set to add to
-     * @param spec   {@code null-ok;} register spec to add
+     * @param spec {@code null-ok;} register spec to add
      */
     private static void addConstants(HashSet<Constant> result,
-                                     RegisterSpec spec) {
+            RegisterSpec spec) {
         if (spec == null) {
             return;
         }
@@ -210,6 +220,10 @@ public final class OutputFinisher {
 
         if (type != Type.KNOWN_NULL) {
             result.add(CstType.intern(type));
+        } else {
+            /* If this a "known null", let's use "Object" because that's going to be the
+             * resulting type in {@link LocalList.MakeState#filterSpec} */
+            result.add(CstType.intern(Type.OBJECT));
         }
 
         if (name != null) {
@@ -234,12 +248,20 @@ public final class OutputFinisher {
     /**
      * Inserts an instruction in the output at the given offset.
      *
-     * @param at   {@code >= 0;} what index to insert at
+     * @param at {@code at >= 0;} what index to insert at
      * @param insn {@code non-null;} the instruction to insert
      */
     public void insert(int at, DalvInsn insn) {
         insns.add(at, insn);
         updateInfo(insn);
+    }
+
+    public DalvInsn get(int at) {
+        return insns.get(at);
+    }
+
+    public int size() {
+        return insns.size();
     }
 
     /**
@@ -249,14 +271,14 @@ public final class OutputFinisher {
      * @param insn {@code non-null;} an instruction that was just introduced
      */
     private void updateInfo(DalvInsn insn) {
-        if (!hasAnyPositionInfo) {
+        if (! hasAnyPositionInfo) {
             SourcePosition pos = insn.getPosition();
             if (pos.getLine() >= 0) {
                 hasAnyPositionInfo = true;
             }
         }
 
-        if (!hasAnyLocalInfo) {
+        if (! hasAnyLocalInfo) {
             if (hasLocalInfo(insn)) {
                 hasAnyLocalInfo = true;
             }
@@ -268,11 +290,11 @@ public final class OutputFinisher {
      * backward in the output. It is illegal to call this unless the
      * indicated instruction really is a reversible branch.
      *
-     * @param which     how many instructions back to find the branch;
-     *                  {@code 0} is the most recently added instruction,
-     *                  {@code 1} is the instruction before that, etc.
+     * @param which how many instructions back to find the branch;
+     * {@code 0} is the most recently added instruction,
+     * {@code 1} is the instruction before that, etc.
      * @param newTarget {@code non-null;} the new target for the
-     *                  reversed branch
+     * reversed branch
      */
     public void reverseBranch(int which, CodeAddress newTarget) {
         int size = insns.size();
@@ -307,6 +329,8 @@ public final class OutputFinisher {
         for (DalvInsn insn : insns) {
             if (insn instanceof CstInsn) {
                 assignIndices((CstInsn) insn, callback);
+            } else if (insn instanceof MultiCstInsn) {
+                assignIndices((MultiCstInsn) insn, callback);
             }
         }
     }
@@ -315,11 +339,11 @@ public final class OutputFinisher {
      * Helper for {@link #assignIndices} which does assignment for one
      * instruction.
      *
-     * @param insn     {@code non-null;} the instruction
+     * @param insn {@code non-null;} the instruction
      * @param callback {@code non-null;} the callback
      */
     private static void assignIndices(CstInsn insn,
-                                      DalvCode.AssignIndicesCallback callback) {
+            DalvCode.AssignIndicesCallback callback) {
         Constant cst = insn.getConstant();
         int index = callback.getIndex(cst);
 
@@ -331,7 +355,30 @@ public final class OutputFinisher {
             CstMemberRef member = (CstMemberRef) cst;
             CstType definer = member.getDefiningClass();
             index = callback.getIndex(definer);
+            // TODO(oth): what scenarios is this guard valid under? Is it not just an error?
             if (index >= 0) {
+                insn.setClassIndex(index);
+            }
+        }
+    }
+
+    /**
+     * Helper for {@link #assignIndices} which does assignment for one
+     * instruction.
+     *
+     * @param insn {@code non-null;} the instruction
+     * @param callback {@code non-null;} the callback
+     */
+    private static void assignIndices(MultiCstInsn insn, DalvCode.AssignIndicesCallback callback) {
+        for (int i = 0; i < insn.getNumberOfConstants(); ++i) {
+            Constant cst = insn.getConstant(i);
+            int index = callback.getIndex(cst);
+            insn.setIndex(i, index);
+
+            if (cst instanceof CstMemberRef) {
+                CstMemberRef member = (CstMemberRef) cst;
+                CstType definer = member.getDefiningClass();
+                index = callback.getIndex(definer);
                 insn.setClassIndex(index);
             }
         }
@@ -342,12 +389,12 @@ public final class OutputFinisher {
      * a {@link DalvInsnList}. Final processing consists of:
      *
      * <ul>
-     * <li>optionally renumbering registers (to make room as needed for
-     * expanded instructions)</li>
-     * <li>picking a final opcode for each instruction</li>
-     * <li>rewriting instructions, because of register number,
-     * constant pool index, or branch target size issues</li>
-     * <li>assigning final addresses</li>
+     *   <li>optionally renumbering registers (to make room as needed for
+     *   expanded instructions)</li>
+     *   <li>picking a final opcode for each instruction</li>
+     *   <li>rewriting instructions, because of register number,
+     *   constant pool index, or branch target size issues</li>
+     *   <li>assigning final addresses</li>
      * </ul>
      *
      * <p><b>Note:</b> This method may only be called once per instance
@@ -355,7 +402,7 @@ public final class OutputFinisher {
      *
      * @return {@code non-null;} the output list
      * @throws UnsupportedOperationException if this method has
-     *                                       already been called
+     * already been called
      */
     public DalvInsnList finishProcessingAndGetList() {
         if (reservedCount >= 0) {
@@ -365,13 +412,13 @@ public final class OutputFinisher {
         Dop[] opcodes = makeOpcodesArray();
         reserveRegisters(opcodes);
         if (dexOptions.ALIGN_64BIT_REGS_IN_OUTPUT_FINISHER) {
-            align64bits(opcodes);
+          align64bits(opcodes);
         }
         massageInstructions(opcodes);
         assignAddressesAndFixBranches();
 
         return DalvInsnList.makeImmutable(insns, reservedCount + unreservedRegCount
-                + reservedParameterCount);
+            + reservedParameterCount);
     }
 
     /**
@@ -386,7 +433,8 @@ public final class OutputFinisher {
         Dop[] result = new Dop[size];
 
         for (int i = 0; i < size; i++) {
-            result[i] = insns.get(i).getOpcode();
+            DalvInsn insn = insns.get(i);
+            result[i] = insn.getOpcode();
         }
 
         return result;
@@ -400,7 +448,7 @@ public final class OutputFinisher {
      * instruction list.
      *
      * @param opcodes {@code non-null;} array of per-instruction
-     *                opcode selections
+     * opcode selections
      * @return true if reservedCount is expanded, false otherwise
      */
     private boolean reserveRegisters(Dop[] opcodes) {
@@ -411,7 +459,7 @@ public final class OutputFinisher {
          * Call calculateReservedCount() and then perform register
          * reservation, repeatedly until no new reservations happen.
          */
-        for (; ; ) {
+        for (;;) {
             int newReservedCount = calculateReservedCount(opcodes);
             if (oldReservedCount >= newReservedCount) {
                 break;
@@ -456,7 +504,7 @@ public final class OutputFinisher {
      * register reservation passes.
      *
      * @param opcodes {@code non-null;} array of per-instruction
-     *                opcode selections
+     * opcode selections
      * @return {@code >= 0;} the count of reserved registers
      */
     private int calculateReservedCount(Dop[] opcodes) {
@@ -504,9 +552,9 @@ public final class OutputFinisher {
      * opcode as a first "best guess" and then pessimizes from there
      * if necessary.
      *
-     * @param insn  {@code non-null;} the instruction in question
+     * @param insn {@code non-null;} the instruction in question
      * @param guess {@code null-ok;} the current guess as to the best
-     *              opcode; {@code null} means that no simple opcode fits
+     * opcode; {@code null} means that no simple opcode fits
      * @return {@code null-ok;} a possibly-different opcode; either a
      * {@code non-null} good fit or {@code null} to indicate that no
      * simple opcode fits
@@ -525,7 +573,7 @@ public final class OutputFinisher {
                  * when option is enabled.
                  */
                 if (!dexOptions.forceJumbo ||
-                        guess.getOpcode() != Opcodes.CONST_STRING) {
+                    guess.getOpcode() != Opcodes.CONST_STRING) {
                     break;
                 }
             }
@@ -571,7 +619,7 @@ public final class OutputFinisher {
      * called.</p>
      *
      * @param opcodes {@code non-null;} array of per-instruction
-     *                opcode selections
+     * opcode selections
      */
     private void massageInstructions(Dop[] opcodes) {
         if (reservedCount == 0) {
@@ -610,7 +658,7 @@ public final class OutputFinisher {
      * perform the proper function.
      *
      * @param opcodes {@code non-null;} array of per-instruction
-     *                opcode selections
+     * opcode selections
      * @return {@code non-null;} the replacement list
      */
     private ArrayList<DalvInsn> performExpansion(Dop[] opcodes) {
@@ -634,7 +682,7 @@ public final class OutputFinisher {
                 // Expansion is required.
                 currentOpcode = findExpandedOpcodeForInsn(insn);
                 BitSet compatRegs =
-                        currentOpcode.getFormat().compatibleRegs(insn);
+                    currentOpcode.getFormat().compatibleRegs(insn);
                 prefix = insn.expandedPrefix(compatRegs);
                 suffix = insn.expandedSuffix(compatRegs);
 
@@ -647,7 +695,7 @@ public final class OutputFinisher {
                 // because we need to add it after the prefix for the
                 // instruction it is bound to.
                 if (((CodeAddress) insn).getBindsClosely()) {
-                    closelyBoundAddresses.add((CodeAddress) insn);
+                    closelyBoundAddresses.add((CodeAddress)insn);
                     continue;
                 }
             }
@@ -658,7 +706,7 @@ public final class OutputFinisher {
 
             // Add any pending closely bound addresses
             if (!(insn instanceof ZeroSizeInsn) && closelyBoundAddresses.size() > 0) {
-                for (CodeAddress codeAddress : closelyBoundAddresses) {
+                for (CodeAddress codeAddress: closelyBoundAddresses) {
                     result.add(codeAddress);
                 }
                 closelyBoundAddresses.clear();
@@ -684,7 +732,7 @@ public final class OutputFinisher {
      * targets.
      */
     private void assignAddressesAndFixBranches() {
-        for (; ; ) {
+        for (;;) {
             assignAddresses();
             if (!fixBranches()) {
                 break;
@@ -778,8 +826,8 @@ public final class OutputFinisher {
                     throw new IllegalStateException("unpaired TargetInsn");
                 }
                 TargetInsn gotoInsn =
-                        new TargetInsn(Dops.GOTO, target.getPosition(),
-                                RegisterSpecList.EMPTY, target.getTarget());
+                    new TargetInsn(Dops.GOTO, target.getPosition(),
+                            RegisterSpecList.EMPTY, target.getTarget());
                 insns.set(i, gotoInsn);
                 insns.add(i, target.withNewTargetAndReversed(newTarget));
                 size++;
@@ -793,106 +841,106 @@ public final class OutputFinisher {
     }
 
     private void align64bits(Dop[] opcodes) {
-        while (true) {
-            int notAligned64bitRegAccess = 0;
-            int aligned64bitRegAccess = 0;
-            int notAligned64bitParamAccess = 0;
-            int aligned64bitParamAccess = 0;
-            int lastParameter = unreservedRegCount + reservedCount + reservedParameterCount;
-            int firstParameter = lastParameter - paramSize;
-
-            // Collects the number of time that 64-bit registers are accessed aligned or not.
-            for (DalvInsn insn : insns) {
-                RegisterSpecList regs = insn.getRegisters();
-                for (int usedRegIdx = 0; usedRegIdx < regs.size(); usedRegIdx++) {
-                    RegisterSpec reg = regs.get(usedRegIdx);
-                    if (reg.isCategory2()) {
-                        boolean isParameter = reg.getReg() >= firstParameter;
-                        if (reg.isEvenRegister()) {
-                            if (isParameter) {
-                                aligned64bitParamAccess++;
-                            } else {
-                                aligned64bitRegAccess++;
-                            }
-                        } else {
-                            if (isParameter) {
-                                notAligned64bitParamAccess++;
-                            } else {
-                                notAligned64bitRegAccess++;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (notAligned64bitParamAccess > aligned64bitParamAccess
-                    && notAligned64bitRegAccess > aligned64bitRegAccess) {
-                addReservedRegisters(1);
-            } else if (notAligned64bitParamAccess > aligned64bitParamAccess) {
-                addReservedParameters(1);
-            } else if (notAligned64bitRegAccess > aligned64bitRegAccess) {
-                addReservedRegisters(1);
-
-                // Need to shift parameters if they exist and if number of unaligned is greater than
-                // aligned. We test the opposite because we previously shift all registers by one,
-                // so the number of aligned become the number of unaligned.
-                if (paramSize != 0 && aligned64bitParamAccess > notAligned64bitParamAccess) {
-                    addReservedParameters(1);
-                }
-            } else {
-                break;
-            }
-
-            if (!reserveRegisters(opcodes)) {
-                break;
-            }
-        }
-    }
-
-    private void addReservedParameters(int delta) {
-        shiftParameters(delta);
-        reservedParameterCount += delta;
-    }
-
-    private void addReservedRegisters(int delta) {
-        shiftAllRegisters(delta);
-        reservedCount += delta;
-    }
-
-    private void shiftAllRegisters(int delta) {
-        int insnSize = insns.size();
-
-        for (int i = 0; i < insnSize; i++) {
-            DalvInsn insn = insns.get(i);
-            // Since there is no need to replace CodeAddress since it does not use registers, skips it to
-            // avoid to update all TargetInsn that contain a reference to CodeAddress
-            if (!(insn instanceof CodeAddress)) {
-                insns.set(i, insn.withRegisterOffset(delta));
-            }
-        }
-    }
-
-    private void shiftParameters(int delta) {
-        int insnSize = insns.size();
+      while (true) {
+        int notAligned64bitRegAccess = 0;
+        int aligned64bitRegAccess = 0;
+        int notAligned64bitParamAccess = 0;
+        int aligned64bitParamAccess = 0;
         int lastParameter = unreservedRegCount + reservedCount + reservedParameterCount;
         int firstParameter = lastParameter - paramSize;
 
-        BasicRegisterMapper mapper = new BasicRegisterMapper(lastParameter);
-        for (int i = 0; i < lastParameter; i++) {
-            if (i >= firstParameter) {
-                mapper.addMapping(i, i + delta, 1);
-            } else {
-                mapper.addMapping(i, i, 1);
+        // Collects the number of time that 64-bit registers are accessed aligned or not.
+        for (DalvInsn insn : insns) {
+          RegisterSpecList regs = insn.getRegisters();
+          for (int usedRegIdx = 0; usedRegIdx < regs.size(); usedRegIdx++) {
+            RegisterSpec reg = regs.get(usedRegIdx);
+            if (reg.isCategory2()) {
+              boolean isParameter = reg.getReg() >= firstParameter;
+              if (reg.isEvenRegister()) {
+                if (isParameter) {
+                  aligned64bitParamAccess++;
+                } else {
+                  aligned64bitRegAccess++;
+                }
+              } else {
+                if (isParameter) {
+                  notAligned64bitParamAccess++;
+                } else {
+                  notAligned64bitRegAccess++;
+                }
+              }
             }
+          }
         }
 
-        for (int i = 0; i < insnSize; i++) {
-            DalvInsn insn = insns.get(i);
-            // Since there is no need to replace CodeAddress since it does not use registers, skips it to
-            // avoid to update all TargetInsn that contain a reference to CodeAddress
-            if (!(insn instanceof CodeAddress)) {
-                insns.set(i, insn.withMapper(mapper));
-            }
+        if (notAligned64bitParamAccess > aligned64bitParamAccess
+            && notAligned64bitRegAccess > aligned64bitRegAccess) {
+          addReservedRegisters(1);
+        } else if (notAligned64bitParamAccess > aligned64bitParamAccess) {
+          addReservedParameters(1);
+        } else if (notAligned64bitRegAccess > aligned64bitRegAccess) {
+          addReservedRegisters(1);
+
+          // Need to shift parameters if they exist and if number of unaligned is greater than
+          // aligned. We test the opposite because we previously shift all registers by one,
+          // so the number of aligned become the number of unaligned.
+          if (paramSize != 0 && aligned64bitParamAccess > notAligned64bitParamAccess) {
+            addReservedParameters(1);
+          }
+        } else {
+          break;
         }
+
+        if (!reserveRegisters(opcodes)) {
+          break;
+        }
+      }
+    }
+
+    private void addReservedParameters(int delta) {
+      shiftParameters(delta);
+      reservedParameterCount += delta;
+    }
+
+    private void addReservedRegisters(int delta) {
+      shiftAllRegisters(delta);
+      reservedCount += delta;
+    }
+
+    private void shiftAllRegisters(int delta) {
+      int insnSize = insns.size();
+
+      for (int i = 0; i < insnSize; i++) {
+        DalvInsn insn = insns.get(i);
+        // Since there is no need to replace CodeAddress since it does not use registers, skips it to
+        // avoid to update all TargetInsn that contain a reference to CodeAddress
+        if (!(insn instanceof CodeAddress)) {
+          insns.set(i, insn.withRegisterOffset(delta));
+        }
+      }
+    }
+
+    private void shiftParameters(int delta) {
+      int insnSize = insns.size();
+      int lastParameter = unreservedRegCount + reservedCount + reservedParameterCount;
+      int firstParameter = lastParameter - paramSize;
+
+      BasicRegisterMapper mapper = new BasicRegisterMapper(lastParameter);
+      for (int i = 0; i < lastParameter; i++) {
+        if (i >= firstParameter) {
+          mapper.addMapping(i, i + delta, 1);
+        } else {
+          mapper.addMapping(i, i, 1);
+        }
+      }
+
+      for (int i = 0; i < insnSize; i++) {
+        DalvInsn insn = insns.get(i);
+        // Since there is no need to replace CodeAddress since it does not use registers, skips it to
+        // avoid to update all TargetInsn that contain a reference to CodeAddress
+        if (!(insn instanceof CodeAddress)) {
+          insns.set(i, insn.withMapper(mapper));
+        }
+      }
     }
 }

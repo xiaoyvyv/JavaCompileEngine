@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.code;
 
@@ -13,9 +27,7 @@ import com.xiaoyv.dx.util.IntList;
  * which is part of a standard {@code Code} attribute.
  */
 public final class ByteCatchList extends FixedSizeList {
-    /**
-     * {@code non-null;} convenient zero-entry instance
-     */
+    /** {@code non-null;} convenient zero-entry instance */
     public static final ByteCatchList EMPTY = new ByteCatchList(0);
 
     /**
@@ -51,7 +63,7 @@ public final class ByteCatchList extends FixedSizeList {
     /**
      * Sets the item at the given index.
      *
-     * @param n    {@code >= 0, < size();} which entry to set
+     * @param n {@code >= 0, < size();} which entry to set
      * @param item {@code non-null;} the item
      */
     public void set(int n, Item item) {
@@ -65,16 +77,16 @@ public final class ByteCatchList extends FixedSizeList {
     /**
      * Sets the item at the given index.
      *
-     * @param n              {@code >= 0, < size();} which entry to set
-     * @param startPc        {@code >= 0;} the start pc (inclusive) of the handler's range
-     * @param endPc          {@code >= startPc;} the end pc (exclusive) of the
-     *                       handler's range
-     * @param handlerPc      {@code >= 0;} the pc of the exception handler
+     * @param n {@code >= 0, < size();} which entry to set
+     * @param startPc {@code >= 0;} the start pc (inclusive) of the handler's range
+     * @param endPc {@code >= startPc;} the end pc (exclusive) of the
+     * handler's range
+     * @param handlerPc {@code >= 0;} the pc of the exception handler
      * @param exceptionClass {@code null-ok;} the exception class or
-     *                       {@code null} to catch all exceptions with this handler
+     * {@code null} to catch all exceptions with this handler
      */
     public void set(int n, int startPc, int endPc, int handlerPc,
-                    CstType exceptionClass) {
+            CstType exceptionClass) {
         set0(n, new Item(startPc, endPc, handlerPc, exceptionClass));
     }
 
@@ -118,8 +130,8 @@ public final class ByteCatchList extends FixedSizeList {
      * the given array. A match is considered to be either an exact type
      * match or the class {@code Object} which represents a catch-all.
      *
-     * @param item  {@code non-null;} item with the exception type to look for
-     * @param arr   {@code non-null;} array to search in
+     * @param item {@code non-null;} item with the exception type to look for
+     * @param arr {@code non-null;} array to search in
      * @param count {@code non-null;} maximum number of elements in the array to check
      * @return {@code true} iff the exception type is <i>not</i> found
      */
@@ -143,7 +155,7 @@ public final class ByteCatchList extends FixedSizeList {
      * result is automatically made immutable.
      *
      * @param noException {@code >= -1;} the no-exception address to append, or
-     *                    {@code -1} not to append anything
+     * {@code -1} not to append anything
      * @return {@code non-null;} list of exception targets, with
      * {@code noException} appended if necessary
      */
@@ -209,40 +221,32 @@ public final class ByteCatchList extends FixedSizeList {
      * Item in an exception handler list.
      */
     public static class Item {
-        /**
-         * {@code >= 0;} the start pc (inclusive) of the handler's range
-         */
+        /** {@code >= 0;} the start pc (inclusive) of the handler's range */
         private final int startPc;
 
-        /**
-         * {@code >= startPc;} the end pc (exclusive) of the handler's range
-         */
+        /** {@code >= startPc;} the end pc (exclusive) of the handler's range */
         private final int endPc;
 
-        /**
-         * {@code >= 0;} the pc of the exception handler
-         */
+        /** {@code >= 0;} the pc of the exception handler */
         private final int handlerPc;
 
-        /**
-         * {@code null-ok;} the exception class or {@code null} to catch all
-         * exceptions with this handler
-         */
+        /** {@code null-ok;} the exception class or {@code null} to catch all
+         * exceptions with this handler */
         private final CstType exceptionClass;
 
         /**
          * Constructs an instance.
          *
-         * @param startPc        {@code >= 0;} the start pc (inclusive) of the
-         *                       handler's range
-         * @param endPc          {@code >= startPc;} the end pc (exclusive) of the
-         *                       handler's range
-         * @param handlerPc      {@code >= 0;} the pc of the exception handler
+         * @param startPc {@code >= 0;} the start pc (inclusive) of the
+         * handler's range
+         * @param endPc {@code >= startPc;} the end pc (exclusive) of the
+         * handler's range
+         * @param handlerPc {@code >= 0;} the pc of the exception handler
          * @param exceptionClass {@code null-ok;} the exception class or
-         *                       {@code null} to catch all exceptions with this handler
+         * {@code null} to catch all exceptions with this handler
          */
         public Item(int startPc, int endPc, int handlerPc,
-                    CstType exceptionClass) {
+                CstType exceptionClass) {
             if (startPc < 0) {
                 throw new IllegalArgumentException("startPc < 0");
             }
@@ -297,7 +301,7 @@ public final class ByteCatchList extends FixedSizeList {
          */
         public CstType getExceptionClass() {
             return (exceptionClass != null) ?
-                    exceptionClass : CstType.OBJECT;
+                exceptionClass : CstType.OBJECT;
         }
 
         /**

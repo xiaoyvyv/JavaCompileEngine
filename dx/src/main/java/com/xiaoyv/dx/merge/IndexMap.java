@@ -1,25 +1,29 @@
-
+/*
+ * Copyright (C) 2011 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.merge;
 
 import com.xiaoyv.dex.Annotation;
+import com.xiaoyv.dex.CallSiteId;
 import com.xiaoyv.dex.ClassDef;
 import com.xiaoyv.dex.Dex;
 import com.xiaoyv.dex.DexException;
 import com.xiaoyv.dex.EncodedValue;
 import com.xiaoyv.dex.EncodedValueCodec;
 import com.xiaoyv.dex.EncodedValueReader;
-import com.xiaoyv.dex.FieldId;
-import com.xiaoyv.dex.Leb128;
-import com.xiaoyv.dex.MethodId;
-import com.xiaoyv.dex.ProtoId;
-import com.xiaoyv.dex.TableOfContents;
-import com.xiaoyv.dex.TypeList;
-import com.xiaoyv.dex.util.ByteOutput;
-import com.xiaoyv.dx.util.ByteArrayAnnotatedOutput;
-
-import java.util.HashMap;
-
 import static com.xiaoyv.dex.EncodedValueReader.ENCODED_ANNOTATION;
 import static com.xiaoyv.dex.EncodedValueReader.ENCODED_ARRAY;
 import static com.xiaoyv.dex.EncodedValueReader.ENCODED_BOOLEAN;
@@ -32,10 +36,22 @@ import static com.xiaoyv.dex.EncodedValueReader.ENCODED_FLOAT;
 import static com.xiaoyv.dex.EncodedValueReader.ENCODED_INT;
 import static com.xiaoyv.dex.EncodedValueReader.ENCODED_LONG;
 import static com.xiaoyv.dex.EncodedValueReader.ENCODED_METHOD;
+import static com.xiaoyv.dex.EncodedValueReader.ENCODED_METHOD_HANDLE;
+import static com.xiaoyv.dex.EncodedValueReader.ENCODED_METHOD_TYPE;
 import static com.xiaoyv.dex.EncodedValueReader.ENCODED_NULL;
 import static com.xiaoyv.dex.EncodedValueReader.ENCODED_SHORT;
 import static com.xiaoyv.dex.EncodedValueReader.ENCODED_STRING;
 import static com.xiaoyv.dex.EncodedValueReader.ENCODED_TYPE;
+import com.xiaoyv.dex.FieldId;
+import com.xiaoyv.dex.Leb128;
+import com.xiaoyv.dex.MethodHandle;
+import com.xiaoyv.dex.MethodId;
+import com.xiaoyv.dex.ProtoId;
+import com.xiaoyv.dex.TableOfContents;
+import com.xiaoyv.dex.TypeList;
+import com.xiaoyv.dex.util.ByteOutput;
+import com.xiaoyv.dx.util.ByteArrayAnnotatedOutput;
+import java.util.HashMap;
 
 /**
  * Maps the index offsets from one dex file to those in another. For example, if
@@ -49,12 +65,14 @@ public final class IndexMap {
     public final short[] protoIds;
     public final short[] fieldIds;
     public final short[] methodIds;
+    public final int[] callSiteIds;
+    public final HashMap<Integer, Integer> methodHandleIds;
     private final HashMap<Integer, Integer> typeListOffsets;
     private final HashMap<Integer, Integer> annotationOffsets;
     private final HashMap<Integer, Integer> annotationSetOffsets;
     private final HashMap<Integer, Integer> annotationSetRefListOffsets;
     private final HashMap<Integer, Integer> annotationDirectoryOffsets;
-    private final HashMap<Integer, Integer> staticValuesOffsets;
+    private final HashMap<Integer, Integer> encodedArrayValueOffset;
 
     public IndexMap(Dex target, TableOfContents tableOfContents) {
         this.target = target;
@@ -63,12 +81,14 @@ public final class IndexMap {
         this.protoIds = new short[tableOfContents.protoIds.size];
         this.fieldIds = new short[tableOfContents.fieldIds.size];
         this.methodIds = new short[tableOfContents.methodIds.size];
+        this.callSiteIds = new int[tableOfContents.callSiteIds.size];
+        this.methodHandleIds = new HashMap<Integer, Integer>();
         this.typeListOffsets = new HashMap<Integer, Integer>();
         this.annotationOffsets = new HashMap<Integer, Integer>();
         this.annotationSetOffsets = new HashMap<Integer, Integer>();
         this.annotationSetRefListOffsets = new HashMap<Integer, Integer>();
         this.annotationDirectoryOffsets = new HashMap<Integer, Integer>();
-        this.staticValuesOffsets = new HashMap<Integer, Integer>();
+        this.encodedArrayValueOffset = new HashMap<Integer, Integer>();
 
         /*
          * A type list, annotation set, annotation directory, or static value at
@@ -77,7 +97,7 @@ public final class IndexMap {
         this.typeListOffsets.put(0, 0);
         this.annotationSetOffsets.put(0, 0);
         this.annotationDirectoryOffsets.put(0, 0);
-        this.staticValuesOffsets.put(0, 0);
+        this.encodedArrayValueOffset.put(0, 0);
     }
 
     public void putTypeListOffset(int oldOffset, int newOffset) {
@@ -115,11 +135,11 @@ public final class IndexMap {
         annotationDirectoryOffsets.put(oldOffset, newOffset);
     }
 
-    public void putStaticValuesOffset(int oldOffset, int newOffset) {
+    public void putEncodedArrayValueOffset(int oldOffset, int newOffset) {
         if (oldOffset <= 0 || newOffset <= 0) {
             throw new IllegalArgumentException();
         }
-        staticValuesOffsets.put(oldOffset, newOffset);
+        encodedArrayValueOffset.put(oldOffset, newOffset);
     }
 
     public int adjustString(int stringIndex) {
@@ -173,8 +193,16 @@ public final class IndexMap {
         return annotationDirectoryOffsets.get(annotationDirectoryOffset);
     }
 
-    public int adjustStaticValues(int staticValuesOffset) {
-        return staticValuesOffsets.get(staticValuesOffset);
+    public int adjustEncodedArray(int encodedArrayAttribute) {
+        return encodedArrayValueOffset.get(encodedArrayAttribute);
+    }
+
+    public int adjustCallSite(int callSiteIndex) {
+        return callSiteIds[callSiteIndex];
+    }
+
+    public int adjustMethodHandle(int methodHandleIndex) {
+        return methodHandleIds.get(methodHandleIndex);
     }
 
     public MethodId adjust(MethodId methodId) {
@@ -182,6 +210,21 @@ public final class IndexMap {
                 adjustType(methodId.getDeclaringClassIndex()),
                 adjustProto(methodId.getProtoIndex()),
                 adjustString(methodId.getNameIndex()));
+    }
+
+    public CallSiteId adjust(CallSiteId callSiteId) {
+        return new CallSiteId(target, adjustEncodedArray(callSiteId.getCallSiteOffset()));
+    }
+
+    public MethodHandle adjust(MethodHandle methodHandle) {
+        return new MethodHandle(
+                target,
+                methodHandle.getMethodHandleType(),
+                methodHandle.getUnused1(),
+                methodHandle.getMethodHandleType().isField()
+                        ? adjustField(methodHandle.getFieldOrMethodId())
+                        : adjustMethod(methodHandle.getFieldOrMethodId()),
+                methodHandle.getUnused2());
     }
 
     public FieldId adjust(FieldId fieldId) {
@@ -246,68 +289,78 @@ public final class IndexMap {
         public void transform(EncodedValueReader reader) {
             // TODO: extract this into a helper class, EncodedValueWriter
             switch (reader.peek()) {
-                case ENCODED_BYTE:
-                    EncodedValueCodec.writeSignedIntegralValue(out, ENCODED_BYTE, reader.readByte());
-                    break;
-                case ENCODED_SHORT:
-                    EncodedValueCodec.writeSignedIntegralValue(out, ENCODED_SHORT, reader.readShort());
-                    break;
-                case ENCODED_INT:
-                    EncodedValueCodec.writeSignedIntegralValue(out, ENCODED_INT, reader.readInt());
-                    break;
-                case ENCODED_LONG:
-                    EncodedValueCodec.writeSignedIntegralValue(out, ENCODED_LONG, reader.readLong());
-                    break;
-                case ENCODED_CHAR:
-                    EncodedValueCodec.writeUnsignedIntegralValue(out, ENCODED_CHAR, reader.readChar());
-                    break;
-                case ENCODED_FLOAT:
-                    // Shift value left 32 so that right-zero-extension works.
-                    long longBits = ((long) Float.floatToIntBits(reader.readFloat())) << 32;
-                    EncodedValueCodec.writeRightZeroExtendedValue(out, ENCODED_FLOAT, longBits);
-                    break;
-                case ENCODED_DOUBLE:
-                    EncodedValueCodec.writeRightZeroExtendedValue(
-                            out, ENCODED_DOUBLE, Double.doubleToLongBits(reader.readDouble()));
-                    break;
-                case ENCODED_STRING:
-                    EncodedValueCodec.writeUnsignedIntegralValue(
-                            out, ENCODED_STRING, adjustString(reader.readString()));
-                    break;
-                case ENCODED_TYPE:
-                    EncodedValueCodec.writeUnsignedIntegralValue(
-                            out, ENCODED_TYPE, adjustType(reader.readType()));
-                    break;
-                case ENCODED_FIELD:
-                    EncodedValueCodec.writeUnsignedIntegralValue(
-                            out, ENCODED_FIELD, adjustField(reader.readField()));
-                    break;
-                case ENCODED_ENUM:
-                    EncodedValueCodec.writeUnsignedIntegralValue(
-                            out, ENCODED_ENUM, adjustField(reader.readEnum()));
-                    break;
-                case ENCODED_METHOD:
-                    EncodedValueCodec.writeUnsignedIntegralValue(
-                            out, ENCODED_METHOD, adjustMethod(reader.readMethod()));
-                    break;
-                case ENCODED_ARRAY:
-                    writeTypeAndArg(ENCODED_ARRAY, 0);
-                    transformArray(reader);
-                    break;
-                case ENCODED_ANNOTATION:
-                    writeTypeAndArg(ENCODED_ANNOTATION, 0);
-                    transformAnnotation(reader);
-                    break;
-                case ENCODED_NULL:
-                    reader.readNull();
-                    writeTypeAndArg(ENCODED_NULL, 0);
-                    break;
-                case ENCODED_BOOLEAN:
-                    boolean value = reader.readBoolean();
-                    writeTypeAndArg(ENCODED_BOOLEAN, value ? 1 : 0);
-                    break;
-                default:
-                    throw new DexException("Unexpected type: " + Integer.toHexString(reader.peek()));
+            case ENCODED_BYTE:
+                EncodedValueCodec.writeSignedIntegralValue(out, ENCODED_BYTE, reader.readByte());
+                break;
+            case ENCODED_SHORT:
+                EncodedValueCodec.writeSignedIntegralValue(out, ENCODED_SHORT, reader.readShort());
+                break;
+            case ENCODED_INT:
+                EncodedValueCodec.writeSignedIntegralValue(out, ENCODED_INT, reader.readInt());
+                break;
+            case ENCODED_LONG:
+                EncodedValueCodec.writeSignedIntegralValue(out, ENCODED_LONG, reader.readLong());
+                break;
+            case ENCODED_CHAR:
+                EncodedValueCodec.writeUnsignedIntegralValue(out, ENCODED_CHAR, reader.readChar());
+                break;
+            case ENCODED_FLOAT:
+                // Shift value left 32 so that right-zero-extension works.
+                long longBits = ((long) Float.floatToIntBits(reader.readFloat())) << 32;
+                EncodedValueCodec.writeRightZeroExtendedValue(out, ENCODED_FLOAT, longBits);
+                break;
+            case ENCODED_DOUBLE:
+                EncodedValueCodec.writeRightZeroExtendedValue(
+                        out, ENCODED_DOUBLE, Double.doubleToLongBits(reader.readDouble()));
+                break;
+            case ENCODED_METHOD_TYPE:
+                EncodedValueCodec.writeUnsignedIntegralValue(
+                        out, ENCODED_METHOD_TYPE, adjustProto(reader.readMethodType()));
+                break;
+            case ENCODED_METHOD_HANDLE:
+                EncodedValueCodec.writeUnsignedIntegralValue(
+                        out,
+                        ENCODED_METHOD_HANDLE,
+                        adjustMethodHandle(reader.readMethodHandle()));
+                break;
+            case ENCODED_STRING:
+                EncodedValueCodec.writeUnsignedIntegralValue(
+                        out, ENCODED_STRING, adjustString(reader.readString()));
+                break;
+            case ENCODED_TYPE:
+                EncodedValueCodec.writeUnsignedIntegralValue(
+                        out, ENCODED_TYPE, adjustType(reader.readType()));
+                break;
+            case ENCODED_FIELD:
+                EncodedValueCodec.writeUnsignedIntegralValue(
+                        out, ENCODED_FIELD, adjustField(reader.readField()));
+                break;
+            case ENCODED_ENUM:
+                EncodedValueCodec.writeUnsignedIntegralValue(
+                        out, ENCODED_ENUM, adjustField(reader.readEnum()));
+                break;
+            case ENCODED_METHOD:
+                EncodedValueCodec.writeUnsignedIntegralValue(
+                        out, ENCODED_METHOD, adjustMethod(reader.readMethod()));
+                break;
+            case ENCODED_ARRAY:
+                writeTypeAndArg(ENCODED_ARRAY, 0);
+                transformArray(reader);
+                break;
+            case ENCODED_ANNOTATION:
+                writeTypeAndArg(ENCODED_ANNOTATION, 0);
+                transformAnnotation(reader);
+                break;
+            case ENCODED_NULL:
+                reader.readNull();
+                writeTypeAndArg(ENCODED_NULL, 0);
+                break;
+            case ENCODED_BOOLEAN:
+                boolean value = reader.readBoolean();
+                writeTypeAndArg(ENCODED_BOOLEAN, value ? 1 : 0);
+                break;
+            default:
+                throw new DexException("Unexpected type: " + Integer.toHexString(reader.peek()));
             }
         }
 

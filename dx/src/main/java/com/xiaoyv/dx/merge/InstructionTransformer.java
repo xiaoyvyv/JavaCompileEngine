@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2011 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.merge;
 
@@ -23,11 +37,13 @@ final class InstructionTransformer {
         this.reader.setTypeVisitor(new TypeVisitor());
         this.reader.setFieldVisitor(new FieldVisitor());
         this.reader.setMethodVisitor(new MethodVisitor());
+        this.reader.setMethodAndProtoVisitor(new MethodAndProtoVisitor());
+        this.reader.setCallSiteVisitor(new CallSiteVisitor());
     }
 
     public short[] transform(IndexMap indexMap, short[] encodedInstructions) throws DexException {
         DecodedInstruction[] decodedInstructions =
-                DecodedInstruction.decodeAll(encodedInstructions);
+            DecodedInstruction.decodeAll(encodedInstructions);
         int size = decodedInstructions.length;
 
         this.indexMap = indexMap;
@@ -47,12 +63,14 @@ final class InstructionTransformer {
     }
 
     private class GenericVisitor implements CodeReader.Visitor {
+        @Override
         public void visit(DecodedInstruction[] all, DecodedInstruction one) {
             mappedInstructions[mappedAt++] = one;
         }
     }
 
     private class StringVisitor implements CodeReader.Visitor {
+        @Override
         public void visit(DecodedInstruction[] all, DecodedInstruction one) {
             int stringId = one.getIndex();
             int mappedId = indexMap.adjustString(stringId);
@@ -63,6 +81,7 @@ final class InstructionTransformer {
     }
 
     private class FieldVisitor implements CodeReader.Visitor {
+        @Override
         public void visit(DecodedInstruction[] all, DecodedInstruction one) {
             int fieldId = one.getIndex();
             int mappedId = indexMap.adjustField(fieldId);
@@ -73,6 +92,7 @@ final class InstructionTransformer {
     }
 
     private class TypeVisitor implements CodeReader.Visitor {
+        @Override
         public void visit(DecodedInstruction[] all, DecodedInstruction one) {
             int typeId = one.getIndex();
             int mappedId = indexMap.adjustType(typeId);
@@ -83,6 +103,7 @@ final class InstructionTransformer {
     }
 
     private class MethodVisitor implements CodeReader.Visitor {
+        @Override
         public void visit(DecodedInstruction[] all, DecodedInstruction one) {
             int methodId = one.getIndex();
             int mappedId = indexMap.adjustMethod(methodId);
@@ -92,10 +113,29 @@ final class InstructionTransformer {
         }
     }
 
+    private class MethodAndProtoVisitor implements CodeReader.Visitor {
+        @Override
+        public void visit(DecodedInstruction[] all, DecodedInstruction one) {
+            int methodId = one.getIndex();
+            int protoId = one.getProtoIndex();
+            mappedInstructions[mappedAt++] =
+                one.withProtoIndex(indexMap.adjustMethod(methodId), indexMap.adjustProto(protoId));
+        }
+    }
+
+    private class CallSiteVisitor implements CodeReader.Visitor {
+        @Override
+        public void visit(DecodedInstruction[] all, DecodedInstruction one) {
+            int callSiteId = one.getIndex();
+            int mappedCallSiteId = indexMap.adjustCallSite(callSiteId);
+            mappedInstructions[mappedAt++] = one.withIndex(mappedCallSiteId);
+        }
+    }
+
     private static void jumboCheck(boolean isJumbo, int newIndex) {
         if (!isJumbo && (newIndex > 0xffff)) {
             throw new DexIndexOverflowException("Cannot merge new index " + newIndex +
-                    " into a non-jumbo instruction!");
+                                   " into a non-jumbo instruction!");
         }
     }
 }

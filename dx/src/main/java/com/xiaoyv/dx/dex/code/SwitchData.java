@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.code;
 
@@ -21,9 +35,7 @@ public final class SwitchData extends VariableSizeInsn {
      */
     private final CodeAddress user;
 
-    /**
-     * {@code non-null;} sorted list of switch cases (keys)
-     */
+    /** {@code non-null;} sorted list of switch cases (keys) */
     private final IntList cases;
 
     /**
@@ -32,9 +44,7 @@ public final class SwitchData extends VariableSizeInsn {
      */
     private final CodeAddress[] targets;
 
-    /**
-     * whether the output table will be packed (vs. sparse)
-     */
+    /** whether the output table will be packed (vs. sparse) */
     private final boolean packed;
 
     /**
@@ -42,11 +52,11 @@ public final class SwitchData extends VariableSizeInsn {
      * unknown ({@code -1}).
      *
      * @param position {@code non-null;} source position
-     * @param user     {@code non-null;} address representing the instruction that
-     *                 uses this instance
-     * @param cases    {@code non-null;} sorted list of switch cases (keys)
-     * @param targets  {@code non-null;} corresponding list of code addresses; the
-     *                 branch target for each case
+     * @param user {@code non-null;} address representing the instruction that
+     * uses this instance
+     * @param cases {@code non-null;} sorted list of switch cases (keys)
+     * @param targets {@code non-null;} corresponding list of code addresses; the
+     * branch target for each case
      */
     public SwitchData(SourcePosition position, CodeAddress user,
                       IntList cases, CodeAddress[] targets) {
@@ -80,18 +90,14 @@ public final class SwitchData extends VariableSizeInsn {
         this.packed = shouldPack(cases);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int codeSize() {
         return packed ? (int) packedCodeSize(cases) :
-                (int) sparseCodeSize(cases);
+            (int) sparseCodeSize(cases);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void writeTo(AnnotatedOutput out) {
         int baseAddress = user.getAddress();
@@ -137,9 +143,7 @@ public final class SwitchData extends VariableSizeInsn {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public DalvInsn withRegisters(RegisterSpecList registers) {
         return new SwitchData(getPosition(), user, cases, targets);
@@ -154,12 +158,10 @@ public final class SwitchData extends VariableSizeInsn {
         return packed;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected String argString() {
-        StringBuffer sb = new StringBuffer(100);
+        StringBuilder sb = new StringBuilder(100);
 
         int sz = targets.length;
         for (int i = 0; i < sz; i++) {
@@ -172,13 +174,11 @@ public final class SwitchData extends VariableSizeInsn {
         return sb.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected String listingString0(boolean noteIndices) {
         int baseAddress = user.getAddress();
-        StringBuffer sb = new StringBuffer(100);
+        StringBuilder sb = new StringBuilder(100);
         int sz = targets.length;
 
         sb.append(packed ? "packed" : "sparse");

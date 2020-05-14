@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa.back;
 
@@ -20,7 +34,6 @@ import com.xiaoyv.dx.ssa.SsaInsn;
 import com.xiaoyv.dx.ssa.SsaMethod;
 import com.xiaoyv.dx.util.IntIterator;
 import com.xiaoyv.dx.util.IntSet;
-
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Map;
@@ -37,106 +50,84 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
      * Alignment constraint that can be used during search of free registers.
      */
     private enum Alignment {
-        EVEN {
-            @Override
-            int nextClearBit(BitSet bitSet, int startIdx) {
-                int bitNumber = bitSet.nextClearBit(startIdx);
-                while (!isEven(bitNumber)) {
-                    bitNumber = bitSet.nextClearBit(bitNumber + 1);
-                }
-                return bitNumber;
-            }
-        },
-        ODD {
-            @Override
-            int nextClearBit(BitSet bitSet, int startIdx) {
-                int bitNumber = bitSet.nextClearBit(startIdx);
-                while (isEven(bitNumber)) {
-                    bitNumber = bitSet.nextClearBit(bitNumber + 1);
-                }
-                return bitNumber;
-            }
-        },
-        UNSPECIFIED {
-            @Override
-            int nextClearBit(BitSet bitSet, int startIdx) {
-                return bitSet.nextClearBit(startIdx);
-            }
-        };
+      EVEN {
+        @Override
+        int nextClearBit(BitSet bitSet, int startIdx) {
+          int bitNumber = bitSet.nextClearBit(startIdx);
+          while (!isEven(bitNumber)) {
+            bitNumber = bitSet.nextClearBit(bitNumber + 1);
+          }
+          return bitNumber;
+        }
+      },
+      ODD {
+        @Override
+        int nextClearBit(BitSet bitSet, int startIdx) {
+          int bitNumber = bitSet.nextClearBit(startIdx);
+          while (isEven(bitNumber)) {
+            bitNumber = bitSet.nextClearBit(bitNumber + 1);
+          }
+          return bitNumber;
+        }
+      },
+      UNSPECIFIED {
+        @Override
+        int nextClearBit(BitSet bitSet, int startIdx) {
+          return bitSet.nextClearBit(startIdx);
+        }
+      };
 
-        /**
-         * Returns the index of the first bit that is set to {@code false} that occurs on or after the
-         * specified starting index and that respect {@link Alignment}.
-         *
-         * @param bitSet   bitSet working on.
-         * @param startIdx {@code >= 0;} the index to start checking from (inclusive).
-         * @return the index of the next clear bit respecting alignment.
-         */
-        abstract int nextClearBit(BitSet bitSet, int startIdx);
+      /**
+       * Returns the index of the first bit that is set to {@code false} that occurs on or after the
+       * specified starting index and that respect {@link Alignment}.
+       *
+       * @param bitSet bitSet working on.
+       * @param startIdx {@code >= 0;} the index to start checking from (inclusive).
+       * @return the index of the next clear bit respecting alignment.
+       */
+      abstract int nextClearBit(BitSet bitSet, int startIdx);
     }
 
-    /**
-     * local debug flag
-     */
+    /** local debug flag */
     private static final boolean DEBUG = false;
 
-    /**
-     * maps local variable to a list of associated SSA registers
-     */
+    /** maps local variable to a list of associated SSA registers */
     private final Map<LocalItem, ArrayList<RegisterSpec>> localVariables;
 
-    /**
-     * list of move-result-pesudo instructions seen in this method
-     */
+    /** list of move-result-pesudo instructions seen in this method */
     private final ArrayList<NormalSsaInsn> moveResultPseudoInsns;
 
-    /**
-     * list of invoke-range instructions seen in this method
-     */
+    /** list of invoke-range instructions seen in this method */
     private final ArrayList<NormalSsaInsn> invokeRangeInsns;
 
-    /**
-     * list of phi instructions seen in this method
-     */
+    /** list of phi instructions seen in this method */
     private final ArrayList<PhiInsn> phiInsns;
 
-    /**
-     * indexed by SSA reg; the set of SSA regs we've mapped
-     */
+    /** indexed by SSA reg; the set of SSA regs we've mapped */
     private final BitSet ssaRegsMapped;
 
-    /**
-     * Register mapper which will be our result
-     */
+    /** Register mapper which will be our result */
     private final InterferenceRegisterMapper mapper;
 
-    /**
-     * end of rop registers range (starting at 0) reserved for parameters
-     */
+    /** end of rop registers range (starting at 0) reserved for parameters */
     private final int paramRangeEnd;
 
-    /**
-     * set of rop registers reserved for parameters or local variables
-     */
+    /** set of rop registers reserved for parameters or local variables */
     private final BitSet reservedRopRegs;
 
-    /**
-     * set of rop registers that have been used by anything
-     */
+    /** set of rop registers that have been used by anything */
     private final BitSet usedRopRegs;
 
-    /**
-     * true if converter should take steps to minimize rop-form registers
-     */
+    /** true if converter should take steps to minimize rop-form registers */
     private final boolean minimizeRegisters;
 
     /**
      * Constructs instance.
      *
-     * @param ssaMeth           {@code non-null;} method to process
-     * @param interference      non-null interference graph for SSA registers
+     * @param ssaMeth {@code non-null;} method to process
+     * @param interference non-null interference graph for SSA registers
      * @param minimizeRegisters true if converter should take steps to
-     *                          minimize rop-form registers
+     * minimize rop-form registers
      */
     public FirstFitLocalCombiningAllocator(
             SsaMethod ssaMeth, InterferenceGraph interference,
@@ -167,17 +158,13 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
         phiInsns = new ArrayList<PhiInsn>();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean wantsParamsMovedHigh() {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public RegisterMapper allocateRegisters() {
 
@@ -285,7 +272,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
         // opcode == null for phi insns.
         if (opcode != null && opcode.getOpcode() == RegOps.MOVE_PARAM) {
             CstInsn origInsn = (CstInsn) defInsn.getOriginalRopInsn();
-            return ((CstInteger) origInsn.getConstant()).getValue();
+            return  ((CstInteger) origInsn.getConstant()).getValue();
         }
 
         return -1;
@@ -333,11 +320,11 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
      * used rop space as reserved. SSA registers that don't fit are left
      * unmapped.
      *
-     * @param specs              {@code non-null;} SSA registers to attempt to map
-     * @param ropReg             {@code >=0;} rop register to map to
+     * @param specs {@code non-null;} SSA registers to attempt to map
+     * @param ropReg {@code >=0;} rop register to map to
      * @param maxAllowedCategory {@code 1..2;} maximum category
-     *                           allowed in mapping.
-     * @param markReserved       do so if {@code true}
+     * allowed in mapping.
+     * @param markReserved do so if {@code true}
      * @return {@code true} if all registers were mapped, {@code false}
      * if some remain unmapped
      */
@@ -365,14 +352,14 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
     /**
      * Tries to map an SSA register to a rop register.
      *
-     * @param ssaSpec            {@code non-null;} SSA register
-     * @param ropReg             {@code >=0;} rop register
+     * @param ssaSpec {@code non-null;} SSA register
+     * @param ropReg {@code >=0;} rop register
      * @param maxAllowedCategory {@code 1..2;} the maximum category
-     *                           that the SSA register is allowed to be
+     * that the SSA register is allowed to be
      * @return {@code true} if map succeeded, {@code false} if not
      */
     private boolean tryMapReg(RegisterSpec ssaSpec, int ropReg,
-                              int maxAllowedCategory) {
+            int maxAllowedCategory) {
         if (ssaSpec.getCategory() <= maxAllowedCategory
                 && !ssaRegsMapped.get(ssaSpec.getReg())
                 && canMapReg(ssaSpec, ropReg)) {
@@ -386,7 +373,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
     /**
      * Marks a range of rop registers as "reserved for a local variable."
      *
-     * @param ropReg   {@code >= 0;} rop register to reserve
+     * @param ropReg {@code >= 0;} rop register to reserve
      * @param category {@code > 0;} width to reserve
      */
     private void markReserved(int ropReg, int category) {
@@ -398,7 +385,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
      * for local variables or parameters.
      *
      * @param ropRangeStart {@code >= 0;} lowest rop register
-     * @param width         {@code > 0;} number of rop registers in range.
+     * @param width {@code > 0;} number of rop registers in range.
      * @return {@code true} if any register in range is marked reserved
      */
     private boolean rangeContainsReserved(int ropRangeStart, int width) {
@@ -431,54 +418,54 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
      * @return the register alignment constraint.
      */
     private Alignment getAlignment(int regCategory) {
-        Alignment alignment = Alignment.UNSPECIFIED;
+      Alignment alignment = Alignment.UNSPECIFIED;
 
-        if (DexOptions.ALIGN_64BIT_REGS_SUPPORT && regCategory == 2) {
-            if (isEven(paramRangeEnd)) {
-                alignment = Alignment.EVEN;
-            } else {
-                alignment = Alignment.ODD;
-            }
+      if (DexOptions.ALIGN_64BIT_REGS_SUPPORT && regCategory == 2) {
+        if (isEven(paramRangeEnd)) {
+          alignment = Alignment.EVEN;
+        } else {
+          alignment = Alignment.ODD;
         }
+      }
 
-        return alignment;
+      return alignment;
     }
 
     /**
      * Finds unreserved rop registers with a specific category.
      *
-     * @param startReg    {@code >= 0;} a rop register to start the search at
+     * @param startReg {@code >= 0;} a rop register to start the search at
      * @param regCategory {@code > 0;} category of the searched registers.
      * @return {@code >= 0;} start of available registers.
      */
     private int findNextUnreservedRopReg(int startReg, int regCategory) {
-        return findNextUnreservedRopReg(startReg, regCategory, getAlignment(regCategory));
+      return findNextUnreservedRopReg(startReg, regCategory, getAlignment(regCategory));
     }
 
     /**
      * Finds a range of unreserved rop registers.
      *
-     * @param startReg  {@code >= 0;} a rop register to start the search at
-     * @param width     {@code > 0;} the width, in registers, required.
+     * @param startReg {@code >= 0;} a rop register to start the search at
+     * @param width {@code > 0;} the width, in registers, required.
      * @param alignment the alignment constraint.
      * @return {@code >= 0;} start of available register range.
      */
     private int findNextUnreservedRopReg(int startReg, int width, Alignment alignment) {
-        int reg = alignment.nextClearBit(reservedRopRegs, startReg);
+      int reg = alignment.nextClearBit(reservedRopRegs, startReg);
 
-        while (true) {
-            int i = 1;
+      while (true) {
+        int i = 1;
 
-            while (i < width && !reservedRopRegs.get(reg + i)) {
-                i++;
-            }
-
-            if (i == width) {
-                return reg;
-            }
-
-            reg = alignment.nextClearBit(reservedRopRegs, reg + i);
+        while (i < width && !reservedRopRegs.get(reg + i)) {
+          i++;
         }
+
+        if (i == width) {
+          return reg;
+        }
+
+        reg = alignment.nextClearBit(reservedRopRegs, reg + i);
+      }
     }
 
     /**
@@ -491,22 +478,22 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
      * @return {@code >= 0;} start of available registers.
      */
     private int findRopRegForLocal(int startReg, int category) {
-        Alignment alignment = getAlignment(category);
-        int reg = alignment.nextClearBit(usedRopRegs, startReg);
+      Alignment alignment = getAlignment(category);
+      int reg = alignment.nextClearBit(usedRopRegs, startReg);
 
-        while (true) {
-            int i = 1;
+      while (true) {
+        int i = 1;
 
-            while (i < category && !usedRopRegs.get(reg + i)) {
-                i++;
-            }
-
-            if (i == category) {
-                return reg;
-            }
-
-            reg = alignment.nextClearBit(usedRopRegs, reg + i);
+        while (i < category && !usedRopRegs.get(reg + i)) {
+          i++;
         }
+
+        if (i == category) {
+          return reg;
+        }
+
+        reg = alignment.nextClearBit(usedRopRegs, reg + i);
+      }
     }
 
     /**
@@ -593,7 +580,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
             if (!moveMapped || !checkMapped) {
                 int ropReg = findNextUnreservedRopReg(paramRangeEnd, category);
                 ArrayList<RegisterSpec> ssaRegs =
-                        new ArrayList<RegisterSpec>(2);
+                    new ArrayList<RegisterSpec>(2);
                 ssaRegs.add(moveRegSpec);
                 ssaRegs.add(checkRegSpec);
 
@@ -608,7 +595,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
              * is caught, since it will overwrite a potentially live value.
              */
             boolean hasExceptionHandlers =
-                    checkCastInsn.getOriginalRopInsn().getCatches().size() != 0;
+                checkCastInsn.getOriginalRopInsn().getCatches().size() != 0;
             int moveRopReg = mapper.oldToNew(moveReg);
             int checkRopReg = mapper.oldToNew(checkReg);
             if (moveRopReg != checkRopReg && !hasExceptionHandlers) {
@@ -620,8 +607,8 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
     }
 
     /**
-     * Handles all phi instructions, trying to map them to a common register.
-     */
+    * Handles all phi instructions, trying to map them to a common register.
+    */
     private void handlePhiInsns() {
         for (PhiInsn insn : phiInsns) {
             processPhiInsn(insn);
@@ -661,7 +648,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
      * and checks the interference graph and ensures the range does not
      * cross the parameter range.
      *
-     * @param specs  {@code non-null;} SSA registers to check
+     * @param specs {@code non-null;} SSA registers to check
      * @param ropReg {@code >=0;} rop register to check mapping to
      * @return {@code true} if all unmapped registers can be mapped
      */
@@ -679,7 +666,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
      * the range does not cross the parameter range.
      *
      * @param ssaSpec {@code non-null;} SSA spec
-     * @param ropReg  prosepctive new-namespace reg
+     * @param ropReg prosepctive new-namespace reg
      * @return {@code true} if mapping is possible
      */
     private boolean canMapReg(RegisterSpec ssaSpec, int ropReg) {
@@ -695,7 +682,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
      * allocate a register that spans the param block and the normal block,
      * because we will be moving the param block to high registers later.
      *
-     * @param ssaReg   register in new namespace
+     * @param ssaReg register in new namespace
      * @param category width that the register will have
      * @return {@code true} in the case noted above
      */
@@ -711,16 +698,19 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
     private void analyzeInstructions() {
         ssaMeth.forEachInsn(new SsaInsn.Visitor() {
             /** {@inheritDoc} */
+            @Override
             public void visitMoveInsn(NormalSsaInsn insn) {
                 processInsn(insn);
             }
 
             /** {@inheritDoc} */
+            @Override
             public void visitPhiInsn(PhiInsn insn) {
                 processInsn(insn);
             }
 
             /** {@inheritDoc} */
+            @Override
             public void visitNonMoveInsn(NormalSsaInsn insn) {
                 processInsn(insn);
             }
@@ -746,7 +736,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
                     LocalItem local = assignment.getLocalItem();
 
                     ArrayList<RegisterSpec> regList
-                            = localVariables.get(local);
+                        = localVariables.get(local);
 
                     if (regList == null) {
                         regList = new ArrayList<RegisterSpec>();
@@ -778,7 +768,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
      * {@link #canMapReg} should have already been called.
      *
      * @param ssaSpec {@code non-null;} SSA register to map from
-     * @param ropReg  {@code >=0;} rop register to map to
+     * @param ropReg {@code >=0;} rop register to map to
      */
     private void addMapping(RegisterSpec ssaSpec, int ropReg) {
         int ssaReg = ssaSpec.getReg();
@@ -863,14 +853,14 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
      * just find a new contiguous range that doesn't interfere.
      *
      * @param insn {@code non-null;} the insn whose sources need to
-     *             fit. Must be last insn in basic block.
+     * fit. Must be last insn in basic block.
      * @return {@code >= 0;} rop register of start of range
      */
     private int findRangeAndAdjust(NormalSsaInsn insn) {
         RegisterSpecList sources = insn.getSources();
         int szSources = sources.size();
         // the category for each source index
-        int[] categoriesForIndex = new int[szSources];
+        int categoriesForIndex[] = new int[szSources];
         int rangeLength = 0;
 
         // Compute rangeLength and categoriesForIndex
@@ -951,7 +941,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
          */
 
         for (int i = resultMovesRequired.nextSetBit(0); i >= 0;
-             i = resultMovesRequired.nextSetBit(i + 1)) {
+             i = resultMovesRequired.nextSetBit(i+1)) {
             insn.changeOneSource(i, insertMoveBefore(insn, sources.get(i)));
         }
 
@@ -963,62 +953,62 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
      * specified instruction. Does not bother trying to center the range
      * around an already-mapped source register;
      *
-     * @param insn               {@code non-null;} insn to build range for
-     * @param rangeLength        {@code >=0;} length required in register units
+     * @param insn {@code non-null;} insn to build range for
+     * @param rangeLength {@code >=0;} length required in register units
      * @param categoriesForIndex {@code non-null;} indexed by source index;
-     *                           the category for each source
-     * @param outMovesRequired   {@code non-null;} an output parameter indexed by
-     *                           source index that will contain the set of sources which need
-     *                           moves inserted
+     * the category for each source
+     * @param outMovesRequired {@code non-null;} an output parameter indexed by
+     * source index that will contain the set of sources which need
+     * moves inserted
      * @return the rop register that starts the fitting range
      */
     private int findAnyFittingRange(NormalSsaInsn insn, int rangeLength,
-                                    int[] categoriesForIndex, BitSet outMovesRequired) {
+            int[] categoriesForIndex, BitSet outMovesRequired) {
         Alignment alignment = Alignment.UNSPECIFIED;
 
         if (DexOptions.ALIGN_64BIT_REGS_SUPPORT) {
-            int regNumber = 0;
-            int p64bitsAligned = 0;
-            int p64bitsNotAligned = 0;
-            for (int category : categoriesForIndex) {
-                if (category == 2) {
-                    if (isEven(regNumber)) {
-                        p64bitsAligned++;
-                    } else {
-                        p64bitsNotAligned++;
-                    }
-                    regNumber += 2;
-                } else {
-                    regNumber += 1;
-                }
+          int regNumber = 0;
+          int p64bitsAligned = 0;
+          int p64bitsNotAligned = 0;
+          for (int category : categoriesForIndex) {
+            if (category == 2) {
+              if (isEven(regNumber)) {
+                p64bitsAligned++;
+              } else {
+                p64bitsNotAligned++;
+              }
+              regNumber += 2;
+            } else {
+              regNumber += 1;
             }
+          }
 
-            if (p64bitsNotAligned > p64bitsAligned) {
-                if (isEven(paramRangeEnd)) {
-                    alignment = Alignment.ODD;
-                } else {
-                    alignment = Alignment.EVEN;
-                }
-            } else if (p64bitsAligned > 0) {
-                if (isEven(paramRangeEnd)) {
-                    alignment = Alignment.EVEN;
-                } else {
-                    alignment = Alignment.ODD;
-                }
+          if (p64bitsNotAligned > p64bitsAligned) {
+            if (isEven(paramRangeEnd)) {
+              alignment = Alignment.ODD;
+            } else {
+              alignment = Alignment.EVEN;
             }
+          } else if (p64bitsAligned > 0) {
+            if (isEven(paramRangeEnd)) {
+              alignment = Alignment.EVEN;
+            } else {
+              alignment = Alignment.ODD;
+            }
+          }
         }
 
         int rangeStart = paramRangeEnd;
         while (true) {
-            rangeStart = findNextUnreservedRopReg(rangeStart, rangeLength, alignment);
+          rangeStart = findNextUnreservedRopReg(rangeStart, rangeLength, alignment);
 
-            int fitWidth = fitPlanForRange(rangeStart, insn, categoriesForIndex, outMovesRequired);
+          int fitWidth = fitPlanForRange(rangeStart, insn, categoriesForIndex, outMovesRequired);
 
-            if (fitWidth >= 0) {
-                break;
-            }
-            rangeStart++;
-            outMovesRequired.clear();
+          if (fitWidth >= 0) {
+            break;
+          }
+          rangeStart++;
+          outMovesRequired.clear();
         }
 
         return rangeStart;
@@ -1028,18 +1018,18 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
      * Attempts to build a plan for fitting a range of sources into rop
      * registers.
      *
-     * @param ropReg             {@code >= 0;} rop reg that begins range
-     * @param insn               {@code non-null;} insn to plan range for
+     * @param ropReg {@code >= 0;} rop reg that begins range
+     * @param insn {@code non-null;} insn to plan range for
      * @param categoriesForIndex {@code non-null;} indexed by source index;
-     *                           the category for each source
-     * @param outMovesRequired   {@code non-null;} an output parameter indexed by
-     *                           source index that will contain the set of sources which need
-     *                           moves inserted
+     * the category for each source
+     * @param outMovesRequired {@code non-null;} an output parameter indexed by
+     * source index that will contain the set of sources which need
+     * moves inserted
      * @return the width of the fit that that does not involve added moves or
      * {@code -1} if "no fit possible"
      */
     private int fitPlanForRange(int ropReg, NormalSsaInsn insn,
-                                int[] categoriesForIndex, BitSet outMovesRequired) {
+            int[] categoriesForIndex, BitSet outMovesRequired) {
         RegisterSpecList sources = insn.getSources();
         int szSources = sources.size();
         int fitWidth = 0;
@@ -1049,13 +1039,13 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
         // An SSA reg may only be mapped into a range once.
         BitSet seen = new BitSet(ssaMeth.getRegCount());
 
-        for (int i = 0; i < szSources; i++) {
+        for (int i = 0; i < szSources ; i++) {
             RegisterSpec ssaSpec = sources.get(i);
             int ssaReg = ssaSpec.getReg();
             int category = categoriesForIndex[i];
 
             if (i != 0) {
-                ropReg += categoriesForIndex[i - 1];
+                ropReg += categoriesForIndex[i-1];
             }
 
             if (ssaRegsMapped.get(ssaReg)
@@ -1123,7 +1113,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
      */
     private LocalItem getLocalItemForReg(int ssaReg) {
         for (Map.Entry<LocalItem, ArrayList<RegisterSpec>> entry :
-                localVariables.entrySet()) {
+                 localVariables.entrySet()) {
             for (RegisterSpec spec : entry.getValue()) {
                 if (spec.getReg() == ssaReg) {
                     return entry.getKey();
@@ -1194,7 +1184,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
     }
 
     private static boolean isEven(int regNumger) {
-        return ((regNumger & 1) == 0);
+      return ((regNumger & 1) == 0);
     }
 
     // A set that tracks how often elements are added to it.

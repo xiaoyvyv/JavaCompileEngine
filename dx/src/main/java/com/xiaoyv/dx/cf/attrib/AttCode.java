@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.attrib;
 
@@ -11,43 +25,31 @@ import com.xiaoyv.dx.util.MutabilityException;
  * Attribute class for standard {@code Code} attributes.
  */
 public final class AttCode extends BaseAttribute {
-    /**
-     * {@code non-null;} attribute name for attributes of this type
-     */
+    /** {@code non-null;} attribute name for attributes of this type */
     public static final String ATTRIBUTE_NAME = "Code";
 
-    /**
-     * {@code >= 0;} the stack size
-     */
+    /** {@code >= 0;} the stack size */
     private final int maxStack;
 
-    /**
-     * {@code >= 0;} the number of locals
-     */
+    /** {@code >= 0;} the number of locals */
     private final int maxLocals;
 
-    /**
-     * {@code non-null;} array containing the bytecode per se
-     */
+    /** {@code non-null;} array containing the bytecode per se */
     private final BytecodeArray code;
 
-    /**
-     * {@code non-null;} the exception table
-     */
+    /** {@code non-null;} the exception table */
     private final ByteCatchList catches;
 
-    /**
-     * {@code non-null;} the associated list of attributes
-     */
+    /** {@code non-null;} the associated list of attributes */
     private final AttributeList attributes;
 
     /**
      * Constructs an instance.
      *
-     * @param maxStack   {@code >= 0;} the stack size
-     * @param maxLocals  {@code >= 0;} the number of locals
-     * @param code       {@code non-null;} array containing the bytecode per se
-     * @param catches    {@code non-null;} the exception table
+     * @param maxStack {@code >= 0;} the stack size
+     * @param maxLocals {@code >= 0;} the number of locals
+     * @param code {@code non-null;} array containing the bytecode per se
+     * @param catches {@code non-null;} the exception table
      * @param attributes {@code non-null;} the associated list of attributes
      */
     public AttCode(int maxStack, int maxLocals, BytecodeArray code,
@@ -91,9 +93,10 @@ public final class AttCode extends BaseAttribute {
         this.attributes = attributes;
     }
 
+    @Override
     public int byteLength() {
         return 10 + code.byteLength() + catches.byteLength() +
-                attributes.byteLength();
+            attributes.byteLength();
     }
 
     /**

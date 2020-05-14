@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.util;
 
@@ -16,44 +30,45 @@ public interface Output extends ByteOutput {
      *
      * @return {@code >= 0;} the cursor position
      */
-    int getCursor();
+    public int getCursor();
 
     /**
      * Asserts that the cursor is the given value.
      *
      * @param expectedCursor the expected cursor value
      * @throws RuntimeException thrown if {@code getCursor() !=
-     *                          expectedCursor}
+     * expectedCursor}
      */
-    void assertCursor(int expectedCursor);
+    public void assertCursor(int expectedCursor);
 
     /**
      * Writes a {@code byte} to this instance.
      *
      * @param value the value to write; all but the low 8 bits are ignored
      */
-    void writeByte(int value);
+    @Override
+    public void writeByte(int value);
 
     /**
      * Writes a {@code short} to this instance.
      *
      * @param value the value to write; all but the low 16 bits are ignored
      */
-    void writeShort(int value);
+    public void writeShort(int value);
 
     /**
      * Writes an {@code int} to this instance.
      *
      * @param value the value to write
      */
-    void writeInt(int value);
+    public void writeInt(int value);
 
     /**
      * Writes a {@code long} to this instance.
      *
      * @param value the value to write
      */
-    void writeLong(long value);
+    public void writeLong(long value);
 
     /**
      * Writes a DWARFv3-style unsigned LEB128 integer. For details,
@@ -63,7 +78,7 @@ public interface Output extends ByteOutput {
      * @param value value to write, treated as an unsigned value
      * @return {@code 1..5;} the number of bytes actually written
      */
-    int writeUleb128(int value);
+    public int writeUleb128(int value);
 
     /**
      * Writes a DWARFv3-style unsigned LEB128 integer. For details,
@@ -73,24 +88,24 @@ public interface Output extends ByteOutput {
      * @param value value to write
      * @return {@code 1..5;} the number of bytes actually written
      */
-    int writeSleb128(int value);
+    public int writeSleb128(int value);
 
     /**
      * Writes a {@link ByteArray} to this instance.
      *
      * @param bytes {@code non-null;} the array to write
      */
-    void write(ByteArray bytes);
+    public void write(ByteArray bytes);
 
     /**
      * Writes a portion of a {@code byte[]} to this instance.
      *
-     * @param bytes  {@code non-null;} the array to write
+     * @param bytes {@code non-null;} the array to write
      * @param offset {@code >= 0;} offset into {@code bytes} for the first
-     *               byte to write
+     * byte to write
      * @param length {@code >= 0;} number of bytes to write
      */
-    void write(byte[] bytes, int offset, int length);
+    public void write(byte[] bytes, int offset, int length);
 
     /**
      * Writes a {@code byte[]} to this instance. This is just
@@ -98,14 +113,14 @@ public interface Output extends ByteOutput {
      *
      * @param bytes {@code non-null;} the array to write
      */
-    void write(byte[] bytes);
+    public void write(byte[] bytes);
 
     /**
      * Writes the given number of {@code 0} bytes.
      *
      * @param count {@code >= 0;} the number of zeroes to write
      */
-    void writeZeroes(int count);
+    public void writeZeroes(int count);
 
     /**
      * Adds extra bytes if necessary (with value {@code 0}) to
@@ -113,5 +128,5 @@ public interface Output extends ByteOutput {
      *
      * @param alignment {@code > 0;} the alignment; must be a power of two
      */
-    void alignTo(int alignment);
+    public void alignTo(int alignment);
 }

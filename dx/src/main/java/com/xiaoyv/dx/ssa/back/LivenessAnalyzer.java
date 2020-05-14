@@ -1,13 +1,27 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa.back;
 
 import com.xiaoyv.dx.rop.code.RegisterSpec;
+import com.xiaoyv.dx.rop.code.RegisterSpecList;
 import com.xiaoyv.dx.ssa.PhiInsn;
 import com.xiaoyv.dx.ssa.SsaBasicBlock;
 import com.xiaoyv.dx.ssa.SsaInsn;
 import com.xiaoyv.dx.ssa.SsaMethod;
-
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -15,7 +29,7 @@ import java.util.List;
 /**
  * From Appel "Modern Compiler Implementation in Java" algorithm 19.17
  * Calculate the live ranges for register {@code reg}.<p>
- * <p>
+ *
  * v = regV <p>
  * s = insn <p>
  * M = visitedBlocks <p>
@@ -39,39 +53,27 @@ public class LivenessAnalyzer {
      */
     private final int regV;
 
-    /**
-     * method to process
-     */
+    /** method to process */
     private final SsaMethod ssaMeth;
 
-    /**
-     * interference graph being updated
-     */
+    /** interference graph being updated */
     private final InterferenceGraph interference;
 
-    /**
-     * block "n" in Appel 19.17
-     */
+    /** block "n" in Appel 19.17 */
     private SsaBasicBlock blockN;
 
-    /**
-     * index of statement {@code s} in {@code blockN}
-     */
+    /** index of statement {@code s} in {@code blockN} */
     private int statementIndex;
 
-    /**
-     * the next function to call
-     */
+    /** the next function to call */
     private NextFunction nextFunction;
 
-    /**
-     * constants for {@link #nextFunction}
-     */
-    private enum NextFunction {
+    /** constants for {@link #nextFunction} */
+    private static enum NextFunction {
         LIVE_IN_AT_STATEMENT,
-        LIVE_OUT_AT_STATEMENT,
-        LIVE_OUT_AT_BLOCK,
-        DONE
+            LIVE_OUT_AT_STATEMENT,
+            LIVE_OUT_AT_BLOCK,
+            DONE;
     }
 
     /**
@@ -100,13 +102,14 @@ public class LivenessAnalyzer {
     /**
      * Makes liveness analyzer instance for specific register.
      *
-     * @param ssaMeth      {@code non-null;} method to process
-     * @param reg          register whose liveness to analyze
+     * @param ssaMeth {@code non-null;} method to process
+     * @param reg register whose liveness to analyze
      * @param interference {@code non-null;} indexed by SSA reg in
-     *                     both dimensions; graph to update
+     * both dimensions; graph to update
+     *
      */
     private LivenessAnalyzer(SsaMethod ssaMeth, int reg,
-                             InterferenceGraph interference) {
+            InterferenceGraph interference) {
         int blocksSz = ssaMeth.getBlocks().size();
 
         this.ssaMeth = ssaMeth;
@@ -158,7 +161,7 @@ public class LivenessAnalyzer {
                 PhiInsn phi = (PhiInsn) insn;
 
                 for (SsaBasicBlock pred :
-                        phi.predBlocksForReg(regV, ssaMeth)) {
+                         phi.predBlocksForReg(regV, ssaMeth)) {
                     blockN = pred;
 
                     nextFunction = NextFunction.LIVE_OUT_AT_BLOCK;
@@ -191,7 +194,7 @@ public class LivenessAnalyzer {
      * "v is live-out at n."
      */
     private void liveOutAtBlock() {
-        if (!visitedBlocks.get(blockN.getIndex())) {
+        if (! visitedBlocks.get(blockN.getIndex())) {
             visitedBlocks.set(blockN.getIndex());
 
             blockN.addLiveOut(regV);
@@ -242,18 +245,19 @@ public class LivenessAnalyzer {
 
     /**
      * Ensures that all the phi result registers for all the phis in the
-     * same basic block interfere with each other. This is needed since
+     * same basic block interfere with each other, and also that a phi's source
+     * registers interfere with the result registers from other phis. This is needed since
      * the dead code remover has allowed through "dead-end phis" whose
      * results are not used except as local assignments. Without this step,
      * a the result of a dead-end phi might be assigned the same register
      * as the result of another phi, and the phi removal move scheduler may
      * generate moves that over-write the live result.
      *
-     * @param ssaMeth      {@code non-null;} method to pricess
+     * @param ssaMeth {@code non-null;} method to process
      * @param interference {@code non-null;} interference graph
      */
     private static void coInterferePhis(SsaMethod ssaMeth,
-                                        InterferenceGraph interference) {
+            InterferenceGraph interference) {
         for (SsaBasicBlock b : ssaMeth.getBlocks()) {
             List<SsaInsn> phis = b.getPhiInsns();
 
@@ -265,10 +269,21 @@ public class LivenessAnalyzer {
                         continue;
                     }
 
-                    interference.add(phis.get(i).getResult().getReg(),
-                            phis.get(j).getResult().getReg());
+                    SsaInsn first = phis.get(i);
+                    SsaInsn second = phis.get(j);
+                    coInterferePhiRegisters(interference, first.getResult(), second.getSources());
+                    coInterferePhiRegisters(interference, second.getResult(), first.getSources());
+                    interference.add(first.getResult().getReg(), second.getResult().getReg());
                 }
             }
+        }
+    }
+
+    private static void coInterferePhiRegisters(InterferenceGraph interference, RegisterSpec result,
+            RegisterSpecList sources) {
+        int resultReg = result.getReg();
+        for (int i = 0; i < sources.size(); ++i) {
+            interference.add(resultReg, sources.get(i).getReg());
         }
     }
 }

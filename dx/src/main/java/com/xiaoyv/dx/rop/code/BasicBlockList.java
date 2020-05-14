@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.code;
 
@@ -56,7 +70,7 @@ public final class BasicBlockList extends LabeledList {
     /**
      * Sets the basic block at the given index.
      *
-     * @param n  {@code >= 0, < size();} which index
+     * @param n {@code >= 0, < size();} which index
      * @param bb {@code null-ok;} the element to set at {@code n}
      */
     public void set(int n, BasicBlock bb) {
@@ -136,7 +150,7 @@ public final class BasicBlockList extends LabeledList {
     /**
      * Gets the first block in the list with the given label, if any.
      *
-     * @param label {@code >= 0;} the label to look for
+     * @param label {@code label >= 0;} the label to look for
      * @return {@code non-null;} the so-labelled block
      * @throws IllegalArgumentException thrown if the label isn't found
      */
@@ -297,9 +311,7 @@ public final class BasicBlockList extends LabeledList {
      */
     private static class RegCountVisitor
             implements Insn.Visitor {
-        /**
-         * {@code >= 0;} register count in-progress
-         */
+        /** {@code >= 0;} register count in-progress */
         private int regCount;
 
         /**
@@ -318,45 +330,45 @@ public final class BasicBlockList extends LabeledList {
             return regCount;
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitPlainInsn(PlainInsn insn) {
             visit(insn);
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitPlainCstInsn(PlainCstInsn insn) {
             visit(insn);
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitSwitchInsn(SwitchInsn insn) {
             visit(insn);
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitThrowingCstInsn(ThrowingCstInsn insn) {
             visit(insn);
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitThrowingInsn(ThrowingInsn insn) {
             visit(insn);
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitFillArrayDataInsn(FillArrayDataInsn insn) {
+            visit(insn);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public void visitInvokePolymorphicInsn(InvokePolymorphicInsn insn) {
             visit(insn);
         }
 

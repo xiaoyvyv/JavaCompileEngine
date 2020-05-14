@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
@@ -10,16 +24,6 @@ import com.xiaoyv.dx.dex.code.DalvCode;
 import com.xiaoyv.dx.dex.code.DalvInsnList;
 import com.xiaoyv.dx.dex.code.LocalList;
 import com.xiaoyv.dx.dex.code.PositionList;
-import com.xiaoyv.dx.rop.cst.CstMethodRef;
-import com.xiaoyv.dx.rop.cst.CstString;
-import com.xiaoyv.dx.rop.type.Prototype;
-import com.xiaoyv.dx.rop.type.StdTypeList;
-import com.xiaoyv.dx.rop.type.Type;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_ADVANCE_LINE;
 import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_ADVANCE_PC;
 import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_END_LOCAL;
@@ -33,6 +37,14 @@ import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_SET_FILE;
 import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_SET_PROLOGUE_END;
 import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_START_LOCAL;
 import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_START_LOCAL_EXTENDED;
+import com.xiaoyv.dx.rop.cst.CstMethodRef;
+import com.xiaoyv.dx.rop.cst.CstString;
+import com.xiaoyv.dx.rop.type.Prototype;
+import com.xiaoyv.dx.rop.type.StdTypeList;
+import com.xiaoyv.dx.rop.type.Type;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A decoder for the dex debug info state machine format.
@@ -40,44 +52,28 @@ import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_START_LOCAL_EXTENDED
  * for the {@code DebugInfoEncoder}
  */
 public class DebugInfoDecoder {
-    /**
-     * encoded debug info
-     */
+    /** encoded debug info */
     private final byte[] encoded;
 
-    /**
-     * positions decoded
-     */
+    /** positions decoded */
     private final ArrayList<PositionEntry> positions;
 
-    /**
-     * locals decoded
-     */
+    /** locals decoded */
     private final ArrayList<LocalEntry> locals;
 
-    /**
-     * size of code block in code units
-     */
+    /** size of code block in code units */
     private final int codesize;
 
-    /**
-     * indexed by register, the last local variable live in a reg
-     */
+    /** indexed by register, the last local variable live in a reg */
     private final LocalEntry[] lastEntryForReg;
 
-    /**
-     * method descriptor of method this debug info is for
-     */
+    /** method descriptor of method this debug info is for */
     private final Prototype desc;
 
-    /**
-     * true if method is static
-     */
+    /** true if method is static */
     private final boolean isStatic;
 
-    /**
-     * dex file this debug info will be stored in
-     */
+    /** dex file this debug info will be stored in */
     private final DexFile file;
 
     /**
@@ -86,34 +82,28 @@ public class DebugInfoDecoder {
      */
     private final int regSize;
 
-    /**
-     * current decoding state: line number
-     */
+    /** current decoding state: line number */
     private int line = 1;
 
-    /**
-     * current decoding state: bytecode address
-     */
+    /** current decoding state: bytecode address */
     private int address = 0;
 
-    /**
-     * string index of the string "this"
-     */
+    /** string index of the string "this" */
     private final int thisStringIdx;
 
     /**
      * Constructs an instance.
      *
-     * @param encoded  encoded debug info
+     * @param encoded encoded debug info
      * @param codesize size of code block in code units
-     * @param regSize  register size, in register units, of the register space
-     *                 used by this method
+     * @param regSize register size, in register units, of the register space
+     * used by this method
      * @param isStatic true if method is static
-     * @param ref      method descriptor of method this debug info is for
-     * @param file     dex file this debug info will be stored in
+     * @param ref method descriptor of method this debug info is for
+     * @param file dex file this debug info will be stored in
      */
     DebugInfoDecoder(byte[] encoded, int codesize, int regSize,
-                     boolean isStatic, CstMethodRef ref, DexFile file) {
+            boolean isStatic, CstMethodRef ref, DexFile file) {
         if (encoded == null) {
             throw new NullPointerException("encoded == null");
         }
@@ -148,14 +138,10 @@ public class DebugInfoDecoder {
      * An entry in the resulting postions table
      */
     static private class PositionEntry {
-        /**
-         * bytecode address
-         */
+        /** bytecode address */
         public int address;
 
-        /**
-         * line number
-         */
+        /** line number */
         public int line;
 
         public PositionEntry(int address, int line) {
@@ -168,46 +154,35 @@ public class DebugInfoDecoder {
      * An entry in the resulting locals table
      */
     static private class LocalEntry {
-        /**
-         * address of event
-         */
+        /** address of event */
         public int address;
 
-        /**
-         * {@code true} iff it's a local start
-         */
+        /** {@code true} iff it's a local start */
         public boolean isStart;
 
-        /**
-         * register number
-         */
+        /** register number */
         public int reg;
 
-        /**
-         * index of name in strings table
-         */
+        /** index of name in strings table */
         public int nameIndex;
 
-        /**
-         * index of type in types table
-         */
+        /** index of type in types table */
         public int typeIndex;
 
-        /**
-         * index of type signature in strings table
-         */
+        /** index of type signature in strings table */
         public int signatureIndex;
 
         public LocalEntry(int address, boolean isStart, int reg, int nameIndex,
-                          int typeIndex, int signatureIndex) {
-            this.address = address;
-            this.isStart = isStart;
-            this.reg = reg;
-            this.nameIndex = nameIndex;
-            this.typeIndex = typeIndex;
+                int typeIndex, int signatureIndex) {
+            this.address        = address;
+            this.isStart        = isStart;
+            this.reg            = reg;
+            this.nameIndex      = nameIndex;
+            this.typeIndex      = typeIndex;
             this.signatureIndex = signatureIndex;
         }
 
+        @Override
         public String toString() {
             return String.format("[%x %s v%d %04x %04x %04x]",
                     address, isStart ? "start" : "end", reg,
@@ -269,7 +244,7 @@ public class DebugInfoDecoder {
      */
     private int getParamBase() {
         return regSize
-                - desc.getParameterTypes().getWordCount() - (isStatic ? 0 : 1);
+                - desc.getParameterTypes().getWordCount() - (isStatic? 0 : 1);
     }
 
     private void decode0() throws IOException {
@@ -288,7 +263,7 @@ public class DebugInfoDecoder {
         if (!isStatic) {
             // Start off with implicit 'this' entry
             LocalEntry thisEntry =
-                    new LocalEntry(0, true, curReg, thisStringIdx, 0, 0);
+                new LocalEntry(0, true, curReg, thisStringIdx, 0, 0);
             locals.add(thisEntry);
             lastEntryForReg[curReg] = thisEntry;
             curReg++;
@@ -316,7 +291,7 @@ public class DebugInfoDecoder {
             curReg += paramType.getCategory();
         }
 
-        for (; ; ) {
+        for (;;) {
             int opcode = bs.readByte() & 0xff;
 
             switch (opcode) {
@@ -399,27 +374,27 @@ public class DebugInfoDecoder {
 
                 case DBG_END_SEQUENCE:
                     // all done
-                    return;
+                return;
 
                 case DBG_ADVANCE_PC:
                     address += Leb128.readUnsignedLeb128(bs);
-                    break;
+                break;
 
                 case DBG_ADVANCE_LINE:
                     line += Leb128.readSignedLeb128(bs);
-                    break;
+                break;
 
                 case DBG_SET_PROLOGUE_END:
                     //TODO do something with this.
-                    break;
+                break;
 
                 case DBG_SET_EPILOGUE_BEGIN:
                     //TODO do something with this.
-                    break;
+                break;
 
                 case DBG_SET_FILE:
                     //TODO do something with this.
-                    break;
+                break;
 
                 default:
                     if (opcode < DBG_FIRST_SPECIAL) {
@@ -434,7 +409,7 @@ public class DebugInfoDecoder {
                     line += DBG_LINE_BASE + (adjopcode % DBG_LINE_RANGE);
 
                     positions.add(new PositionEntry(address, line));
-                    break;
+                break;
 
             }
         }
@@ -445,14 +420,14 @@ public class DebugInfoDecoder {
      * throwing an exception if they do not match. Used to validate the
      * encoder.
      *
-     * @param info     encoded debug info
-     * @param file     {@code non-null;} file to refer to during decoding
-     * @param ref      {@code non-null;} method whose info is being decoded
-     * @param code     {@code non-null;} original code object that was encoded
+     * @param info encoded debug info
+     * @param file {@code non-null;} file to refer to during decoding
+     * @param ref {@code non-null;} method whose info is being decoded
+     * @param code {@code non-null;} original code object that was encoded
      * @param isStatic whether the method is static
      */
     public static void validateEncode(byte[] info, DexFile file,
-                                      CstMethodRef ref, DalvCode code, boolean isStatic) {
+            CstMethodRef ref, DalvCode code, boolean isStatic) {
         PositionList pl = code.getPositions();
         LocalList ll = code.getLocals();
         DalvInsnList insns = code.getInsns();
@@ -473,11 +448,11 @@ public class DebugInfoDecoder {
     }
 
     private static void validateEncode0(byte[] info, int codeSize,
-                                        int countRegisters, boolean isStatic, CstMethodRef ref,
-                                        DexFile file, PositionList pl, LocalList ll) {
+            int countRegisters, boolean isStatic, CstMethodRef ref,
+            DexFile file, PositionList pl, LocalList ll) {
         DebugInfoDecoder decoder
                 = new DebugInfoDecoder(info, codeSize, countRegisters,
-                isStatic, ref, file);
+                    isStatic, ref, file);
 
         decoder.decode();
 
@@ -491,7 +466,7 @@ public class DebugInfoDecoder {
         if (decodedEntries.size() != pl.size()) {
             throw new RuntimeException(
                     "Decoded positions table not same size was "
-                            + decodedEntries.size() + " expected " + pl.size());
+                    + decodedEntries.size() + " expected " + pl.size());
         }
 
         for (PositionEntry entry : decodedEntries) {
@@ -507,7 +482,7 @@ public class DebugInfoDecoder {
             }
 
             if (!found) {
-                throw new RuntimeException("Could not match position entry: "
+                throw new RuntimeException ("Could not match position entry: "
                         + entry.address + ", " + entry.line);
             }
         }
@@ -601,7 +576,7 @@ public class DebugInfoDecoder {
              */
             if ((decodedAddress != origEntry.getAddress())
                     && !((decodedAddress == 0)
-                    && (decodedEntry.reg >= paramBase))) {
+                            && (decodedEntry.reg >= paramBase))) {
                 System.err.println("local address mismatch at orig " + i +
                         " / decoded " + decodeAt);
                 problem = true;

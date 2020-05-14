@@ -1,8 +1,23 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.code;
 
 import com.xiaoyv.dx.cf.iface.MethodList;
+import com.xiaoyv.dx.dex.DexOptions;
 import com.xiaoyv.dx.rop.code.AccessFlags;
 import com.xiaoyv.dx.rop.code.BasicBlock;
 import com.xiaoyv.dx.rop.code.BasicBlockList;
@@ -28,7 +43,6 @@ import com.xiaoyv.dx.rop.type.TypeList;
 import com.xiaoyv.dx.util.Bits;
 import com.xiaoyv.dx.util.Hex;
 import com.xiaoyv.dx.util.IntList;
-
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
@@ -40,29 +54,19 @@ import java.util.Map;
  * blocks.
  */
 public final class Ropper {
-    /**
-     * label offset for the parameter assignment block
-     */
+    /** label offset for the parameter assignment block */
     private static final int PARAM_ASSIGNMENT = -1;
 
-    /**
-     * label offset for the return block
-     */
+    /** label offset for the return block */
     private static final int RETURN = -2;
 
-    /**
-     * label offset for the synchronized method final return block
-     */
+    /** label offset for the synchronized method final return block */
     private static final int SYNCH_RETURN = -3;
 
-    /**
-     * label offset for the first synchronized method setup block
-     */
+    /** label offset for the first synchronized method setup block */
     private static final int SYNCH_SETUP_1 = -4;
 
-    /**
-     * label offset for the second synchronized method setup block
-     */
+    /** label offset for the second synchronized method setup block */
     private static final int SYNCH_SETUP_2 = -5;
 
     /**
@@ -77,39 +81,25 @@ public final class Ropper {
      */
     private static final int SYNCH_CATCH_2 = -7;
 
-    /**
-     * number of special label offsets
-     */
+    /** number of special label offsets */
     private static final int SPECIAL_LABEL_COUNT = 7;
 
-    /**
-     * {@code non-null;} method being converted
-     */
+    /** {@code non-null;} method being converted */
     private final ConcreteMethod method;
 
-    /**
-     * {@code non-null;} original block list
-     */
+    /** {@code non-null;} original block list */
     private final ByteBlockList blocks;
 
-    /**
-     * max locals of the method
-     */
+    /** max locals of the method */
     private final int maxLocals;
 
-    /**
-     * max label (exclusive) of any original bytecode block
-     */
+    /** max label (exclusive) of any original bytecode block */
     private final int maxLabel;
 
-    /**
-     * {@code non-null;} simulation machine to use
-     */
+    /** {@code non-null;} simulation machine to use */
     private final RopperMachine machine;
 
-    /**
-     * {@code non-null;} simulator to use
-     */
+    /** {@code non-null;} simulator to use */
     private final Simulator sim;
 
     /**
@@ -118,9 +108,7 @@ public final class Ropper {
      */
     private final Frame[] startFrames;
 
-    /**
-     * {@code non-null;} output block list in-progress
-     */
+    /** {@code non-null;} output block list in-progress */
     private final ArrayList<BasicBlock> result;
 
     /**
@@ -144,18 +132,13 @@ public final class Ropper {
 
     /**
      * {@code non-null;} list of subroutines indexed by label of start
-     * address
-     */
+     * address */
     private final Subroutine[] subroutines;
 
-    /**
-     * true if {@code subroutines} is non-empty
-     */
+    /** true if {@code subroutines} is non-empty */
     private boolean hasSubroutines;
 
-    /**
-     * Allocates labels of exception handler setup blocks.
-     */
+    /** Allocates labels of exception handler setup blocks. */
     private final ExceptionSetupLabelAllocator exceptionSetupLabelAllocator;
 
     /**
@@ -164,8 +147,7 @@ public final class Ropper {
      */
     private class CatchInfo {
         /**
-         * {@code non-null;} map of ExceptionHandlerSetup by the type they handle
-         */
+         * {@code non-null;} map of ExceptionHandlerSetup by the type they handle */
         private final Map<Type, ExceptionHandlerSetup> setups =
                 new HashMap<Type, ExceptionHandlerSetup>();
 
@@ -191,7 +173,7 @@ public final class Ropper {
          *
          * @return {@code non-null;}
          */
-        Collection<ExceptionHandlerSetup> getSetups() {
+       Collection<ExceptionHandlerSetup> getSetups() {
             return setups.values();
         }
     }
@@ -201,19 +183,17 @@ public final class Ropper {
      */
     private static class ExceptionHandlerSetup {
         /**
-         * {@code non-null;} The caught type.
-         */
+         * {@code non-null;} The caught type. */
         private Type caughtType;
         /**
-         * {@code >= 0;} The label of the exception setup block.
-         */
+         * {@code >= 0;} The label of the exception setup block. */
         private int label;
 
         /**
          * Constructs instance.
          *
          * @param caughtType {@code non-null;} the caught type
-         * @param label      {@code >= 0;} the label
+         * @param label {@code >= 0;} the label
          */
         ExceptionHandlerSetup(Type caughtType, int label) {
             this.caughtType = caughtType;
@@ -240,17 +220,11 @@ public final class Ropper {
      * Rop form.
      */
     private class Subroutine {
-        /**
-         * list of all blocks that jsr to this subroutine
-         */
+        /** list of all blocks that jsr to this subroutine */
         private BitSet callerBlocks;
-        /**
-         * List of all blocks that return from this subroutine
-         */
+        /** List of all blocks that return from this subroutine */
         private BitSet retBlocks;
-        /**
-         * first block in this subroutine
-         */
+        /** first block in this subroutine */
         private int startBlock;
 
         /**
@@ -269,8 +243,8 @@ public final class Ropper {
          * Constructs instance.
          *
          * @param startBlock First block of the subroutine.
-         * @param retBlock   one of the ret blocks (final blocks) of this
-         *                   subroutine.
+         * @param retBlock one of the ret blocks (final blocks) of this
+         * subroutine.
          */
         Subroutine(int startBlock, int retBlock) {
             this(startBlock);
@@ -323,7 +297,7 @@ public final class Ropper {
              */
 
             for (int label = callerBlocks.nextSetBit(0); label >= 0;
-                 label = callerBlocks.nextSetBit(label + 1)) {
+                 label = callerBlocks.nextSetBit(label+1)) {
                 BasicBlock subCaller = labelToBlock(label);
                 successors.add(subCaller.getSuccessors().get(0));
             }
@@ -338,12 +312,12 @@ public final class Ropper {
          * setting {@code workSet} as appropriate. To be called with
          * the frame of a subroutine ret block.
          *
-         * @param frame   {@code non-null;} frame from ret block to merge
+         * @param frame {@code non-null;} frame from ret block to merge
          * @param workSet {@code non-null;} workset to update
          */
         void mergeToSuccessors(Frame frame, int[] workSet) {
             for (int label = callerBlocks.nextSetBit(0); label >= 0;
-                 label = callerBlocks.nextSetBit(label + 1)) {
+                 label = callerBlocks.nextSetBit(label+1)) {
                 BasicBlock subCaller = labelToBlock(label);
                 int succLabel = subCaller.getSuccessors().get(0);
 
@@ -362,21 +336,21 @@ public final class Ropper {
     /**
      * Converts a {@link ConcreteMethod} to a {@link RopMethod}.
      *
-     * @param method  {@code non-null;} method to convert
-     * @param advice  {@code non-null;} translation advice to use
+     * @param method {@code non-null;} method to convert
+     * @param advice {@code non-null;} translation advice to use
      * @param methods {@code non-null;} list of methods defined by the class
-     *                that defines {@code method}.
+     *     that defines {@code method}.
      * @return {@code non-null;} the converted instance
      */
     public static RopMethod convert(ConcreteMethod method,
-                                    TranslationAdvice advice, MethodList methods) {
+            TranslationAdvice advice, MethodList methods, DexOptions dexOptions) {
         try {
-            Ropper r = new Ropper(method, advice, methods);
+            Ropper r = new Ropper(method, advice, methods, dexOptions);
             r.doit();
             return r.getRopMethod();
         } catch (SimException ex) {
             ex.addContext("...while working on method " +
-                    method.getNat().toHuman());
+                          method.getNat().toHuman());
             throw ex;
         }
     }
@@ -385,12 +359,14 @@ public final class Ropper {
      * Constructs an instance. This class is not publicly instantiable; use
      * {@link #convert}.
      *
-     * @param method  {@code non-null;} method to convert
-     * @param advice  {@code non-null;} translation advice to use
+     * @param method {@code non-null;} method to convert
+     * @param advice {@code non-null;} translation advice to use
      * @param methods {@code non-null;} list of methods defined by the class
-     *                that defines {@code method}.
+     *     that defines {@code method}.
+     * @param dexOptions {@code non-null;} options for dex output
      */
-    private Ropper(ConcreteMethod method, TranslationAdvice advice, MethodList methods) {
+    private Ropper(ConcreteMethod method, TranslationAdvice advice, MethodList methods,
+            DexOptions dexOptions) {
         if (method == null) {
             throw new NullPointerException("method == null");
         }
@@ -404,7 +380,7 @@ public final class Ropper {
         this.maxLabel = blocks.getMaxLabel();
         this.maxLocals = method.getMaxLocals();
         this.machine = new RopperMachine(this, method, advice, methods);
-        this.sim = new Simulator(machine, method);
+        this.sim = new Simulator(machine, method, dexOptions);
         this.startFrames = new Frame[maxLabel];
         this.subroutines = new Subroutine[maxLabel];
 
@@ -416,7 +392,7 @@ public final class Ropper {
          */
         this.result = new ArrayList<BasicBlock>(blocks.size() * 2 + 10);
         this.resultSubroutines =
-                new ArrayList<IntList>(blocks.size() * 2 + 10);
+            new ArrayList<IntList>(blocks.size() * 2 + 10);
 
         this.catchInfos = new CatchInfo[maxLabel];
         this.synchNeedsExceptionHandler = false;
@@ -493,7 +469,7 @@ public final class Ropper {
      * maxLabel + method.getCatches().size() + SPECIAL_LABEL_COUNT[ are reserved for special blocks,
      * ie param assignement, return and synch blocks.</li>
      * <li>[maxLabel method.getCatches().size() + SPECIAL_LABEL_COUNT, getAvailableLabel()[ assigned
-     * labels. Note that some
+     *  labels. Note that some
      * of the assigned labels may not be used any more if they were assigned to a block that was
      * deleted since.</li>
      * </ul>
@@ -604,9 +580,9 @@ public final class Ropper {
     /**
      * Adds a block to the output result.
      *
-     * @param block       {@code non-null;} the block to add
+     * @param block {@code non-null;} the block to add
      * @param subroutines {@code non-null;} subroutine label list
-     *                    as described in {@link Frame#getSubroutines}
+     * as described in {@link Frame#getSubroutines}
      */
     private void addBlock(BasicBlock block, IntList subroutines) {
         if (block == null) {
@@ -623,9 +599,9 @@ public final class Ropper {
      * replacement, then any extra blocks that got added with the
      * original get removed as a result of calling this method.
      *
-     * @param block       {@code non-null;} the block to add or replace
+     * @param block {@code non-null;} the block to add or replace
      * @param subroutines {@code non-null;} subroutine label list
-     *                    as described in {@link Frame#getSubroutines}
+     * as described in {@link Frame#getSubroutines}
      * @return {@code true} if the block was replaced or
      * {@code false} if it was added for the first time
      */
@@ -661,14 +637,14 @@ public final class Ropper {
      * Adds or replaces a block in the output result. Do not delete
      * any successors.
      *
-     * @param block       {@code non-null;} the block to add or replace
+     * @param block {@code non-null;} the block to add or replace
      * @param subroutines {@code non-null;} subroutine label list
-     *                    as described in {@link Frame#getSubroutines}
+     * as described in {@link Frame#getSubroutines}
      * @return {@code true} if the block was replaced or
      * {@code false} if it was added for the first time
      */
     private boolean addOrReplaceBlockNoDelete(BasicBlock block,
-                                              IntList subroutines) {
+            IntList subroutines) {
         if (block == null) {
             throw new NullPointerException("block == null");
         }
@@ -756,7 +732,7 @@ public final class Ropper {
         addSetupBlocks();
         setFirstFrame();
 
-        for (; ; ) {
+        for (;;) {
             int offset = Bits.findFirst(workSet, 0);
             if (offset < 0) {
                 break;
@@ -795,10 +771,10 @@ public final class Ropper {
     /**
      * Processes the given block.
      *
-     * @param block   {@code non-null;} block to process
-     * @param frame   {@code non-null;} start frame for the block
+     * @param block {@code non-null;} block to process
+     * @param frame {@code non-null;} start frame for the block
      * @param workSet {@code non-null;} bits representing work to do,
-     *                which this method may add to
+     * which this method may add to
      */
     private void processBlock(ByteBlock block, Frame frame, int[] workSet) {
         // Prepare the list of caught exceptions for this block.
@@ -839,7 +815,7 @@ public final class Ropper {
 
             if (subroutines[subroutineLabel] == null) {
                 subroutines[subroutineLabel] =
-                        new Subroutine(subroutineLabel);
+                    new Subroutine (subroutineLabel);
             }
 
             subroutines[subroutineLabel].addCallerBlock(block.getLabel());
@@ -857,7 +833,7 @@ public final class Ropper {
 
             if (subroutines[subroutineLabel] == null) {
                 subroutines[subroutineLabel]
-                        = new Subroutine(subroutineLabel, block.getLabel());
+                        = new Subroutine (subroutineLabel, block.getLabel());
             } else {
                 subroutines[subroutineLabel].addRetBlock(block.getLabel());
             }
@@ -946,7 +922,7 @@ public final class Ropper {
                             null, f, workSet);
                 } catch (SimException ex) {
                     ex.addContext("...while merging exception to block " +
-                            Hex.u2(targ));
+                                  Hex.u2(targ));
                     throw ex;
                 }
 
@@ -1011,7 +987,7 @@ public final class Ropper {
             Insn extraInsn = insns.get(--insnSz);
             boolean needsGoto
                     = extraInsn.getOpcode().getBranchingness()
-                    == Rop.BRANCH_NONE;
+                        == Rop.BRANCH_NONE;
             InsnList il = new InsnList(needsGoto ? 2 : 1);
             IntList extraBlockSuccessors = successors;
 
@@ -1052,11 +1028,11 @@ public final class Ropper {
          * in the original Java bytecode).
          */
         if ((lastInsn == null) ||
-                (lastInsn.getOpcode().getBranchingness() == Rop.BRANCH_NONE)) {
+            (lastInsn.getOpcode().getBranchingness() == Rop.BRANCH_NONE)) {
             SourcePosition pos = (lastInsn == null) ? SourcePosition.NO_INFO :
-                    lastInsn.getPosition();
+                lastInsn.getPosition();
             insns.add(new PlainInsn(Rops.GOTO, pos, null,
-                    RegisterSpecList.EMPTY));
+                                    RegisterSpecList.EMPTY));
             insnSz++;
         }
 
@@ -1072,7 +1048,7 @@ public final class Ropper {
         il.setImmutable();
 
         BasicBlock bb =
-                new BasicBlock(block.getLabel(), il, successors, primarySucc);
+            new BasicBlock(block.getLabel(), il, successors, primarySucc);
         addOrReplaceBlock(bb, frame.getSubroutines());
     }
 
@@ -1080,18 +1056,18 @@ public final class Ropper {
      * Helper for {@link #processBlock}, which merges frames and
      * adds to the work set, as necessary.
      *
-     * @param label            {@code >= 0;} label to work on
-     * @param pred             predecessor label; must be {@code >= 0} when
-     *                         {@code label} is a subroutine start block and calledSubroutine
-     *                         is non-null. Otherwise, may be -1.
+     * @param label {@code >= 0;} label to work on
+     * @param pred  predecessor label; must be {@code >= 0} when
+     * {@code label} is a subroutine start block and calledSubroutine
+     * is non-null. Otherwise, may be -1.
      * @param calledSubroutine {@code null-ok;} a Subroutine instance if
-     *                         {@code label} is the first block in a subroutine.
-     * @param frame            {@code non-null;} new frame for the labelled block
-     * @param workSet          {@code non-null;} bits representing work to do,
-     *                         which this method may add to
+     * {@code label} is the first block in a subroutine.
+     * @param frame {@code non-null;} new frame for the labelled block
+     * @param workSet {@code non-null;} bits representing work to do,
+     * which this method may add to
      */
     private void mergeAndWorkAsNecessary(int label, int pred,
-                                         Subroutine calledSubroutine, Frame frame, int[] workSet) {
+            Subroutine calledSubroutine, Frame frame, int[] workSet) {
         Frame existing = startFrames[label];
         Frame merged;
 
@@ -1141,27 +1117,27 @@ public final class Ropper {
         for (int i = 0; i < sz; i++) {
             Type one = params.get(i);
             LocalVariableList.Item local =
-                    localVariables.pcAndIndexToLocal(0, at);
+                localVariables.pcAndIndexToLocal(0, at);
             RegisterSpec result = (local == null) ?
-                    RegisterSpec.make(at, one) :
-                    RegisterSpec.makeLocalOptional(at, one, local.getLocalItem());
+                RegisterSpec.make(at, one) :
+                RegisterSpec.makeLocalOptional(at, one, local.getLocalItem());
 
             Insn insn = new PlainCstInsn(Rops.opMoveParam(one), pos, result,
-                    RegisterSpecList.EMPTY,
-                    CstInteger.make(at));
+                                         RegisterSpecList.EMPTY,
+                                         CstInteger.make(at));
             insns.set(i, insn);
             at += one.getCategory();
         }
 
         insns.set(sz, new PlainInsn(Rops.GOTO, pos, null,
-                RegisterSpecList.EMPTY));
+                                    RegisterSpecList.EMPTY));
         insns.setImmutable();
 
         boolean synch = isSynchronized();
         int label = synch ? getSpecialLabel(SYNCH_SETUP_1) : 0;
         BasicBlock bb =
-                new BasicBlock(getSpecialLabel(PARAM_ASSIGNMENT), insns,
-                        IntList.makeImmutable(label), label);
+            new BasicBlock(getSpecialLabel(PARAM_ASSIGNMENT), insns,
+                           IntList.makeImmutable(label), label);
         addBlock(bb, IntList.EMPTY);
 
         if (synch) {
@@ -1169,25 +1145,25 @@ public final class Ropper {
             Insn insn;
             if (isStatic()) {
                 insn = new ThrowingCstInsn(Rops.CONST_OBJECT, pos,
-                        RegisterSpecList.EMPTY,
-                        StdTypeList.EMPTY,
-                        method.getDefiningClass());
+                                           RegisterSpecList.EMPTY,
+                                           StdTypeList.EMPTY,
+                                           method.getDefiningClass());
                 insns = new InsnList(1);
                 insns.set(0, insn);
             } else {
                 insns = new InsnList(2);
                 insn = new PlainCstInsn(Rops.MOVE_PARAM_OBJECT, pos,
-                        synchReg, RegisterSpecList.EMPTY,
-                        CstInteger.VALUE_0);
+                                        synchReg, RegisterSpecList.EMPTY,
+                                        CstInteger.VALUE_0);
                 insns.set(0, insn);
                 insns.set(1, new PlainInsn(Rops.GOTO, pos, null,
-                        RegisterSpecList.EMPTY));
+                                           RegisterSpecList.EMPTY));
             }
 
             int label2 = getSpecialLabel(SYNCH_SETUP_2);
             insns.setImmutable();
             bb = new BasicBlock(label, insns,
-                    IntList.makeImmutable(label2), label2);
+                                IntList.makeImmutable(label2), label2);
             addBlock(bb, IntList.EMPTY);
 
             insns = new InsnList(isStatic() ? 2 : 1);
@@ -1198,9 +1174,9 @@ public final class Ropper {
             }
 
             insn = new ThrowingInsn(Rops.MONITOR_ENTER, pos,
-                    RegisterSpecList.make(synchReg),
-                    StdTypeList.EMPTY);
-            insns.set(isStatic() ? 1 : 0, insn);
+                                    RegisterSpecList.make(synchReg),
+                                    StdTypeList.EMPTY);
+            insns.set(isStatic() ? 1 :0, insn);
             insns.setImmutable();
             bb = new BasicBlock(label2, insns, IntList.makeImmutable(0), 0);
             addBlock(bb, IntList.EMPTY);
@@ -1229,15 +1205,15 @@ public final class Ropper {
         if (isSynchronized()) {
             InsnList insns = new InsnList(1);
             Insn insn = new ThrowingInsn(Rops.MONITOR_EXIT, returnPos,
-                    RegisterSpecList.make(getSynchReg()),
-                    StdTypeList.EMPTY);
+                                         RegisterSpecList.make(getSynchReg()),
+                                         StdTypeList.EMPTY);
             insns.set(0, insn);
             insns.setImmutable();
 
             int nextLabel = getSpecialLabel(SYNCH_RETURN);
             BasicBlock bb =
-                    new BasicBlock(label, insns,
-                            IntList.makeImmutable(nextLabel), nextLabel);
+                new BasicBlock(label, insns,
+                               IntList.makeImmutable(nextLabel), nextLabel);
             addBlock(bb, IntList.EMPTY);
 
             label = nextLabel;
@@ -1285,23 +1261,23 @@ public final class Ropper {
 
         InsnList insns = new InsnList(2);
         insn = new PlainInsn(Rops.opMoveException(Type.THROWABLE), pos,
-                exReg, RegisterSpecList.EMPTY);
+                             exReg, RegisterSpecList.EMPTY);
         insns.set(0, insn);
         insn = new ThrowingInsn(Rops.MONITOR_EXIT, pos,
-                RegisterSpecList.make(getSynchReg()),
-                StdTypeList.EMPTY);
+                                RegisterSpecList.make(getSynchReg()),
+                                StdTypeList.EMPTY);
         insns.set(1, insn);
         insns.setImmutable();
 
         int label2 = getSpecialLabel(SYNCH_CATCH_2);
         bb = new BasicBlock(getSpecialLabel(SYNCH_CATCH_1), insns,
-                IntList.makeImmutable(label2), label2);
+                            IntList.makeImmutable(label2), label2);
         addBlock(bb, IntList.EMPTY);
 
         insns = new InsnList(1);
         insn = new ThrowingInsn(Rops.THROW, pos,
-                RegisterSpecList.make(exReg),
-                StdTypeList.EMPTY);
+                                RegisterSpecList.make(exReg),
+                                StdTypeList.EMPTY);
         insns.set(0, insn);
         insns.setImmutable();
 
@@ -1377,6 +1353,7 @@ public final class Ropper {
          * Start at label 0 --  the param assignment block has nothing for us
          */
         forEachNonSubBlockDepthFirst(0, new BasicBlock.Visitor() {
+            @Override
             public void visitBlock(BasicBlock b) {
                 if (isSubroutineCaller(b)) {
                     reachableSubroutineCallerLabels.add(b.getLabel());
@@ -1409,7 +1386,7 @@ public final class Ropper {
          * Inner subroutines will be inlined as they are encountered.
          */
         int sz = reachableSubroutineCallerLabels.size();
-        for (int i = 0; i < sz; i++) {
+        for (int i = 0 ; i < sz ; i++) {
             int label = reachableSubroutineCallerLabels.get(i);
             new SubroutineInliner(
                     new LabelAllocator(getAvailableLabel()),
@@ -1434,14 +1411,15 @@ public final class Ropper {
         forEachNonSubBlockDepthFirst(getSpecialLabel(PARAM_ASSIGNMENT),
                 new BasicBlock.Visitor() {
 
-                    public void visitBlock(BasicBlock b) {
-                        reachableLabels.add(b.getLabel());
-                    }
-                });
+            @Override
+            public void visitBlock(BasicBlock b) {
+                reachableLabels.add(b.getLabel());
+            }
+        });
 
         reachableLabels.sort();
 
-        for (int i = result.size() - 1; i >= 0; i--) {
+        for (int i = result.size() - 1 ; i >= 0 ; i--) {
             if (reachableLabels.indexOf(result.get(i).getLabel()) < 0) {
                 result.remove(i);
                 // unnecessary here really, since subroutine inlining is done
@@ -1488,7 +1466,7 @@ public final class Ropper {
             if (nextAvailableLabel >= maxSetupLabel) {
                 throw new IndexOutOfBoundsException();
             }
-            return nextAvailableLabel++;
+            return nextAvailableLabel ++;
         }
     }
 
@@ -1503,24 +1481,16 @@ public final class Ropper {
          */
         private final HashMap<Integer, Integer> origLabelToCopiedLabel;
 
-        /**
-         * set of original labels that need to be copied
-         */
+        /** set of original labels that need to be copied */
         private final BitSet workList;
 
-        /**
-         * the label of the original start block for this subroutine
-         */
+        /** the label of the original start block for this subroutine */
         private int subroutineStart;
 
-        /**
-         * the label of the ultimate return block
-         */
+        /** the label of the ultimate return block */
         private int subroutineSuccessor;
 
-        /**
-         * used for generating new labels for copied blocks
-         */
+        /** used for generating new labels for copied blocks */
         private final LabelAllocator labelAllocator;
 
         /**
@@ -1531,7 +1501,7 @@ public final class Ropper {
         private final ArrayList<IntList> labelToSubroutines;
 
         SubroutineInliner(final LabelAllocator labelAllocator,
-                          ArrayList<IntList> labelToSubroutines) {
+                ArrayList<IntList> labelToSubroutines) {
             origLabelToCopiedLabel = new HashMap<Integer, Integer>();
 
             workList = new BitSet(maxLabel);
@@ -1569,7 +1539,7 @@ public final class Ropper {
 
                 if (isSubroutineCaller(labelToBlock(label))) {
                     new SubroutineInliner(labelAllocator, labelToSubroutines)
-                            .inlineSubroutineCalledFrom(labelToBlock(newLabel));
+                        .inlineSubroutineCalledFrom(labelToBlock(newLabel));
                 }
             }
 
@@ -1579,17 +1549,17 @@ public final class Ropper {
              */
 
             addOrReplaceBlockNoDelete(
-                    new BasicBlock(b.getLabel(), b.getInsns(),
-                            IntList.makeImmutable(newSubStartLabel),
+                new BasicBlock(b.getLabel(), b.getInsns(),
+                    IntList.makeImmutable (newSubStartLabel),
                             newSubStartLabel),
-                    labelToSubroutines.get(b.getLabel()));
+                labelToSubroutines.get(b.getLabel()));
         }
 
         /**
          * Copies a basic block, mapping its successors along the way.
          *
          * @param origLabel original block label
-         * @param newLabel  label that the new block should have
+         * @param newLabel label that the new block should have
          */
         private void copyBlock(int origLabel, int newLabel) {
 
@@ -1623,10 +1593,10 @@ public final class Ropper {
 
                 // Sanity check
                 if (subroutine.startBlock != subroutineStart) {
-                    throw new RuntimeException(
+                    throw new RuntimeException (
                             "ret instruction returns to label "
-                                    + Hex.u2(subroutine.startBlock)
-                                    + " expected: " + Hex.u2(subroutineStart));
+                            + Hex.u2 (subroutine.startBlock)
+                            + " expected: " + Hex.u2(subroutineStart));
                 }
 
                 successors = IntList.makeImmutable(subroutineSuccessor);
@@ -1639,9 +1609,9 @@ public final class Ropper {
 
                 successors = new IntList(sz);
 
-                for (int i = 0; i < sz; i++) {
+                for (int i = 0 ; i < sz ; i++) {
                     int origSuccLabel = origSuccessors.get(i);
-                    int newSuccLabel = mapOrAllocateLabel(origSuccLabel);
+                    int newSuccLabel =  mapOrAllocateLabel(origSuccLabel);
 
                     successors.add(newSuccLabel);
 
@@ -1653,10 +1623,10 @@ public final class Ropper {
                 successors.setImmutable();
             }
 
-            addBlock(
-                    new BasicBlock(newLabel,
-                            filterMoveReturnAddressInsns(origBlock.getInsns()),
-                            successors, primarySuccessor),
+            addBlock (
+                new BasicBlock(newLabel,
+                    filterMoveReturnAddressInsns(origBlock.getInsns()),
+                    successors, primarySuccessor),
                     labelToSubroutines.get(newLabel));
         }
 
@@ -1664,9 +1634,9 @@ public final class Ropper {
          * Checks to see if a specified label is involved in a specified
          * subroutine.
          *
-         * @param label           {@code >= 0;} a basic block label
+         * @param label {@code >= 0;} a basic block label
          * @param subroutineStart {@code >= 0;} a subroutine as identified
-         *                        by the label of its start block
+         * by the label of its start block
          * @return true if the block is dominated by the subroutine call
          */
         private boolean involvedInSubroutine(int label, int subroutineStart) {
@@ -1692,7 +1662,7 @@ public final class Ropper {
 
             if (mappedLabel != null) {
                 resultLabel = mappedLabel;
-            } else if (!involvedInSubroutine(origLabel, subroutineStart)) {
+            } else if (!involvedInSubroutine(origLabel,subroutineStart)) {
                 /*
                  * A subroutine has ended by some means other than a "ret"
                  * (which really means a throw caught later).
@@ -1724,7 +1694,7 @@ public final class Ropper {
      * was found
      */
     private Subroutine subroutineFromRetBlock(int label) {
-        for (int i = subroutines.length - 1; i >= 0; i--) {
+        for (int i = subroutines.length - 1 ; i >= 0 ; i--) {
             if (subroutines[i] != null) {
                 Subroutine subroutine = subroutines[i];
 
@@ -1744,7 +1714,7 @@ public final class Ropper {
      * insns are dead code after subroutines have been inlined.
      *
      * @param insns {@code InsnList} that may contain
-     *              {@code move-return-address} insns
+     * {@code move-return-address} insns
      * @return {@code InsnList} with {@code move-return-address} removed
      */
     private InsnList filterMoveReturnAddressInsns(InsnList insns) {
@@ -1782,10 +1752,10 @@ public final class Ropper {
      * Visits each non-subroutine block once in depth-first successor order.
      *
      * @param firstLabel label of start block
-     * @param v          callback interface
+     * @param v callback interface
      */
     private void forEachNonSubBlockDepthFirst(int firstLabel,
-                                              BasicBlock.Visitor v) {
+            BasicBlock.Visitor v) {
         forEachNonSubBlockDepthFirst0(labelToBlock(firstLabel),
                 v, new BitSet(maxLabel));
     }
@@ -1794,8 +1764,8 @@ public final class Ropper {
      * Visits each block once in depth-first successor order, ignoring
      * {@code jsr} targets. Worker for {@link #forEachNonSubBlockDepthFirst}.
      *
-     * @param next    next block to visit
-     * @param v       callback interface
+     * @param next next block to visit
+     * @param v callback interface
      * @param visited set of blocks already visited
      */
     private void forEachNonSubBlockDepthFirst0(

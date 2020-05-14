@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
@@ -10,14 +24,10 @@ import com.xiaoyv.dx.util.ByteArrayAnnotatedOutput;
  * Encoded array of constant values.
  */
 public final class EncodedArrayItem extends OffsettedItem {
-    /**
-     * the required alignment for instances of this class
-     */
+    /** the required alignment for instances of this class */
     private static final int ALIGNMENT = 1;
 
-    /**
-     * {@code non-null;} the array to represent
-     */
+    /** {@code non-null;} the array to represent */
     private final CstArray array;
 
     /**
@@ -46,25 +56,19 @@ public final class EncodedArrayItem extends OffsettedItem {
         this.encodedForm = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public ItemType itemType() {
         return ItemType.TYPE_ENCODED_ARRAY_ITEM;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return array.hashCode();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected int compareTo0(OffsettedItem other) {
         EncodedArrayItem otherArray = (EncodedArrayItem) other;
@@ -72,24 +76,19 @@ public final class EncodedArrayItem extends OffsettedItem {
         return array.compareTo(otherArray.array);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toHuman() {
         return array.toHuman();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public void addContents(DexFile file) {
         ValueEncoder.addContents(file, array);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void place0(Section addedTo, int offset) {
         // Encode the data and note the size.
@@ -102,9 +101,7 @@ public final class EncodedArrayItem extends OffsettedItem {
         setWriteSize(encodedForm.length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void writeTo0(DexFile file, AnnotatedOutput out) {
         boolean annotates = out.annotates();

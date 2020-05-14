@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.code;
 
@@ -13,9 +27,7 @@ import com.xiaoyv.dx.util.FixedSizeList;
  * attributes, as well as combinations of the two.
  */
 public final class LocalVariableList extends FixedSizeList {
-    /**
-     * {@code non-null;} zero-size instance
-     */
+    /** {@code non-null;} zero-size instance */
     public static final LocalVariableList EMPTY = new LocalVariableList(0);
 
     /**
@@ -59,7 +71,7 @@ public final class LocalVariableList extends FixedSizeList {
      * corresponding signature. The result is immutable.
      *
      * @param descriptorList {@code non-null;} list with descriptors
-     * @param signatureList  {@code non-null;} list with signatures
+     * @param signatureList {@code non-null;} list with signatures
      * @return {@code non-null;} the merged result
      */
     public static LocalVariableList mergeDescriptorsAndSignatures(
@@ -104,7 +116,7 @@ public final class LocalVariableList extends FixedSizeList {
     /**
      * Sets the item at the given index.
      *
-     * @param n    {@code >= 0, < size();} which element
+     * @param n {@code >= 0, < size();} which element
      * @param item {@code non-null;} the item
      */
     public void set(int n, Item item) {
@@ -121,23 +133,23 @@ public final class LocalVariableList extends FixedSizeList {
      * <p><b>Note:</b> At least one of {@code descriptor} or
      * {@code signature} must be passed as non-null.</p>
      *
-     * @param n          {@code >= 0, < size();} which element
-     * @param startPc    {@code >= 0;} the start pc of this variable's scope
-     * @param length     {@code >= 0;} the length (in bytecodes) of this variable's
-     *                   scope
-     * @param name       {@code non-null;} the variable's name
+     * @param n {@code >= 0, < size();} which element
+     * @param startPc {@code >= 0;} the start pc of this variable's scope
+     * @param length {@code >= 0;} the length (in bytecodes) of this variable's
+     * scope
+     * @param name {@code non-null;} the variable's name
      * @param descriptor {@code null-ok;} the variable's type descriptor
-     * @param signature  {@code null-ok;} the variable's type signature
-     * @param index      {@code >= 0;} the variable's local index
+     * @param signature {@code null-ok;} the variable's type signature
+     * @param index {@code >= 0;} the variable's local index
      */
     public void set(int n, int startPc, int length, CstString name,
-                    CstString descriptor, CstString signature, int index) {
+            CstString descriptor, CstString signature, int index) {
         set0(n, new Item(startPc, length, name, descriptor, signature, index));
     }
 
     /**
      * Gets the local variable information in this instance which matches
-     * the given {@link com.xiaoyv.dx .cf.code.LocalVariableList.Item}
+     * the given {@link com.xiaoyv.dx.cf.code.LocalVariableList.Item}
      * in all respects but the type descriptor and signature, if any.
      *
      * @param item {@code non-null;} local variable information to match
@@ -165,7 +177,7 @@ public final class LocalVariableList extends FixedSizeList {
      * variable's start point is listed as the address of the instruction
      * <i>just past</i> the one that sets the variable.
      *
-     * @param pc    {@code >= 0;} the address to look up
+     * @param pc {@code >= 0;} the address to look up
      * @param index {@code >= 0;} the local variable index
      * @return {@code null-ok;} the associated local variable information, or
      * {@code null} if none is known
@@ -188,34 +200,22 @@ public final class LocalVariableList extends FixedSizeList {
      * Item in a local variable table.
      */
     public static class Item {
-        /**
-         * {@code >= 0;} the start pc of this variable's scope
-         */
+        /** {@code >= 0;} the start pc of this variable's scope */
         private final int startPc;
 
-        /**
-         * {@code >= 0;} the length (in bytecodes) of this variable's scope
-         */
+        /** {@code >= 0;} the length (in bytecodes) of this variable's scope */
         private final int length;
 
-        /**
-         * {@code non-null;} the variable's name
-         */
+        /** {@code non-null;} the variable's name */
         private final CstString name;
 
-        /**
-         * {@code null-ok;} the variable's type descriptor
-         */
+        /** {@code null-ok;} the variable's type descriptor */
         private final CstString descriptor;
 
-        /**
-         * {@code null-ok;} the variable's type signature
-         */
+        /** {@code null-ok;} the variable's type signature */
         private final CstString signature;
 
-        /**
-         * {@code >= 0;} the variable's local index
-         */
+        /** {@code >= 0;} the variable's local index */
         private final int index;
 
         /**
@@ -224,16 +224,16 @@ public final class LocalVariableList extends FixedSizeList {
          * <p><b>Note:</b> At least one of {@code descriptor} or
          * {@code signature} must be passed as non-null.</p>
          *
-         * @param startPc    {@code >= 0;} the start pc of this variable's scope
-         * @param length     {@code >= 0;} the length (in bytecodes) of this variable's
-         *                   scope
-         * @param name       {@code non-null;} the variable's name
+         * @param startPc {@code >= 0;} the start pc of this variable's scope
+         * @param length {@code >= 0;} the length (in bytecodes) of this variable's
+         * scope
+         * @param name {@code non-null;} the variable's name
          * @param descriptor {@code null-ok;} the variable's type descriptor
-         * @param signature  {@code null-ok;} the variable's type signature
-         * @param index      {@code >= 0;} the variable's local index
+         * @param signature {@code null-ok;} the variable's type signature
+         * @param index {@code >= 0;} the variable's local index
          */
         public Item(int startPc, int length, CstString name,
-                    CstString descriptor, CstString signature, int index) {
+                CstString descriptor, CstString signature, int index) {
             if (startPc < 0) {
                 throw new IllegalArgumentException("startPc < 0");
             }
@@ -344,15 +344,15 @@ public final class LocalVariableList extends FixedSizeList {
          * Gets whether this instance matches (describes) the given
          * address and index.
          *
-         * @param pc    {@code >= 0;} the address in question
+         * @param pc {@code >= 0;} the address in question
          * @param index {@code >= 0;} the local variable index in question
          * @return {@code true} iff this instance matches {@code pc}
          * and {@code index}
          */
         public boolean matchesPcAndIndex(int pc, int index) {
             return (index == this.index) &&
-                    (pc >= startPc) &&
-                    (pc < (startPc + length));
+                (pc >= startPc) &&
+                (pc < (startPc + length));
         }
 
         /**
@@ -365,9 +365,9 @@ public final class LocalVariableList extends FixedSizeList {
          */
         public boolean matchesAllButType(Item other) {
             return (startPc == other.startPc)
-                    && (length == other.length)
-                    && (index == other.index)
-                    && name.equals(other.name);
+                && (length == other.length)
+                && (index == other.index)
+                && name.equals(other.name);
         }
     }
 }

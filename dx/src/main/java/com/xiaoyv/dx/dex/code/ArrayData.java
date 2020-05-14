@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.code;
 
@@ -11,7 +25,6 @@ import com.xiaoyv.dx.rop.cst.CstLiteral64;
 import com.xiaoyv.dx.rop.cst.CstType;
 import com.xiaoyv.dx.util.AnnotatedOutput;
 import com.xiaoyv.dx.util.Hex;
-
 import java.util.ArrayList;
 
 /**
@@ -24,24 +37,16 @@ public final class ArrayData extends VariableSizeInsn {
      */
     private final CodeAddress user;
 
-    /**
-     * {@code non-null;} initial values to be filled into an array
-     */
+    /** {@code non-null;} initial values to be filled into an array */
     private final ArrayList<Constant> values;
 
-    /**
-     * non-null: type of constant that initializes the array
-     */
+    /** non-null: type of constant that initializes the array */
     private final Constant arrayType;
 
-    /**
-     * Width of the init value element
-     */
+    /** Width of the init value element */
     private final int elemWidth;
 
-    /**
-     * Length of the init list
-     */
+    /** Length of the init list */
     private final int initLength;
 
     /**
@@ -49,9 +54,9 @@ public final class ArrayData extends VariableSizeInsn {
      * unknown ({@code -1}).
      *
      * @param position {@code non-null;} source position
-     * @param user     {@code non-null;} address representing the instruction that
-     *                 uses this instance
-     * @param values   {@code non-null;} initial values to be filled into an array
+     * @param user {@code non-null;} address representing the instruction that
+     * uses this instance
+     * @param values {@code non-null;} initial values to be filled into an array
      */
     public ArrayData(SourcePosition position, CodeAddress user,
                      ArrayList<Constant> values,
@@ -94,9 +99,7 @@ public final class ArrayData extends VariableSizeInsn {
         initLength = values.size();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int codeSize() {
         int sz = initLength;
@@ -104,9 +107,7 @@ public final class ArrayData extends VariableSizeInsn {
         return 4 + ((sz * elemWidth) + 1) / 2;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void writeTo(AnnotatedOutput out) {
         int sz = values.size();
@@ -156,20 +157,16 @@ public final class ArrayData extends VariableSizeInsn {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public DalvInsn withRegisters(RegisterSpecList registers) {
         return new ArrayData(getPosition(), user, values, arrayType);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected String argString() {
-        StringBuffer sb = new StringBuffer(100);
+        StringBuilder sb = new StringBuilder(100);
 
         int sz = values.size();
         for (int i = 0; i < sz; i++) {
@@ -182,13 +179,11 @@ public final class ArrayData extends VariableSizeInsn {
         return sb.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected String listingString0(boolean noteIndices) {
         int baseAddress = user.getAddress();
-        StringBuffer sb = new StringBuffer(100);
+        StringBuilder sb = new StringBuilder(100);
         int sz = values.size();
 
         sb.append("fill-array-data-payload // for fill-array-data @ ");

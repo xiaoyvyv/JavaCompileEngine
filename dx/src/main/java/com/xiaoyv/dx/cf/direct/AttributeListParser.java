@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.direct;
 
@@ -13,48 +27,34 @@ import com.xiaoyv.dx.util.Hex;
  * Parser for lists of attributes.
  */
 final /*package*/ class AttributeListParser {
-    /**
-     * {@code non-null;} the class file to parse from
-     */
+    /** {@code non-null;} the class file to parse from */
     private final DirectClassFile cf;
 
-    /**
-     * attribute parsing context
-     */
+    /** attribute parsing context */
     private final int context;
 
-    /**
-     * offset in the byte array of the classfile to the start of the list
-     */
+    /** offset in the byte array of the classfile to the start of the list */
     private final int offset;
 
-    /**
-     * {@code non-null;} attribute factory to use
-     */
+    /** {@code non-null;} attribute factory to use */
     private final AttributeFactory attributeFactory;
 
-    /**
-     * {@code non-null;} list of parsed attributes
-     */
+    /** {@code non-null;} list of parsed attributes */
     private final StdAttributeList list;
 
-    /**
-     * {@code >= -1;} the end offset of this list in the byte array of the
-     * classfile, or {@code -1} if not yet parsed
-     */
+    /** {@code >= -1;} the end offset of this list in the byte array of the
+     * classfile, or {@code -1} if not yet parsed */
     private int endOffset;
 
-    /**
-     * {@code null-ok;} parse observer, if any
-     */
+    /** {@code null-ok;} parse observer, if any */
     private ParseObserver observer;
 
     /**
      * Constructs an instance.
      *
-     * @param cf               {@code non-null;} class file to parse from
-     * @param context          attribute parsing context (see {@link AttributeFactory})
-     * @param offset           offset in {@code bytes} to the start of the list
+     * @param cf {@code non-null;} class file to parse from
+     * @param context attribute parsing context (see {@link AttributeFactory})
+     * @param offset offset in {@code bytes} to the start of the list
      * @param attributeFactory {@code non-null;} attribute factory to use
      */
     public AttributeListParser(DirectClassFile cf, int context, int offset,
@@ -127,19 +127,19 @@ final /*package*/ class AttributeListParser {
 
         if (observer != null) {
             observer.parsed(bytes, offset, 2,
-                    "attributes_count: " + Hex.u2(sz));
+                            "attributes_count: " + Hex.u2(sz));
         }
 
         for (int i = 0; i < sz; i++) {
             try {
                 if (observer != null) {
                     observer.parsed(bytes, at, 0,
-                            "\nattributes[" + i + "]:\n");
+                                    "\nattributes[" + i + "]:\n");
                     observer.changeIndent(1);
                 }
 
                 Attribute attrib =
-                        attributeFactory.parse(cf, context, at, observer);
+                    attributeFactory.parse(cf, context, at, observer);
 
                 at += attrib.byteLength();
                 list.set(i, attrib);
@@ -147,7 +147,7 @@ final /*package*/ class AttributeListParser {
                 if (observer != null) {
                     observer.changeIndent(-1);
                     observer.parsed(bytes, at, 0,
-                            "end attributes[" + i + "]\n");
+                                    "end attributes[" + i + "]\n");
                 }
             } catch (ParseException ex) {
                 ex.addContext("...while parsing attributes[" + i + "]");

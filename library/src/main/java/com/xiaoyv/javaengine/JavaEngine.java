@@ -44,7 +44,7 @@ public class JavaEngine {
     /**
      * Class 编译器
      */
-    private static ClassCompiler classCompiler;
+    private volatile static ClassCompiler classCompiler;
 
     public static ClassCompiler getClassCompiler() {
         if (classCompiler == null) {
@@ -61,7 +61,7 @@ public class JavaEngine {
     /**
      * Dex 编译器
      */
-    private static DexCompiler dexCompiler;
+    private volatile static DexCompiler dexCompiler;
 
     public static DexCompiler getDexCompiler() {
         if (dexCompiler == null) {
@@ -77,7 +77,7 @@ public class JavaEngine {
     /**
      * Dex 执行器
      */
-    private static DexExecutor dexExecutor;
+    private volatile static DexExecutor dexExecutor;
 
     public static DexExecutor getDexExecutor() {
         if (dexExecutor == null) {

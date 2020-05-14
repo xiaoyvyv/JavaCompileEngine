@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2011 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.io.instructions;
 
@@ -8,19 +22,13 @@ package com.xiaoyv.dx.io.instructions;
  */
 public final class FillArrayDataPayloadDecodedInstruction
         extends DecodedInstruction {
-    /**
-     * data array
-     */
+    /** data array */
     private final Object data;
 
-    /**
-     * number of elements
-     */
+    /** number of elements */
     private final int size;
 
-    /**
-     * element width
-     */
+    /** element width */
     private final int elementWidth;
 
     /**
@@ -28,7 +36,7 @@ public final class FillArrayDataPayloadDecodedInstruction
      * type of the data array.
      */
     private FillArrayDataPayloadDecodedInstruction(InstructionCodec format,
-                                                   int opcode, Object data, int size, int elementWidth) {
+            int opcode, Object data, int size, int elementWidth) {
         super(format, opcode, 0, null, 0, 0L);
 
         this.data = data;
@@ -40,7 +48,7 @@ public final class FillArrayDataPayloadDecodedInstruction
      * Constructs an instance.
      */
     public FillArrayDataPayloadDecodedInstruction(InstructionCodec format,
-                                                  int opcode, byte[] data) {
+            int opcode, byte[] data) {
         this(format, opcode, data, data.length, 1);
     }
 
@@ -48,7 +56,7 @@ public final class FillArrayDataPayloadDecodedInstruction
      * Constructs an instance.
      */
     public FillArrayDataPayloadDecodedInstruction(InstructionCodec format,
-                                                  int opcode, short[] data) {
+            int opcode, short[] data) {
         this(format, opcode, data, data.length, 2);
     }
 
@@ -56,7 +64,7 @@ public final class FillArrayDataPayloadDecodedInstruction
      * Constructs an instance.
      */
     public FillArrayDataPayloadDecodedInstruction(InstructionCodec format,
-                                                  int opcode, int[] data) {
+            int opcode, int[] data) {
         this(format, opcode, data, data.length, 4);
     }
 
@@ -64,13 +72,12 @@ public final class FillArrayDataPayloadDecodedInstruction
      * Constructs an instance.
      */
     public FillArrayDataPayloadDecodedInstruction(InstructionCodec format,
-                                                  int opcode, long[] data) {
+            int opcode, long[] data) {
         this(format, opcode, data, data.length, 8);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public int getRegisterCount() {
         return 0;
     }
@@ -87,9 +94,8 @@ public final class FillArrayDataPayloadDecodedInstruction
         return data;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public DecodedInstruction withIndex(int newIndex) {
         throw new UnsupportedOperationException("no index in instruction");
     }

@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.attrib;
 
@@ -10,27 +24,21 @@ import com.xiaoyv.dx.rop.cst.CstType;
  * attributes.
  */
 public final class AttEnclosingMethod extends BaseAttribute {
-    /**
-     * {@code non-null;} attribute name for attributes of this type
-     */
+    /** {@code non-null;} attribute name for attributes of this type */
     public static final String ATTRIBUTE_NAME = "EnclosingMethod";
 
-    /**
-     * {@code non-null;} the innermost enclosing class
-     */
+    /** {@code non-null;} the innermost enclosing class */
     private final CstType type;
 
-    /**
-     * {@code null-ok;} the name-and-type of the innermost enclosing method, if any
-     */
+    /** {@code null-ok;} the name-and-type of the innermost enclosing method, if any */
     private final CstNat method;
 
     /**
      * Constructs an instance.
      *
-     * @param type   {@code non-null;} the innermost enclosing class
+     * @param type {@code non-null;} the innermost enclosing class
      * @param method {@code null-ok;} the name-and-type of the innermost enclosing
-     *               method, if any
+     * method, if any
      */
     public AttEnclosingMethod(CstType type, CstNat method) {
         super(ATTRIBUTE_NAME);
@@ -43,9 +51,8 @@ public final class AttEnclosingMethod extends BaseAttribute {
         this.method = method;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int byteLength() {
         return 10;
     }

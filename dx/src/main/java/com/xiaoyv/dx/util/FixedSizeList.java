@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.util;
 
@@ -9,9 +23,7 @@ import java.util.Arrays;
  */
 public class FixedSizeList
         extends MutabilityControl implements ToHuman {
-    /**
-     * {@code non-null;} array of elements
-     */
+    /** {@code non-null;} array of elements */
     private Object[] arr;
 
     /**
@@ -30,9 +42,7 @@ public class FixedSizeList
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object other) {
         if (this == other) {
@@ -49,48 +59,45 @@ public class FixedSizeList
         return Arrays.equals(arr, list.arr);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Arrays.hashCode(arr);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         String name = getClass().getName();
 
         return toString0(name.substring(name.lastIndexOf('.') + 1) + '{',
-                ", ",
-                "}",
-                false);
+                         ", ",
+                         "}",
+                         false);
     }
 
     /**
      * {@inheritDoc}
-     * <p>
+     *
      * This method will only work if every element of the list
      * implements {@link ToHuman}.
      */
+    @Override
     public String toHuman() {
         String name = getClass().getName();
 
         return toString0(name.substring(name.lastIndexOf('.') + 1) + '{',
-                ", ",
-                "}",
-                true);
+                         ", ",
+                         "}",
+                         true);
     }
 
     /**
      * Gets a customized string form for this instance.
      *
-     * @param prefix    {@code null-ok;} prefix for the start of the result
+     * @param prefix {@code null-ok;} prefix for the start of the result
      * @param separator {@code null-ok;} separator to insert between each item
-     * @param suffix    {@code null-ok;} suffix for the end of the result
+     * @param suffix {@code null-ok;} suffix for the end of the result
      * @return {@code non-null;} the custom string
      */
     public String toString(String prefix, String separator, String suffix) {
@@ -102,9 +109,9 @@ public class FixedSizeList
      * only work if every element of the list implements {@link
      * ToHuman}.
      *
-     * @param prefix    {@code null-ok;} prefix for the start of the result
+     * @param prefix {@code null-ok;} prefix for the start of the result
      * @param separator {@code null-ok;} separator to insert between each item
-     * @param suffix    {@code null-ok;} suffix for the end of the result
+     * @param suffix {@code null-ok;} suffix for the end of the result
      * @return {@code non-null;} the custom string
      */
     public String toHuman(String prefix, String separator, String suffix) {
@@ -200,7 +207,7 @@ public class FixedSizeList
      * subclasses may offer a safe type-checked public interface to
      * their clients.
      *
-     * @param n   {@code >= 0, < size();} which element
+     * @param n {@code >= 0, < size();} which element
      * @param obj {@code null-ok;} the value to store
      */
     protected final void set0(int n, Object obj) {
@@ -233,16 +240,16 @@ public class FixedSizeList
      * Helper for {@link #toString} and {@link #toHuman}, which both of
      * those call to pretty much do everything.
      *
-     * @param prefix    {@code null-ok;} prefix for the start of the result
+     * @param prefix {@code null-ok;} prefix for the start of the result
      * @param separator {@code null-ok;} separator to insert between each item
-     * @param suffix    {@code null-ok;} suffix for the end of the result
-     * @param human     whether the output is to be human
+     * @param suffix {@code null-ok;} suffix for the end of the result
+     * @param human whether the output is to be human
      * @return {@code non-null;} the custom string
      */
     private String toString0(String prefix, String separator, String suffix,
                              boolean human) {
         int len = arr.length;
-        StringBuffer sb = new StringBuffer(len * 10 + 10);
+        StringBuilder sb = new StringBuilder(len * 10 + 10);
 
         if (prefix != null) {
             sb.append(prefix);

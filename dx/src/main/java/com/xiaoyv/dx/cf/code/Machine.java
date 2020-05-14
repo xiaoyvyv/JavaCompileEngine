@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.code;
 
@@ -6,7 +20,6 @@ import com.xiaoyv.dx.rop.code.LocalItem;
 import com.xiaoyv.dx.rop.cst.Constant;
 import com.xiaoyv.dx.rop.type.Prototype;
 import com.xiaoyv.dx.rop.type.Type;
-
 import java.util.ArrayList;
 
 /**
@@ -48,7 +61,7 @@ public interface Machine {
      * indicating that there are now that many arguments. Also, clear
      * the auxiliary arguments.
      *
-     * @param frame     {@code non-null;} frame to operate on
+     * @param frame {@code non-null;} frame to operate on
      * @param prototype {@code non-null;} prototype indicating arguments to pop
      */
     public void popArgs(Frame frame, Prototype prototype);
@@ -59,7 +72,7 @@ public interface Machine {
      * arguments. Also, clear the auxiliary arguments.
      *
      * @param frame {@code non-null;} frame to operate on
-     * @param type  {@code non-null;} type of the argument
+     * @param type {@code non-null;} type of the argument
      */
     public void popArgs(Frame frame, Type type);
 
@@ -95,7 +108,7 @@ public interface Machine {
      * the arguments area. Also, clear the auxiliary arguments.
      *
      * @param frame {@code non-null;} frame to operate on
-     * @param idx   {@code >= 0;} the local variable index
+     * @param idx {@code >= 0;} the local variable index
      */
     public void localArg(Frame frame, int idx);
 
@@ -148,7 +161,7 @@ public interface Machine {
      * constant auxiliary arguments.</p>
      *
      * @param cst {@code non-null;} the constant containing / referencing
-     *            the value
+     * the value
      */
     public void auxCstArg(Constant cst);
 
@@ -168,7 +181,7 @@ public interface Machine {
      * {@link #auxIntArg} (which holds the padding).</p>
      *
      * @param cases {@code non-null;} the list of key-target pairs, plus the default
-     *              target
+     * target
      */
     public void auxSwitchArg(SwitchList cases);
 
@@ -177,15 +190,15 @@ public interface Machine {
      * consisting of a list of initial values for a newly created array.
      *
      * @param initValues {@code non-null;} the list of constant values to initialize
-     *                   the array
+     * the array
      */
     public void auxInitValues(ArrayList<Constant> initValues);
 
     /**
      * Indicates that the target of this operation is the given local.
      *
-     * @param idx   {@code >= 0;} the local variable index
-     * @param type  {@code non-null;} the type of the local
+     * @param idx {@code >= 0;} the local variable index
+     * @param type {@code non-null;} the type of the local
      * @param local {@code null-ok;} the name and signature of the local, if known
      */
     public void localTarget(int idx, Type type, LocalItem local);
@@ -194,9 +207,9 @@ public interface Machine {
      * "Runs" the indicated opcode in an appropriate way, using the arguments
      * area as appropriate, and modifying the given frame in response.
      *
-     * @param frame  {@code non-null;} frame to operate on
+     * @param frame {@code non-null;} frame to operate on
      * @param offset {@code >= 0;} byte offset in the method to the opcode being
-     *               run
+     * run
      * @param opcode {@code >= 0;} the opcode to run
      */
     public void run(Frame frame, int offset, int opcode);

@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa;
 
@@ -8,7 +22,6 @@ import com.xiaoyv.dx.rop.code.RegisterSpec;
 import com.xiaoyv.dx.rop.code.RegisterSpecList;
 import com.xiaoyv.dx.rop.type.Type;
 import com.xiaoyv.dx.rop.type.TypeBearer;
-
 import java.util.BitSet;
 import java.util.List;
 
@@ -17,30 +30,27 @@ import java.util.List;
  * are inserted, their result types are set to BT_VOID (which is a nonsensical
  * type for a register) but must be resolve to a real type before converting
  * out of SSA form.<p>
- * <p>
+ *
  * The resolve is done as an iterative merge of each phi's operand types.
  * Phi operands may be themselves be the result of unresolved phis,
  * and the algorithm tries to find the most-fit type (for example, if every
  * operand is the same constant value or the same local variable info, we want
  * that to be reflected).<p>
- * <p>
+ *
  * This algorithm assumes a dead-code remover has already removed all
  * circular-only phis that may have been inserted.
  */
 public class PhiTypeResolver {
 
     SsaMethod ssaMeth;
-    /**
-     * indexed by register; all registers still defined by unresolved phis
-     */
+    /** indexed by register; all registers still defined by unresolved phis */
     private final BitSet worklist;
 
     /**
      * Resolves all phi types in the method
-     *
      * @param ssaMeth method to process
      */
-    public static void process(SsaMethod ssaMeth) {
+    public static void process (SsaMethod ssaMeth) {
         new PhiTypeResolver(ssaMeth).run();
     }
 
@@ -66,14 +76,14 @@ public class PhiTypeResolver {
         }
 
         int reg;
-        while (0 <= (reg = worklist.nextSetBit(0))) {
+        while ( 0 <= (reg = worklist.nextSetBit(0))) {
             worklist.clear(reg);
 
             /*
              * definitions on the worklist have a type of BT_VOID, which
              * must have originated from a PhiInsn.
              */
-            PhiInsn definsn = (PhiInsn) ssaMeth.getDefinitionForRegister(reg);
+            PhiInsn definsn = (PhiInsn)ssaMeth.getDefinitionForRegister(reg);
 
             if (resolveResultType(definsn)) {
                 /*
@@ -84,7 +94,7 @@ public class PhiTypeResolver {
                 List<SsaInsn> useList = ssaMeth.getUseListForRegister(reg);
 
                 int sz = useList.size();
-                for (int i = 0; i < sz; i++) {
+                for (int i = 0; i < sz; i++ ) {
                     SsaInsn useInsn = useList.get(i);
                     RegisterSpec resultReg = useInsn.getResult();
                     if (resultReg != null && useInsn instanceof PhiInsn) {
@@ -98,7 +108,6 @@ public class PhiTypeResolver {
     /**
      * Returns true if a and b are equal, whether
      * or not either of them are null.
-     *
      * @param a
      * @param b
      * @return true if equal
@@ -124,7 +133,7 @@ public class PhiTypeResolver {
         int firstIndex = -1;
 
         int szSources = sources.size();
-        for (int i = 0; i < szSources; i++) {
+        for (int i = 0 ; i <szSources ; i++) {
             RegisterSpec rs = sources.get(i);
 
             if (rs.getBasicType() != Type.BT_VOID) {
@@ -141,7 +150,7 @@ public class PhiTypeResolver {
         LocalItem firstLocal = first.getLocalItem();
         TypeBearer mergedType = first.getType();
         boolean sameLocals = true;
-        for (int i = 0; i < szSources; i++) {
+        for (int i = 0 ; i < szSources ; i++) {
             if (i == firstIndex) {
                 continue;
             }
@@ -149,7 +158,7 @@ public class PhiTypeResolver {
             RegisterSpec rs = sources.get(i);
 
             // Just skip void (unresolved phi results) for now
-            if (rs.getBasicType() == Type.BT_VOID) {
+            if (rs.getBasicType() == Type.BT_VOID){
                 continue;
             }
 
@@ -171,7 +180,7 @@ public class PhiTypeResolver {
                 sb.append(' ');
             }
 
-            throw new RuntimeException("Couldn't map types in phi insn:" + sb);
+            throw new RuntimeException ("Couldn't map types in phi insn:" + sb);
         }
 
         LocalItem newLocal = sameLocals ? firstLocal : null;

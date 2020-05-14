@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.code;
 
@@ -28,7 +42,7 @@ public final class LocalStart extends ZeroSizeInsn {
      */
     public static String localString(RegisterSpec spec) {
         return spec.regString() + ' ' + spec.getLocalItem().toString() + ": " +
-                spec.getTypeBearer().toHuman();
+            spec.getTypeBearer().toHuman();
     }
 
     /**
@@ -36,8 +50,8 @@ public final class LocalStart extends ZeroSizeInsn {
      * unknown ({@code -1}).
      *
      * @param position {@code non-null;} source position
-     * @param local    {@code non-null;} register spec representing the local
-     *                 variable introduced by this instance
+     * @param local {@code non-null;} register spec representing the local
+     * variable introduced by this instance
      */
     public LocalStart(SourcePosition position, RegisterSpec local) {
         super(position);
@@ -49,17 +63,13 @@ public final class LocalStart extends ZeroSizeInsn {
         this.local = local;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public DalvInsn withRegisterOffset(int delta) {
         return new LocalStart(getPosition(), local.withOffset(delta));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public DalvInsn withRegisters(RegisterSpecList registers) {
         return new LocalStart(getPosition(), local);
@@ -75,27 +85,21 @@ public final class LocalStart extends ZeroSizeInsn {
         return local;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected String argString() {
         return local.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected String listingString0(boolean noteIndices) {
         return "local-start " + localString(local);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public DalvInsn withMapper(RegisterMapper mapper) {
-        return new LocalStart(getPosition(), mapper.map(local));
+      return new LocalStart(getPosition(), mapper.map(local));
     }
 }

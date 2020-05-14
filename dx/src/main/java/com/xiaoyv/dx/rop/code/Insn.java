@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.code;
 
@@ -14,33 +28,25 @@ import com.xiaoyv.dx.util.ToHuman;
  * information.
  */
 public abstract class Insn implements ToHuman {
-    /**
-     * {@code non-null;} opcode
-     */
+    /** {@code non-null;} opcode */
     private final Rop opcode;
 
-    /**
-     * {@code non-null;} source position
-     */
+    /** {@code non-null;} source position */
     private final SourcePosition position;
 
-    /**
-     * {@code null-ok;} spec for the result of this instruction, if any
-     */
+    /** {@code null-ok;} spec for the result of this instruction, if any */
     private final RegisterSpec result;
 
-    /**
-     * {@code non-null;} specs for all the sources of this instruction
-     */
+    /** {@code non-null;} specs for all the sources of this instruction */
     private final RegisterSpecList sources;
 
     /**
      * Constructs an instance.
      *
-     * @param opcode   {@code non-null;} the opcode
+     * @param opcode {@code non-null;} the opcode
      * @param position {@code non-null;} source position
-     * @param result   {@code null-ok;} spec for the result, if any
-     * @param sources  {@code non-null;} specs for all the sources
+     * @param result {@code null-ok;} spec for the result, if any
+     * @param sources {@code non-null;} specs for all the sources
      */
     public Insn(Rop opcode, SourcePosition position, RegisterSpec result,
                 RegisterSpecList sources) {
@@ -64,7 +70,7 @@ public abstract class Insn implements ToHuman {
 
     /**
      * {@inheritDoc}
-     * <p>
+     *
      * Instances of this class compare by identity. That is,
      * {@code x.equals(y)} is only true if {@code x == y}.
      */
@@ -75,7 +81,7 @@ public abstract class Insn implements ToHuman {
 
     /**
      * {@inheritDoc}
-     * <p>
+     *
      * This implementation returns the identity hashcode of this
      * instance. This is proper, since instances of this class compare
      * by identity (see {@link #equals}).
@@ -85,9 +91,7 @@ public abstract class Insn implements ToHuman {
         return System.identityHashCode(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return toStringWithInline(getInlineString());
@@ -98,6 +102,7 @@ public abstract class Insn implements ToHuman {
      *
      * @return {@code non-null;} the human string form
      */
+    @Override
     public String toHuman() {
         return toHumanWithInline(getInlineString());
     }
@@ -259,7 +264,7 @@ public abstract class Insn implements ToHuman {
      * @param b second object
      * @return true if they're equal or both null.
      */
-    private static boolean equalsHandleNulls(Object a, Object b) {
+    private static boolean equalsHandleNulls (Object a, Object b) {
         return (a == b) || ((a != null) && a.equals(b));
     }
 
@@ -284,12 +289,12 @@ public abstract class Insn implements ToHuman {
      * Returns an instance that is just like this one, except
      * with new result and source registers.
      *
-     * @param result  {@code null-ok;} new result register
+     * @param result {@code null-ok;} new result register
      * @param sources {@code non-null;} new sources registers
      * @return {@code non-null;} an appropriately-constructed instance
      */
     public abstract Insn withNewRegisters(RegisterSpec result,
-                                          RegisterSpecList sources);
+            RegisterSpecList sources);
 
     /**
      * Returns the string form of this instance, with the given bit added in
@@ -299,7 +304,7 @@ public abstract class Insn implements ToHuman {
      * @return {@code non-null;} the string form
      */
     protected final String toStringWithInline(String extra) {
-        StringBuffer sb = new StringBuffer(80);
+        StringBuilder sb = new StringBuilder(80);
 
         sb.append("Insn{");
         sb.append(position);
@@ -332,7 +337,7 @@ public abstract class Insn implements ToHuman {
      * @return {@code non-null;} the human string form
      */
     protected final String toHumanWithInline(String extra) {
-        StringBuffer sb = new StringBuffer(80);
+        StringBuilder sb = new StringBuilder(80);
 
         sb.append(position);
         sb.append(": ");
@@ -412,6 +417,13 @@ public abstract class Insn implements ToHuman {
          * @param insn {@code non-null;} the instruction to visit
          */
         public void visitFillArrayDataInsn(FillArrayDataInsn insn);
+
+        /**
+         * Visits a {@link InvokePolymorphicInsn}.
+         *
+         * @param insn {@code non-null;} the instruction to visit
+         */
+        public void visitInvokePolymorphicInsn(InvokePolymorphicInsn insn);
     }
 
     /**
@@ -419,45 +431,45 @@ public abstract class Insn implements ToHuman {
      * bodies for all methods.
      */
     public static class BaseVisitor implements Visitor {
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitPlainInsn(PlainInsn insn) {
             // This space intentionally left blank.
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitPlainCstInsn(PlainCstInsn insn) {
             // This space intentionally left blank.
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitSwitchInsn(SwitchInsn insn) {
             // This space intentionally left blank.
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitThrowingCstInsn(ThrowingCstInsn insn) {
             // This space intentionally left blank.
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitThrowingInsn(ThrowingInsn insn) {
             // This space intentionally left blank.
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitFillArrayDataInsn(FillArrayDataInsn insn) {
+            // This space intentionally left blank.
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public void visitInvokePolymorphicInsn(InvokePolymorphicInsn insn) {
             // This space intentionally left blank.
         }
     }

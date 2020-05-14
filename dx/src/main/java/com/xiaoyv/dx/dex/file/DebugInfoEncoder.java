@@ -1,28 +1,24 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
 import com.xiaoyv.dex.util.ExceptionWithContext;
 import com.xiaoyv.dx.dex.code.LocalList;
 import com.xiaoyv.dx.dex.code.PositionList;
-import com.xiaoyv.dx.rop.code.RegisterSpec;
-import com.xiaoyv.dx.rop.code.SourcePosition;
-import com.xiaoyv.dx.rop.cst.CstMethodRef;
-import com.xiaoyv.dx.rop.cst.CstString;
-import com.xiaoyv.dx.rop.cst.CstType;
-import com.xiaoyv.dx.rop.type.Prototype;
-import com.xiaoyv.dx.rop.type.StdTypeList;
-import com.xiaoyv.dx.rop.type.Type;
-import com.xiaoyv.dx.util.AnnotatedOutput;
-import com.xiaoyv.dx.util.ByteArrayAnnotatedOutput;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.Comparator;
-
 import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_ADVANCE_LINE;
 import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_ADVANCE_PC;
 import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_END_LOCAL;
@@ -34,6 +30,22 @@ import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_RESTART_LOCAL;
 import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_SET_PROLOGUE_END;
 import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_START_LOCAL;
 import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_START_LOCAL_EXTENDED;
+import com.xiaoyv.dx.rop.code.RegisterSpec;
+import com.xiaoyv.dx.rop.code.SourcePosition;
+import com.xiaoyv.dx.rop.cst.CstMethodRef;
+import com.xiaoyv.dx.rop.cst.CstString;
+import com.xiaoyv.dx.rop.cst.CstType;
+import com.xiaoyv.dx.rop.type.Prototype;
+import com.xiaoyv.dx.rop.type.StdTypeList;
+import com.xiaoyv.dx.rop.type.Type;
+import com.xiaoyv.dx.util.AnnotatedOutput;
+import com.xiaoyv.dx.util.ByteArrayAnnotatedOutput;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * An encoder for the dex debug info state machine format. The format
@@ -51,14 +63,10 @@ import static com.xiaoyv.dx.dex.file.DebugInfoConstants.DBG_START_LOCAL_EXTENDED
 public final class DebugInfoEncoder {
     private static final boolean DEBUG = false;
 
-    /**
-     * {@code null-ok;} positions (line numbers) to encode
-     */
+    /** {@code null-ok;} positions (line numbers) to encode */
     private final PositionList positions;
 
-    /**
-     * {@code null-ok;} local variables to encode
-     */
+    /** {@code null-ok;} local variables to encode */
     private final LocalList locals;
 
     private final ByteArrayAnnotatedOutput output;
@@ -69,14 +77,10 @@ public final class DebugInfoEncoder {
     private final Prototype desc;
     private final boolean isStatic;
 
-    /**
-     * current encoding state: bytecode address
-     */
+    /** current encoding state: bytecode address */
     private int address = 0;
 
-    /**
-     * current encoding state: line number
-     */
+    /** current encoding state: line number */
     private int line = 1;
 
     /**
@@ -85,41 +89,33 @@ public final class DebugInfoEncoder {
      */
     private AnnotatedOutput annotateTo;
 
-    /**
-     * if non-null: another possible output for annotations
-     */
+    /** if non-null: another possible output for annotations */
     private PrintWriter debugPrint;
 
-    /**
-     * if non-null: the prefix for each annotation or debugPrint line
-     */
+    /** if non-null: the prefix for each annotation or debugPrint line */
     private String prefix;
 
-    /**
-     * true if output should be consumed during annotation
-     */
+    /** true if output should be consumed during annotation */
     private boolean shouldConsume;
 
-    /**
-     * indexed by register; last local alive in register
-     */
+    /** indexed by register; last local alive in register */
     private final LocalList.Entry[] lastEntryForReg;
 
     /**
      * Creates an instance.
      *
      * @param positions {@code null-ok;} positions (line numbers) to encode
-     * @param locals    {@code null-ok;} local variables to encode
-     * @param file      {@code null-ok;} may only be {@code null} if simply using
-     *                  this class to do a debug print
+     * @param locals {@code null-ok;} local variables to encode
+     * @param file {@code null-ok;} may only be {@code null} if simply using
+     * this class to do a debug print
      * @param codeSize
      * @param regSize
      * @param isStatic
      * @param ref
      */
     public DebugInfoEncoder(PositionList positions, LocalList locals,
-                            DexFile file, int codeSize, int regSize,
-                            boolean isStatic, CstMethodRef ref) {
+            DexFile file, int codeSize, int regSize,
+            boolean isStatic, CstMethodRef ref) {
         this.positions = positions;
         this.locals = locals;
         this.file = file;
@@ -136,7 +132,7 @@ public final class DebugInfoEncoder {
      * Annotates or writes a message to the {@code debugPrint} writer
      * if applicable.
      *
-     * @param length  the number of bytes associated with this message
+     * @param length the number of bytes associated with this message
      * @param message the message itself
      */
     private void annotate(int length, String message) {
@@ -166,7 +162,7 @@ public final class DebugInfoEncoder {
             ret = convert0();
 
             if (DEBUG) {
-                for (int i = 0; i < ret.length; i++) {
+                for (int i = 0 ; i < ret.length; i++) {
                     System.err.printf("byte %02x\n", (0xff & ret[i]));
                 }
             }
@@ -182,16 +178,16 @@ public final class DebugInfoEncoder {
      * Converts and produces annotations on a stream. Does not write
      * actual bits to the {@code AnnotatedOutput}.
      *
-     * @param prefix     {@code null-ok;} prefix to attach to each line of output
+     * @param prefix {@code null-ok;} prefix to attach to each line of output
      * @param debugPrint {@code null-ok;} if specified, an alternate output for
-     *                   annotations
-     * @param out        {@code null-ok;} if specified, where annotations should go
-     * @param consume    whether to claim to have consumed output for
-     *                   {@code out}
+     * annotations
+     * @param out {@code null-ok;} if specified, where annotations should go
+     * @param consume whether to claim to have consumed output for
+     * {@code out}
      * @return {@code non-null;} encoded output
      */
     public byte[] convertAndAnnotate(String prefix, PrintWriter debugPrint,
-                                     AnnotatedOutput out, boolean consume) {
+            AnnotatedOutput out, boolean consume) {
         this.prefix = prefix;
         this.debugPrint = debugPrint;
         annotateTo = out;
@@ -212,7 +208,7 @@ public final class DebugInfoEncoder {
         output.writeByte(DBG_SET_PROLOGUE_END);
 
         if (annotateTo != null || debugPrint != null) {
-            annotate(1, String.format("%04x: prologue end", address));
+            annotate(1, String.format("%04x: prologue end",address));
         }
 
         int positionsSz = sortedPositions.size();
@@ -223,14 +219,14 @@ public final class DebugInfoEncoder {
         // Current index in locals
         int curLocalIdx = 0;
 
-        for (; ; ) {
+        for (;;) {
             /*
              * Emit any information for the current address.
              */
 
             curLocalIdx = emitLocalsAtAddress(curLocalIdx);
             curPositionIdx =
-                    emitPositionsAtAddress(curPositionIdx, sortedPositions);
+                emitPositionsAtAddress(curPositionIdx, sortedPositions);
 
             /*
              * Figure out what the next important address is.
@@ -352,18 +348,18 @@ public final class DebugInfoEncoder {
     /**
      * Emits all positions that occur at the current {@code address}
      *
-     * @param curPositionIdx  Current index in sortedPositions
+     * @param curPositionIdx Current index in sortedPositions
      * @param sortedPositions positions, sorted by ascending address
      * @return new value for {@code curPositionIdx}
      * @throws IOException
      */
     private int emitPositionsAtAddress(int curPositionIdx,
-                                       ArrayList<PositionList.Entry> sortedPositions)
+            ArrayList<PositionList.Entry> sortedPositions)
             throws IOException {
         int positionsSz = sortedPositions.size();
         while ((curPositionIdx < positionsSz)
                 && (sortedPositions.get(curPositionIdx).getAddress()
-                == address)) {
+                        == address)) {
             emitPosition(sortedPositions.get(curPositionIdx++));
         }
         return curPositionIdx;
@@ -374,12 +370,12 @@ public final class DebugInfoEncoder {
      * line number and string indicies for names of all non-"this" arguments.
      *
      * @param sortedPositions positions, sorted by ascending address
-     * @param methodArgs      local list entries for method argumens arguments,
-     *                        in left-to-right order omitting "this"
+     * @param methodArgs local list entries for method argumens arguments,
+     * in left-to-right order omitting "this"
      * @throws IOException
      */
     private void emitHeader(ArrayList<PositionList.Entry> sortedPositions,
-                            ArrayList<LocalList.Entry> methodArgs) throws IOException {
+            ArrayList<LocalList.Entry> methodArgs) throws IOException {
         boolean annotate = (annotateTo != null) || (debugPrint != null);
         int mark = output.getCursor();
 
@@ -463,7 +459,7 @@ public final class DebugInfoEncoder {
             if (annotate) {
                 String parameterName
                         = (found == null || found.getSignature() != null)
-                        ? "<unnamed>" : found.getName().toHuman();
+                                ? "<unnamed>" : found.getName().toHuman();
                 annotate(output.getCursor() - mark,
                         "parameter " + parameterName + " "
                                 + RegisterSpec.PREFIX + curParam);
@@ -504,13 +500,15 @@ public final class DebugInfoEncoder {
         }
 
         // Sort ascending by address.
-        Collections.sort(result, new Comparator<PositionList.Entry>() {
-            public int compare(PositionList.Entry a, PositionList.Entry b) {
+        Collections.sort (result, new Comparator<PositionList.Entry>() {
+            @Override
+            public int compare (PositionList.Entry a, PositionList.Entry b) {
                 return a.getAddress() - b.getAddress();
             }
 
-            public boolean equals(Object obj) {
-                return obj == this;
+            @Override
+            public boolean equals (Object obj) {
+               return obj == this;
             }
         });
         return result;
@@ -525,7 +523,7 @@ public final class DebugInfoEncoder {
      */
     private int getParamBase() {
         return regSize
-                - desc.getParameterTypes().getWordCount() - (isStatic ? 0 : 1);
+                - desc.getParameterTypes().getWordCount() - (isStatic? 0 : 1);
     }
 
     /**
@@ -562,12 +560,14 @@ public final class DebugInfoEncoder {
 
         // Sort by ascending register.
         Collections.sort(result, new Comparator<LocalList.Entry>() {
+            @Override
             public int compare(LocalList.Entry a, LocalList.Entry b) {
                 return a.getRegister() - b.getRegister();
             }
 
+            @Override
             public boolean equals(Object obj) {
-                return obj == this;
+               return obj == this;
             }
         });
 
@@ -692,7 +692,7 @@ public final class DebugInfoEncoder {
      * @throws IOException
      */
     private void emitLocalStart(LocalList.Entry entry)
-            throws IOException {
+        throws IOException {
 
         if (entry.getSignature() != null) {
             emitLocalStartExtended(entry);
@@ -726,7 +726,7 @@ public final class DebugInfoEncoder {
      * @throws IOException
      */
     private void emitLocalStartExtended(LocalList.Entry entry)
-            throws IOException {
+        throws IOException {
 
         int mark = output.getCursor();
 
@@ -799,22 +799,22 @@ public final class DebugInfoEncoder {
         }
 
         if ((deltaLines < DBG_LINE_BASE)
-                || (deltaLines > (DBG_LINE_BASE + DBG_LINE_RANGE - 1))) {
+                || (deltaLines > (DBG_LINE_BASE + DBG_LINE_RANGE -1))) {
             emitAdvanceLine(deltaLines);
             deltaLines = 0;
         }
 
-        opcode = computeOpcode(deltaLines, deltaAddress);
+        opcode = computeOpcode (deltaLines, deltaAddress);
 
         if ((opcode & ~0xff) > 0) {
             emitAdvancePc(deltaAddress);
             deltaAddress = 0;
-            opcode = computeOpcode(deltaLines, deltaAddress);
+            opcode = computeOpcode (deltaLines, deltaAddress);
 
             if ((opcode & ~0xff) > 0) {
                 emitAdvanceLine(deltaLines);
                 deltaLines = 0;
-                opcode = computeOpcode(deltaLines, deltaAddress);
+                opcode = computeOpcode (deltaLines, deltaAddress);
             }
         }
 
@@ -835,21 +835,21 @@ public final class DebugInfoEncoder {
      * Essentially the same as described in "DWARF Debugging Format Version 3"
      * section 6.2.5.1.
      *
-     * @param deltaLines   {@code >= DBG_LINE_BASE, <= DBG_LINE_BASE +
-     *                     DBG_LINE_RANGE;} the line change to encode
+     * @param deltaLines {@code >= DBG_LINE_BASE, <= DBG_LINE_BASE +
+     * DBG_LINE_RANGE;} the line change to encode
      * @param deltaAddress {@code >= 0;} the address change to encode
      * @return {@code <= 0xff} if in range, otherwise parameters are out
      * of range
      */
     private static int computeOpcode(int deltaLines, int deltaAddress) {
         if (deltaLines < DBG_LINE_BASE
-                || deltaLines > (DBG_LINE_BASE + DBG_LINE_RANGE - 1)) {
+                || deltaLines > (DBG_LINE_BASE + DBG_LINE_RANGE -1)) {
 
             throw new RuntimeException("Parameter out of range");
         }
 
         return (deltaLines - DBG_LINE_BASE)
-                + (DBG_LINE_RANGE * deltaAddress) + DBG_FIRST_SPECIAL;
+            + (DBG_LINE_RANGE * deltaAddress) + DBG_FIRST_SPECIAL;
     }
 
     /**
@@ -904,8 +904,8 @@ public final class DebugInfoEncoder {
      * Emits an unsigned LEB128 value.
      *
      * @param n {@code >= 0;} value to emit. Note that, although this can
-     *          represent integers larger than Integer.MAX_VALUE, we currently don't
-     *          allow that.
+     * represent integers larger than Integer.MAX_VALUE, we currently don't
+     * allow that.
      * @throws IOException
      */
     private void emitUnsignedLeb128(int n) throws IOException {

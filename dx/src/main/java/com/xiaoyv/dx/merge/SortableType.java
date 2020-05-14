@@ -1,10 +1,24 @@
-
+/*
+ * Copyright (C) 2011 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.merge;
 
 import com.xiaoyv.dex.ClassDef;
 import com.xiaoyv.dex.Dex;
-
+import com.xiaoyv.dex.DexException;
 import java.util.Comparator;
 
 /**
@@ -13,6 +27,7 @@ import java.util.Comparator;
  */
 final class SortableType {
     public static final Comparator<SortableType> NULLS_LAST_ORDER = new Comparator<SortableType>() {
+        @Override
         public int compare(SortableType a, SortableType b) {
             if (a == b) {
                 return 0;
@@ -32,7 +47,7 @@ final class SortableType {
 
     private final Dex dex;
     private final IndexMap indexMap;
-    private ClassDef classDef;
+    private final ClassDef classDef;
     private int depth = -1;
 
     public SortableType(Dex dex, IndexMap indexMap, ClassDef classDef) {
@@ -66,6 +81,10 @@ final class SortableType {
         int max;
         if (classDef.getSupertypeIndex() == ClassDef.NO_INDEX) {
             max = 0; // this is Object.class or an interface
+        } else if (classDef.getSupertypeIndex() == classDef.getTypeIndex()) {
+            // This is an invalid class extending itself.
+            throw new DexException("Class with type index " + classDef.getTypeIndex()
+                    + " extends itself");
         } else {
             SortableType sortableSupertype = types[classDef.getSupertypeIndex()];
             if (sortableSupertype == null) {

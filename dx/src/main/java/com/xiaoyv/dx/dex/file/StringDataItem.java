@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
@@ -12,9 +26,7 @@ import com.xiaoyv.dx.util.Hex;
  * Representation of string data for a particular string, in a Dalvik file.
  */
 public final class StringDataItem extends OffsettedItem {
-    /**
-     * {@code non-null;} the string value
-     */
+    /** {@code non-null;} the string value */
     private final CstString value;
 
     /**
@@ -39,28 +51,22 @@ public final class StringDataItem extends OffsettedItem {
 
         // The +1 is for the '\0' termination byte.
         return Leb128.unsignedLeb128Size(utf16Size)
-                + value.getUtf8Size() + 1;
+            + value.getUtf8Size() + 1;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public ItemType itemType() {
         return ItemType.TYPE_STRING_DATA_ITEM;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void addContents(DexFile file) {
         // Nothing to do here.
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void writeTo0(DexFile file, AnnotatedOutput out) {
         ByteArray bytes = value.getBytes();
@@ -77,17 +83,13 @@ public final class StringDataItem extends OffsettedItem {
         out.writeByte(0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toHuman() {
         return value.toQuoted();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected int compareTo0(OffsettedItem other) {
         StringDataItem otherData = (StringDataItem) other;

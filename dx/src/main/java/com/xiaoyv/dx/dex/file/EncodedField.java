@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
@@ -8,7 +22,6 @@ import com.xiaoyv.dx.rop.cst.CstFieldRef;
 import com.xiaoyv.dx.rop.cst.CstString;
 import com.xiaoyv.dx.util.AnnotatedOutput;
 import com.xiaoyv.dx.util.Hex;
-
 import java.io.PrintWriter;
 
 /**
@@ -16,15 +29,13 @@ import java.io.PrintWriter;
  */
 public final class EncodedField extends EncodedMember
         implements Comparable<EncodedField> {
-    /**
-     * {@code non-null;} constant for the field
-     */
+    /** {@code non-null;} constant for the field */
     private final CstFieldRef field;
 
     /**
      * Constructs an instance.
      *
-     * @param field       {@code non-null;} constant for the field
+     * @param field {@code non-null;} constant for the field
      * @param accessFlags access flags
      */
     public EncodedField(CstFieldRef field, int accessFlags) {
@@ -42,18 +53,16 @@ public final class EncodedField extends EncodedMember
         this.field = field;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int hashCode() {
         return field.hashCode();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public boolean equals(Object other) {
-        if (!(other instanceof EncodedField)) {
+        if (! (other instanceof EncodedField)) {
             return false;
         }
 
@@ -68,16 +77,15 @@ public final class EncodedField extends EncodedMember
      * case that two different items with the same method constant
      * ever appear in the same list (or same file, even).</p>
      */
+    @Override
     public int compareTo(EncodedField other) {
         return field.compareTo(other.field);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer(100);
+        StringBuilder sb = new StringBuilder(100);
 
         sb.append(getClass().getName());
         sb.append('{');
@@ -88,33 +96,26 @@ public final class EncodedField extends EncodedMember
         return sb.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void addContents(DexFile file) {
         FieldIdsSection fieldIds = file.getFieldIds();
         fieldIds.intern(field);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public CstString getName() {
         return field.getNat().getName();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public String toHuman() {
         return field.toHuman();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void debugPrint(PrintWriter out, boolean verbose) {
         // TODO: Maybe put something better here?
@@ -130,24 +131,22 @@ public final class EncodedField extends EncodedMember
         return field;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int encode(DexFile file, AnnotatedOutput out,
-                      int lastIndex, int dumpSeq) {
+            int lastIndex, int dumpSeq) {
         int fieldIdx = file.getFieldIds().indexOf(field);
         int diff = fieldIdx - lastIndex;
         int accessFlags = getAccessFlags();
 
         if (out.annotates()) {
             out.annotate(0, String.format("  [%x] %s", dumpSeq,
-                    field.toHuman()));
+                            field.toHuman()));
             out.annotate(Leb128.unsignedLeb128Size(diff),
                     "    field_idx:    " + Hex.u4(fieldIdx));
             out.annotate(Leb128.unsignedLeb128Size(accessFlags),
                     "    access_flags: " +
-                            AccessFlags.fieldString(accessFlags));
+                    AccessFlags.fieldString(accessFlags));
         }
 
         out.writeUleb128(diff);

@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.command.dump;
 
@@ -17,7 +31,6 @@ import com.xiaoyv.dx.ssa.SsaMethod;
 import com.xiaoyv.dx.util.ByteArray;
 import com.xiaoyv.dx.util.Hex;
 import com.xiaoyv.dx.util.IntList;
-
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -31,14 +44,14 @@ public class SsaDumper extends BlockDumper {
     /**
      * Does the dump.
      *
-     * @param bytes    {@code non-null;} bytes of the original class file
-     * @param out      {@code non-null;} where to dump to
+     * @param bytes {@code non-null;} bytes of the original class file
+     * @param out {@code non-null;} where to dump to
      * @param filePath the file path for the class, excluding any base
-     *                 directory specification
-     * @param args     commandline parsedArgs
+     * directory specification
+     * @param args commandline parsedArgs
      */
     public static void dump(byte[] bytes, PrintStream out,
-                            String filePath, Args args) {
+            String filePath, Args args) {
         SsaDumper sd = new SsaDumper(bytes, out, filePath, args);
         sd.dump();
     }
@@ -46,23 +59,21 @@ public class SsaDumper extends BlockDumper {
     /**
      * Constructs an instance.
      *
-     * @param bytes    {@code non-null;} bytes of the original class file
-     * @param out      {@code non-null;} where to dump to
+     * @param bytes {@code non-null;} bytes of the original class file
+     * @param out {@code non-null;} where to dump to
      * @param filePath the file path for the class, excluding any base
-     *                 directory specification
-     * @param args     commandline parsedArgs
+     * directory specification
+     * @param args commandline parsedArgs
      */
     private SsaDumper(byte[] bytes, PrintStream out, String filePath,
-                      Args args) {
+            Args args) {
         super(bytes, out, filePath, true, args);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void endParsingMember(ByteArray bytes, int offset, String name,
-                                 String descriptor, Member member) {
+            String descriptor, Member member) {
         if (!(member instanceof Method)) {
             return;
         }
@@ -77,9 +88,9 @@ public class SsaDumper extends BlockDumper {
         }
 
         ConcreteMethod meth =
-                new ConcreteMethod((Method) member, classFile, true, true);
+            new ConcreteMethod((Method) member, classFile, true, true);
         TranslationAdvice advice = DexTranslationAdvice.THE_ONE;
-        RopMethod rmeth = Ropper.convert(meth, advice, classFile.getMethods());
+        RopMethod rmeth = Ropper.convert(meth, advice, classFile.getMethods(), dexOptions);
         SsaMethod ssaMeth = null;
         boolean isStatic = AccessFlags.isStatic(meth.getAccessFlags());
         int paramWidth = computeParamWidth(meth, isStatic);
@@ -99,10 +110,10 @@ public class SsaDumper extends BlockDumper {
                     rmeth, paramWidth, isStatic, true, advice);
         } else if ("dead-code".equals(args.ssaStep)) {
             ssaMeth = Optimizer.debugDeadCodeRemover(
-                    rmeth, paramWidth, isStatic, true, advice);
+                    rmeth, paramWidth, isStatic,true, advice);
         }
 
-        StringBuffer sb = new StringBuffer(2000);
+        StringBuilder sb = new StringBuilder(2000);
 
         sb.append("first ");
         sb.append(Hex.u2(
@@ -111,7 +122,7 @@ public class SsaDumper extends BlockDumper {
 
         ArrayList<SsaBasicBlock> blocks = ssaMeth.getBlocks();
         ArrayList<SsaBasicBlock> sortedBlocks =
-                (ArrayList<SsaBasicBlock>) blocks.clone();
+            (ArrayList<SsaBasicBlock>) blocks.clone();
         Collections.sort(sortedBlocks, SsaBasicBlock.LABEL_COMPARATOR);
 
         for (SsaBasicBlock block : sortedBlocks) {
@@ -121,7 +132,7 @@ public class SsaDumper extends BlockDumper {
             BitSet preds = block.getPredecessors();
 
             for (int i = preds.nextSetBit(0); i >= 0;
-                 i = preds.nextSetBit(i + 1)) {
+                 i = preds.nextSetBit(i+1)) {
                 sb.append("  pred ");
                 sb.append(Hex.u2(ssaMeth.blockIndexToRopLabel(i)));
                 sb.append('\n');
@@ -161,7 +172,6 @@ public class SsaDumper extends BlockDumper {
         }
 
         suppressDump = false;
-        setAt(bytes, 0);
         parsed(bytes, 0, bytes.size(), sb.toString());
         suppressDump = true;
     }

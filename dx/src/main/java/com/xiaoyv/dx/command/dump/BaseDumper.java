@@ -1,15 +1,29 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.command.dump;
 
 import com.xiaoyv.dx.cf.code.ConcreteMethod;
 import com.xiaoyv.dx.cf.iface.Member;
 import com.xiaoyv.dx.cf.iface.ParseObserver;
+import com.xiaoyv.dx.dex.DexOptions;
 import com.xiaoyv.dx.util.ByteArray;
 import com.xiaoyv.dx.util.Hex;
 import com.xiaoyv.dx.util.IndentingWriter;
 import com.xiaoyv.dx.util.TwoColumnOutput;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringWriter;
@@ -19,24 +33,16 @@ import java.io.StringWriter;
  */
 public abstract class BaseDumper
         implements ParseObserver {
-    /**
-     * {@code non-null;} array of data being dumped
-     */
+    /** {@code non-null;} array of data being dumped */
     private final byte[] bytes;
 
-    /**
-     * whether or not to include the raw bytes (in a column on the left)
-     */
+    /** whether or not to include the raw bytes (in a column on the left) */
     private final boolean rawBytes;
 
-    /**
-     * {@code non-null;} where to dump to
-     */
+    /** {@code non-null;} where to dump to */
     private final PrintStream out;
 
-    /**
-     * width of the output in columns
-     */
+    /** width of the output in columns */
     private final int width;
 
     /**
@@ -45,44 +51,35 @@ public abstract class BaseDumper
      */
     private final String filePath;
 
-    /**
-     * whether to be strict about parsing
-     */
+    /** whether to be strict about parsing */
     private final boolean strictParse;
 
-    /**
-     * number of bytes per line in hex dumps
-     */
+     /** number of bytes per line in hex dumps */
     private final int hexCols;
 
-    /**
-     * the current level of indentation
-     */
+    /** the current level of indentation */
     private int indent;
 
-    /**
-     * {@code non-null;} the current column separator string
-     */
+    /** {@code non-null;} the current column separator string */
     private String separator;
 
-    /**
-     * the offset of the next byte to dump
-     */
-    private int at;
+    /** the number of read bytes */
+    private int readBytes;
 
-    /**
-     * commandline parsedArgs
-     */
+    /** commandline parsedArgs */
     protected Args args;
+
+    /** {@code non-null;} options for dex output, always set to the defaults for now */
+    protected final DexOptions dexOptions;
 
     /**
      * Constructs an instance.
      *
-     * @param bytes    {@code non-null;} bytes of the (alleged) class file
-     *                 on the left)
-     * @param out      {@code non-null;} where to dump to
+     * @param bytes {@code non-null;} bytes of the (alleged) class file
+     * on the left)
+     * @param out {@code non-null;} where to dump to
      * @param filePath the file path for the class, excluding any base
-     *                 directory specification
+     * directory specification
      */
     public BaseDumper(byte[] bytes, PrintStream out,
                       String filePath, Args args) {
@@ -94,8 +91,10 @@ public abstract class BaseDumper
         this.strictParse = args.strictParse;
         this.indent = 0;
         this.separator = rawBytes ? "|" : "";
-        this.at = 0;
+        this.readBytes = 0;
         this.args = args;
+
+        this.dexOptions = new DexOptions();
 
         int hexCols = (((width - 5) / 15) + 1) & ~1;
         if (hexCols < 6) {
@@ -109,18 +108,16 @@ public abstract class BaseDumper
     /**
      * Computes the total width, in register-units, of the parameters for
      * this method.
-     *
      * @param meth method to process
      * @return width in register-units
      */
     static int computeParamWidth(ConcreteMethod meth, boolean isStatic) {
         return meth.getEffectiveDescriptor().getParameterTypes().
-                getWordCount();
+            getWordCount();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public void changeIndent(int indentDelta) {
         indent += indentDelta;
 
@@ -130,62 +127,39 @@ public abstract class BaseDumper
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public void parsed(ByteArray bytes, int offset, int len, String human) {
-        offset = bytes.underlyingOffset(offset, getBytes());
+        offset = bytes.underlyingOffset(offset);
 
         boolean rawBytes = getRawBytes();
 
-        if (offset < at) {
-            println("<dump skipped backwards to " + Hex.u4(offset) + ">");
-            at = offset;
-        } else if (offset > at) {
-            String hex = rawBytes ? hexDump(at, offset - at) : "";
-            print(twoColumns(hex, "<skipped to " + Hex.u4(offset) + ">"));
-            at = offset;
-        }
-
         String hex = rawBytes ? hexDump(offset, len) : "";
         print(twoColumns(hex, human));
-        at += len;
+        readBytes += len;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public void startParsingMember(ByteArray bytes, int offset, String name,
                                    String descriptor) {
         // This space intentionally left blank.
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public void endParsingMember(ByteArray bytes, int offset, String name,
                                  String descriptor, Member member) {
         // This space intentionally left blank.
     }
 
     /**
-     * Gets the current dump cursor (that is, the offset of the expected
-     * next byte to dump).
+     * Gets the current number of read bytes.
      *
      * @return {@code >= 0;} the dump cursor
      */
-    protected final int getAt() {
-        return at;
-    }
-
-    /**
-     * Sets the dump cursor to the indicated offset in the given array.
-     *
-     * @param arr    {@code non-null;} array in question
-     * @param offset {@code >= 0;} offset into the array
-     */
-    protected final void setAt(ByteArray arr, int offset) {
-        at = arr.underlyingOffset(offset, bytes);
+    protected final int getReadBytes() {
+        return readBytes;
     }
 
     /**
@@ -271,7 +245,7 @@ public abstract class BaseDumper
      * Constructs a hex data dump of the given portion of {@link #bytes}.
      *
      * @param offset offset to start dumping at
-     * @param len    length to dump
+     * @param len length to dump
      * @return {@code non-null;} the dump
      */
     protected final String hexDump(int offset, int len) {

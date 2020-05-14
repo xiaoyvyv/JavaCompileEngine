@@ -1,9 +1,22 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.code;
 
 import com.xiaoyv.dx.dex.DexOptions;
-
 import java.util.ArrayList;
 
 /**
@@ -30,15 +43,15 @@ public final class OutputCollector {
     /**
      * Constructs an instance.
      *
-     * @param dexOptions            {@code non-null;} options for dex output
-     * @param initialCapacity       {@code >= 0;} initial capacity of the output list
+     * @param dexOptions {@code non-null;} options for dex output
+     * @param initialCapacity {@code >= 0;} initial capacity of the output list
      * @param suffixInitialCapacity {@code >= 0;} initial capacity of the output
-     *                              suffix
-     * @param regCount              {@code >= 0;} register count for the method
-     * @param paramSize             size, in register units, of all the parameters for this method
+     * suffix
+     * @param regCount {@code >= 0;} register count for the method
+     * @param paramSize size, in register units, of all the parameters for this method
      */
     public OutputCollector(DexOptions dexOptions, int initialCapacity, int suffixInitialCapacity,
-                           int regCount, int paramSize) {
+            int regCount, int paramSize) {
         this.finisher = new OutputFinisher(dexOptions, initialCapacity, regCount, paramSize);
         this.suffix = new ArrayList<DalvInsn>(suffixInitialCapacity);
     }
@@ -52,14 +65,26 @@ public final class OutputCollector {
         finisher.add(insn);
     }
 
+    public DalvInsn get(int at) {
+        if (at >= finisher.size() || at < 0) {
+            return null;
+        } else {
+            return finisher.get(at);
+        }
+    }
+
+    public int size() {
+        return finisher.size();
+    }
+
     /**
      * Reverses a branch which is buried a given number of instructions
      * backward in the output. It is illegal to call this unless the
      * indicated instruction really is a reversible branch.
      *
-     * @param which     how many instructions back to find the branch;
-     *                  {@code 0} is the most recently added instruction,
-     *                  {@code 1} is the instruction before that, etc.
+     * @param which how many instructions back to find the branch;
+     * {@code 0} is the most recently added instruction,
+     * {@code 1} is the instruction before that, etc.
      * @param newTarget {@code non-null;} the new target for the reversed branch
      */
     public void reverseBranch(int which, CodeAddress newTarget) {
@@ -81,7 +106,7 @@ public final class OutputCollector {
      *
      * @return {@code non-null;} the output finisher
      * @throws UnsupportedOperationException if this method has
-     *                                       already been called
+     * already been called
      */
     public OutputFinisher getFinisher() {
         if (suffix == null) {

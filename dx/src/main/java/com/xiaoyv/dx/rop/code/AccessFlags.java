@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.code;
 
@@ -14,29 +28,19 @@ import com.xiaoyv.dx.util.Hex;
  * is only used in a very limited way.
  */
 public final class AccessFlags {
-    /**
-     * public member / class
-     */
+    /** public member / class */
     public static final int ACC_PUBLIC = 0x0001;
 
-    /**
-     * private member
-     */
+    /** private member */
     public static final int ACC_PRIVATE = 0x0002;
 
-    /**
-     * protected member
-     */
+    /** protected member */
     public static final int ACC_PROTECTED = 0x0004;
 
-    /**
-     * static member
-     */
+    /** static member */
     public static final int ACC_STATIC = 0x0008;
 
-    /**
-     * final member / class
-     */
+    /** final member / class */
     public static final int ACC_FINAL = 0x0010;
 
     /**
@@ -51,39 +55,25 @@ public final class AccessFlags {
      */
     public static final int ACC_SUPER = 0x0020;
 
-    /**
-     * volatile field
-     */
+    /** volatile field */
     public static final int ACC_VOLATILE = 0x0040;
 
-    /**
-     * bridge method (generated)
-     */
+    /** bridge method (generated) */
     public static final int ACC_BRIDGE = 0x0040;
 
-    /**
-     * transient field
-     */
+    /** transient field */
     public static final int ACC_TRANSIENT = 0x0080;
 
-    /**
-     * varargs method
-     */
+    /** varargs method */
     public static final int ACC_VARARGS = 0x0080;
 
-    /**
-     * native method
-     */
+    /** native method */
     public static final int ACC_NATIVE = 0x0100;
 
-    /**
-     * "class" is in fact an public static final interface
-     */
+    /** "class" is in fact an public static final interface */
     public static final int ACC_INTERFACE = 0x0200;
 
-    /**
-     * abstract method / class
-     */
+    /** abstract method / class */
     public static final int ACC_ABSTRACT = 0x0400;
 
     /**
@@ -92,14 +82,10 @@ public final class AccessFlags {
      */
     public static final int ACC_STRICT = 0x0800;
 
-    /**
-     * synthetic member
-     */
+    /** synthetic member */
     public static final int ACC_SYNTHETIC = 0x1000;
 
-    /**
-     * class is an annotation type
-     */
+    /** class is an annotation type */
     public static final int ACC_ANNOTATION = 0x2000;
 
     /**
@@ -108,9 +94,7 @@ public final class AccessFlags {
      */
     public static final int ACC_ENUM = 0x4000;
 
-    /**
-     * method is a constructor
-     */
+    /** method is a constructor */
     public static final int ACC_CONSTRUCTOR = 0x10000;
 
     /**
@@ -119,50 +103,36 @@ public final class AccessFlags {
      */
     public static final int ACC_DECLARED_SYNCHRONIZED = 0x20000;
 
-    /**
-     * flags defined on classes
-     */
+    /** flags defined on classes */
     public static final int CLASS_FLAGS =
-            ACC_PUBLIC | ACC_FINAL | ACC_SUPER | ACC_INTERFACE | ACC_ABSTRACT |
-                    ACC_SYNTHETIC | ACC_ANNOTATION | ACC_ENUM;
+        ACC_PUBLIC | ACC_FINAL | ACC_SUPER | ACC_INTERFACE | ACC_ABSTRACT |
+        ACC_SYNTHETIC | ACC_ANNOTATION | ACC_ENUM;
 
-    /**
-     * flags defined on inner classes
-     */
+    /** flags defined on inner classes */
     public static final int INNER_CLASS_FLAGS =
-            ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED | ACC_STATIC | ACC_FINAL |
-                    ACC_INTERFACE | ACC_ABSTRACT | ACC_SYNTHETIC | ACC_ANNOTATION |
-                    ACC_ENUM;
+        ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED | ACC_STATIC | ACC_FINAL |
+        ACC_INTERFACE | ACC_ABSTRACT | ACC_SYNTHETIC | ACC_ANNOTATION |
+        ACC_ENUM;
 
-    /**
-     * flags defined on fields
-     */
+    /** flags defined on fields */
     public static final int FIELD_FLAGS =
-            ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED | ACC_STATIC | ACC_FINAL |
-                    ACC_VOLATILE | ACC_TRANSIENT | ACC_SYNTHETIC | ACC_ENUM;
+        ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED | ACC_STATIC | ACC_FINAL |
+        ACC_VOLATILE | ACC_TRANSIENT | ACC_SYNTHETIC | ACC_ENUM;
 
-    /**
-     * flags defined on methods
-     */
+    /** flags defined on methods */
     public static final int METHOD_FLAGS =
-            ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED | ACC_STATIC | ACC_FINAL |
-                    ACC_SYNCHRONIZED | ACC_BRIDGE | ACC_VARARGS | ACC_NATIVE |
-                    ACC_ABSTRACT | ACC_STRICT | ACC_SYNTHETIC | ACC_CONSTRUCTOR |
-                    ACC_DECLARED_SYNCHRONIZED;
+        ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED | ACC_STATIC | ACC_FINAL |
+        ACC_SYNCHRONIZED | ACC_BRIDGE | ACC_VARARGS | ACC_NATIVE |
+        ACC_ABSTRACT | ACC_STRICT | ACC_SYNTHETIC | ACC_CONSTRUCTOR |
+        ACC_DECLARED_SYNCHRONIZED;
 
-    /**
-     * indicates conversion of class flags
-     */
+    /** indicates conversion of class flags */
     private static final int CONV_CLASS = 1;
 
-    /**
-     * indicates conversion of field flags
-     */
+    /** indicates conversion of field flags */
     private static final int CONV_FIELD = 2;
 
-    /**
-     * indicates conversion of method flags
-     */
+    /** indicates conversion of method flags */
     private static final int CONV_METHOD = 3;
 
     /**
@@ -352,12 +322,12 @@ public final class AccessFlags {
      * access flags.
      *
      * @param flags the defined flags
-     * @param mask  mask for the "defined" bits
-     * @param what  what the flags represent (one of {@code CONV_*})
+     * @param mask mask for the "defined" bits
+     * @param what what the flags represent (one of {@code CONV_*})
      * @return {@code non-null;} human-oriented string
      */
     private static String humanHelper(int flags, int mask, int what) {
-        StringBuffer sb = new StringBuffer(80);
+        StringBuilder sb = new StringBuilder(80);
         int extra = flags & ~mask;
 
         flags &= mask;

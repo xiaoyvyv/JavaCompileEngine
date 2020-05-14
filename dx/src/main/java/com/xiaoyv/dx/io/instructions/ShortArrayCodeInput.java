@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2011 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.io.instructions;
 
@@ -9,9 +23,7 @@ import java.io.EOFException;
  */
 public final class ShortArrayCodeInput extends BaseCodeCursor
         implements CodeInput {
-    /**
-     * source array to read from
-     */
+    /** source array to read from */
     private final short[] array;
 
     /**
@@ -25,16 +37,14 @@ public final class ShortArrayCodeInput extends BaseCodeCursor
         this.array = array;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public boolean hasMore() {
         return cursor() < array.length;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public int read() throws EOFException {
         try {
             int value = array[cursor()];
@@ -45,9 +55,8 @@ public final class ShortArrayCodeInput extends BaseCodeCursor
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public int readInt() throws EOFException {
         int short0 = read();
         int short1 = read();
@@ -55,9 +64,8 @@ public final class ShortArrayCodeInput extends BaseCodeCursor
         return short0 | (short1 << 16);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public long readLong() throws EOFException {
         long short0 = read();
         long short1 = read();

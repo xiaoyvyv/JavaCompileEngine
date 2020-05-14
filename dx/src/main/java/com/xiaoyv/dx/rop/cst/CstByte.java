@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.cst;
 
@@ -10,9 +24,7 @@ import com.xiaoyv.dx.util.Hex;
  */
 public final class CstByte
         extends CstLiteral32 {
-    /**
-     * {@code non-null;} the value {@code 0} as an instance of this class
-     */
+    /** {@code non-null;} the value {@code 0} as an instance of this class */
     public static final CstByte VALUE_0 = make((byte) 0);
 
     /**
@@ -53,33 +65,27 @@ public final class CstByte
         super(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         int value = getIntBits();
         return "byte{0x" + Hex.u1(value) + " / " + value + '}';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public Type getType() {
         return Type.BYTE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String typeName() {
         return "byte";
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public String toHuman() {
         return Integer.toString(getIntBits());
     }

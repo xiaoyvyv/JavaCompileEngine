@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.command.dump;
 
@@ -27,7 +41,6 @@ import com.xiaoyv.dx.ssa.Optimizer;
 import com.xiaoyv.dx.util.ByteArray;
 import com.xiaoyv.dx.util.Hex;
 import com.xiaoyv.dx.util.IntList;
-
 import java.io.PrintStream;
 
 /**
@@ -35,10 +48,8 @@ import java.io.PrintStream;
  */
 public class BlockDumper
         extends BaseDumper {
-    /**
-     * whether or not to registerize (make rop blocks)
-     */
-    private boolean rop;
+    /** whether or not to registerize (make rop blocks) */
+    private final boolean rop;
 
     /**
      * {@code null-ok;} the class file object being constructed;
@@ -46,34 +57,28 @@ public class BlockDumper
      */
     protected DirectClassFile classFile;
 
-    /**
-     * whether or not to suppress dumping
-     */
+    /** whether or not to suppress dumping */
     protected boolean suppressDump;
 
-    /**
-     * whether this is the first method being dumped
-     */
+    /** whether this is the first method being dumped */
     private boolean first;
 
-    /**
-     * whether or not to run the ssa optimziations
-     */
-    private boolean optimize;
+    /** whether or not to run the ssa optimziations */
+    private final boolean optimize;
 
     /**
      * Dumps the given array, interpreting it as a class file and dumping
      * methods with indications of block-level stuff.
      *
-     * @param bytes    {@code non-null;} bytes of the (alleged) class file
-     * @param out      {@code non-null;} where to dump to
+     * @param bytes {@code non-null;} bytes of the (alleged) class file
+     * @param out {@code non-null;} where to dump to
      * @param filePath the file path for the class, excluding any base
-     *                 directory specification
-     * @param rop      whether or not to registerize (make rop blocks)
-     * @param args     commandline parsedArgs
+     * directory specification
+     * @param rop whether or not to registerize (make rop blocks)
+     * @param args commandline parsedArgs
      */
     public static void dump(byte[] bytes, PrintStream out,
-                            String filePath, boolean rop, Args args) {
+            String filePath, boolean rop, Args args) {
         BlockDumper bd = new BlockDumper(bytes, out, filePath,
                 rop, args);
         bd.dump();
@@ -84,7 +89,7 @@ public class BlockDumper
      * Use {@link #dump}.
      */
     BlockDumper(byte[] bytes, PrintStream out, String filePath,
-                boolean rop, Args args) {
+            boolean rop, Args args) {
         super(bytes, out, filePath, args);
 
         this.rop = rop;
@@ -111,15 +116,13 @@ public class BlockDumper
 
         // Next, reparse it and observe the process.
         DirectClassFile liveCf =
-                new DirectClassFile(ba, getFilePath(), getStrictParse());
+            new DirectClassFile(ba, getFilePath(), getStrictParse());
         liveCf.setAttributeFactory(StdAttributeFactory.THE_ONE);
         liveCf.setObserver(this);
         liveCf.getMagic(); // Force parsing to happen.
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void changeIndent(int indentDelta) {
         if (!suppressDump) {
@@ -127,9 +130,7 @@ public class BlockDumper
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void parsed(ByteArray bytes, int offset, int len, String human) {
         if (!suppressDump) {
@@ -145,12 +146,10 @@ public class BlockDumper
         return args.method == null || args.method.equals(name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void startParsingMember(ByteArray bytes, int offset, String name,
-                                   String descriptor) {
+            String descriptor) {
         if (descriptor.indexOf('(') < 0) {
             // It's a field, not a method
             return;
@@ -159,9 +158,6 @@ public class BlockDumper
         if (!shouldDumpMethod(name)) {
             return;
         }
-
-        // Reset the dump cursor to the start of the method.
-        setAt(bytes, offset);
 
         suppressDump = false;
 
@@ -175,12 +171,10 @@ public class BlockDumper
         suppressDump = true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void endParsingMember(ByteArray bytes, int offset, String name,
-                                 String descriptor, Member member) {
+            String descriptor, Member member) {
         if (!(member instanceof Method)) {
             return;
         }
@@ -195,7 +189,7 @@ public class BlockDumper
         }
 
         ConcreteMethod meth =
-                new ConcreteMethod((Method) member, classFile, true, true);
+            new ConcreteMethod((Method) member, classFile, true, true);
 
         if (rop) {
             ropDump(meth);
@@ -216,9 +210,6 @@ public class BlockDumper
         int sz = list.size();
         CodeObserver codeObserver = new CodeObserver(bytes, BlockDumper.this);
 
-        // Reset the dump cursor to the start of the bytecode.
-        setAt(bytes, 0);
-
         suppressDump = false;
 
         int byteAt = 0;
@@ -229,12 +220,12 @@ public class BlockDumper
 
             if (byteAt < start) {
                 parsed(bytes, byteAt, start - byteAt,
-                        "dead code " + Hex.u2(byteAt) + ".." + Hex.u2(start));
+                       "dead code " + Hex.u2(byteAt) + ".." + Hex.u2(start));
             }
 
             parsed(bytes, start, 0,
                     "block " + Hex.u2(bb.getLabel()) + ": " +
-                            Hex.u2(start) + ".." + Hex.u2(end));
+                    Hex.u2(start) + ".." + Hex.u2(end));
             changeIndent(1);
 
             int len;
@@ -260,10 +251,10 @@ public class BlockDumper
                 ByteCatchList.Item one = catches.get(j);
                 CstType exceptionClass = one.getExceptionClass();
                 parsed(bytes, end, 0,
-                        "catch " +
-                                ((exceptionClass == CstType.OBJECT) ? "<any>" :
-                                        exceptionClass.toHuman()) + " -> " +
-                                Hex.u2(one.getHandlerPc()));
+                       "catch " +
+                       ((exceptionClass == CstType.OBJECT) ? "<any>" :
+                        exceptionClass.toHuman()) + " -> " +
+                       Hex.u2(one.getHandlerPc()));
             }
 
             changeIndent(-1);
@@ -288,14 +279,14 @@ public class BlockDumper
         TranslationAdvice advice = DexTranslationAdvice.THE_ONE;
         BytecodeArray code = meth.getCode();
         ByteArray bytes = code.getBytes();
-        RopMethod rmeth = Ropper.convert(meth, advice, classFile.getMethods());
-        StringBuffer sb = new StringBuffer(2000);
+        RopMethod rmeth = Ropper.convert(meth, advice, classFile.getMethods(), dexOptions);
+        StringBuilder sb = new StringBuilder(2000);
 
         if (optimize) {
             boolean isStatic = AccessFlags.isStatic(meth.getAccessFlags());
             int paramWidth = computeParamWidth(meth, isStatic);
             rmeth =
-                    Optimizer.optimize(rmeth, paramWidth, isStatic, true, advice);
+                Optimizer.optimize(rmeth, paramWidth, isStatic, true, advice);
         }
 
         BasicBlockList blocks = rmeth.getBlocks();
@@ -347,7 +338,6 @@ public class BlockDumper
         }
 
         suppressDump = false;
-        setAt(bytes, 0);
         parsed(bytes, 0, bytes.size(), sb.toString());
         suppressDump = true;
     }

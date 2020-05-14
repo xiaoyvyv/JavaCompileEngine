@@ -1,10 +1,23 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
 import com.xiaoyv.dx.util.AnnotatedOutput;
 import com.xiaoyv.dx.util.Hex;
-
 import java.util.List;
 
 /**
@@ -21,19 +34,13 @@ import java.util.List;
  */
 public final class UniformListItem<T extends OffsettedItem>
         extends OffsettedItem {
-    /**
-     * the size of the list header
-     */
+    /** the size of the list header */
     private static final int HEADER_SIZE = 4;
 
-    /**
-     * {@code non-null;} the item type
-     */
+    /** {@code non-null;} the item type */
     private final ItemType itemType;
 
-    /**
-     * {@code non-null;} the contents
-     */
+    /** {@code non-null;} the contents */
     private final List<T> items;
 
     /**
@@ -41,7 +48,7 @@ public final class UniformListItem<T extends OffsettedItem>
      * it is used to construct an instance of this class.
      *
      * @param itemType {@code non-null;} the type of the item
-     * @param items    {@code non-null and non-empty;} list of items to represent
+     * @param items {@code non-null and non-empty;} list of items to represent
      */
     public UniformListItem(ItemType itemType, List<T> items) {
         super(getAlignment(items), writeSize(items));
@@ -90,20 +97,16 @@ public final class UniformListItem<T extends OffsettedItem>
         return (items.size() * first.writeSize()) + getAlignment(items);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public ItemType itemType() {
         return itemType;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer(100);
+        StringBuilder sb = new StringBuilder(100);
 
         sb.append(getClass().getName());
         sb.append(items);
@@ -111,9 +114,7 @@ public final class UniformListItem<T extends OffsettedItem>
         return sb.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void addContents(DexFile file) {
         for (OffsettedItem i : items) {
@@ -121,12 +122,10 @@ public final class UniformListItem<T extends OffsettedItem>
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final String toHuman() {
-        StringBuffer sb = new StringBuffer(100);
+        StringBuilder sb = new StringBuilder(100);
         boolean first = true;
 
         sb.append("{");
@@ -153,9 +152,7 @@ public final class UniformListItem<T extends OffsettedItem>
         return items;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void place0(Section addedTo, int offset) {
         offset += headerSize();
@@ -185,9 +182,7 @@ public final class UniformListItem<T extends OffsettedItem>
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void writeTo0(DexFile file, AnnotatedOutput out) {
         int size = items.size();

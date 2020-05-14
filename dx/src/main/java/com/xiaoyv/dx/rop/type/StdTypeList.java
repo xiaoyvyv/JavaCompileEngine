@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.type;
 
@@ -9,215 +23,143 @@ import com.xiaoyv.dx.util.FixedSizeList;
  */
 public final class StdTypeList
         extends FixedSizeList implements TypeList {
-    /**
-     * {@code non-null;} no-element instance
-     */
+    /** {@code non-null;} no-element instance */
     public static final StdTypeList EMPTY = new StdTypeList(0);
 
-    /**
-     * {@code non-null;} the list {@code [int]}
-     */
+    /** {@code non-null;} the list {@code [int]} */
     public static final StdTypeList INT = StdTypeList.make(Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [long]}
-     */
+    /** {@code non-null;} the list {@code [long]} */
     public static final StdTypeList LONG = StdTypeList.make(Type.LONG);
 
-    /**
-     * {@code non-null;} the list {@code [float]}
-     */
+    /** {@code non-null;} the list {@code [float]} */
     public static final StdTypeList FLOAT = StdTypeList.make(Type.FLOAT);
 
-    /**
-     * {@code non-null;} the list {@code [double]}
-     */
+    /** {@code non-null;} the list {@code [double]} */
     public static final StdTypeList DOUBLE = StdTypeList.make(Type.DOUBLE);
 
-    /**
-     * {@code non-null;} the list {@code [Object]}
-     */
+    /** {@code non-null;} the list {@code [Object]} */
     public static final StdTypeList OBJECT = StdTypeList.make(Type.OBJECT);
 
-    /**
-     * {@code non-null;} the list {@code [ReturnAddress]}
-     */
+    /** {@code non-null;} the list {@code [ReturnAddress]} */
     public static final StdTypeList RETURN_ADDRESS
             = StdTypeList.make(Type.RETURN_ADDRESS);
 
-    /**
-     * {@code non-null;} the list {@code [Throwable]}
-     */
+    /** {@code non-null;} the list {@code [Throwable]} */
     public static final StdTypeList THROWABLE =
-            StdTypeList.make(Type.THROWABLE);
+        StdTypeList.make(Type.THROWABLE);
 
-    /**
-     * {@code non-null;} the list {@code [int, int]}
-     */
+    /** {@code non-null;} the list {@code [int, int]} */
     public static final StdTypeList INT_INT =
-            StdTypeList.make(Type.INT, Type.INT);
+        StdTypeList.make(Type.INT, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [long, long]}
-     */
+    /** {@code non-null;} the list {@code [long, long]} */
     public static final StdTypeList LONG_LONG =
-            StdTypeList.make(Type.LONG, Type.LONG);
+        StdTypeList.make(Type.LONG, Type.LONG);
 
-    /**
-     * {@code non-null;} the list {@code [float, float]}
-     */
+    /** {@code non-null;} the list {@code [float, float]} */
     public static final StdTypeList FLOAT_FLOAT =
-            StdTypeList.make(Type.FLOAT, Type.FLOAT);
+        StdTypeList.make(Type.FLOAT, Type.FLOAT);
 
-    /**
-     * {@code non-null;} the list {@code [double, double]}
-     */
+    /** {@code non-null;} the list {@code [double, double]} */
     public static final StdTypeList DOUBLE_DOUBLE =
-            StdTypeList.make(Type.DOUBLE, Type.DOUBLE);
+        StdTypeList.make(Type.DOUBLE, Type.DOUBLE);
 
-    /**
-     * {@code non-null;} the list {@code [Object, Object]}
-     */
+    /** {@code non-null;} the list {@code [Object, Object]} */
     public static final StdTypeList OBJECT_OBJECT =
-            StdTypeList.make(Type.OBJECT, Type.OBJECT);
+        StdTypeList.make(Type.OBJECT, Type.OBJECT);
 
-    /**
-     * {@code non-null;} the list {@code [int, Object]}
-     */
+    /** {@code non-null;} the list {@code [int, Object]} */
     public static final StdTypeList INT_OBJECT =
-            StdTypeList.make(Type.INT, Type.OBJECT);
+        StdTypeList.make(Type.INT, Type.OBJECT);
 
-    /**
-     * {@code non-null;} the list {@code [long, Object]}
-     */
+    /** {@code non-null;} the list {@code [long, Object]} */
     public static final StdTypeList LONG_OBJECT =
-            StdTypeList.make(Type.LONG, Type.OBJECT);
+        StdTypeList.make(Type.LONG, Type.OBJECT);
 
-    /**
-     * {@code non-null;} the list {@code [float, Object]}
-     */
+    /** {@code non-null;} the list {@code [float, Object]} */
     public static final StdTypeList FLOAT_OBJECT =
-            StdTypeList.make(Type.FLOAT, Type.OBJECT);
+        StdTypeList.make(Type.FLOAT, Type.OBJECT);
 
-    /**
-     * {@code non-null;} the list {@code [double, Object]}
-     */
+    /** {@code non-null;} the list {@code [double, Object]} */
     public static final StdTypeList DOUBLE_OBJECT =
-            StdTypeList.make(Type.DOUBLE, Type.OBJECT);
+        StdTypeList.make(Type.DOUBLE, Type.OBJECT);
 
-    /**
-     * {@code non-null;} the list {@code [long, int]}
-     */
+    /** {@code non-null;} the list {@code [long, int]} */
     public static final StdTypeList LONG_INT =
-            StdTypeList.make(Type.LONG, Type.INT);
+        StdTypeList.make(Type.LONG, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [int[], int]}
-     */
+    /** {@code non-null;} the list {@code [int[], int]} */
     public static final StdTypeList INTARR_INT =
-            StdTypeList.make(Type.INT_ARRAY, Type.INT);
+        StdTypeList.make(Type.INT_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [long[], int]}
-     */
+    /** {@code non-null;} the list {@code [long[], int]} */
     public static final StdTypeList LONGARR_INT =
-            StdTypeList.make(Type.LONG_ARRAY, Type.INT);
+        StdTypeList.make(Type.LONG_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [float[], int]}
-     */
+    /** {@code non-null;} the list {@code [float[], int]} */
     public static final StdTypeList FLOATARR_INT =
-            StdTypeList.make(Type.FLOAT_ARRAY, Type.INT);
+        StdTypeList.make(Type.FLOAT_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [double[], int]}
-     */
+    /** {@code non-null;} the list {@code [double[], int]} */
     public static final StdTypeList DOUBLEARR_INT =
-            StdTypeList.make(Type.DOUBLE_ARRAY, Type.INT);
+        StdTypeList.make(Type.DOUBLE_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [Object[], int]}
-     */
+    /** {@code non-null;} the list {@code [Object[], int]} */
     public static final StdTypeList OBJECTARR_INT =
-            StdTypeList.make(Type.OBJECT_ARRAY, Type.INT);
+        StdTypeList.make(Type.OBJECT_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [boolean[], int]}
-     */
+    /** {@code non-null;} the list {@code [boolean[], int]} */
     public static final StdTypeList BOOLEANARR_INT =
-            StdTypeList.make(Type.BOOLEAN_ARRAY, Type.INT);
+        StdTypeList.make(Type.BOOLEAN_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [byte[], int]}
-     */
+    /** {@code non-null;} the list {@code [byte[], int]} */
     public static final StdTypeList BYTEARR_INT =
-            StdTypeList.make(Type.BYTE_ARRAY, Type.INT);
+        StdTypeList.make(Type.BYTE_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [char[], int]}
-     */
+    /** {@code non-null;} the list {@code [char[], int]} */
     public static final StdTypeList CHARARR_INT =
-            StdTypeList.make(Type.CHAR_ARRAY, Type.INT);
+        StdTypeList.make(Type.CHAR_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [short[], int]}
-     */
+    /** {@code non-null;} the list {@code [short[], int]} */
     public static final StdTypeList SHORTARR_INT =
-            StdTypeList.make(Type.SHORT_ARRAY, Type.INT);
+        StdTypeList.make(Type.SHORT_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [int, int[], int]}
-     */
+    /** {@code non-null;} the list {@code [int, int[], int]} */
     public static final StdTypeList INT_INTARR_INT =
-            StdTypeList.make(Type.INT, Type.INT_ARRAY, Type.INT);
+        StdTypeList.make(Type.INT, Type.INT_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [long, long[], int]}
-     */
+    /** {@code non-null;} the list {@code [long, long[], int]} */
     public static final StdTypeList LONG_LONGARR_INT =
-            StdTypeList.make(Type.LONG, Type.LONG_ARRAY, Type.INT);
+        StdTypeList.make(Type.LONG, Type.LONG_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [float, float[], int]}
-     */
+    /** {@code non-null;} the list {@code [float, float[], int]} */
     public static final StdTypeList FLOAT_FLOATARR_INT =
-            StdTypeList.make(Type.FLOAT, Type.FLOAT_ARRAY, Type.INT);
+        StdTypeList.make(Type.FLOAT, Type.FLOAT_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [double, double[], int]}
-     */
+    /** {@code non-null;} the list {@code [double, double[], int]} */
     public static final StdTypeList DOUBLE_DOUBLEARR_INT =
-            StdTypeList.make(Type.DOUBLE, Type.DOUBLE_ARRAY, Type.INT);
+        StdTypeList.make(Type.DOUBLE, Type.DOUBLE_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [Object, Object[], int]}
-     */
+    /** {@code non-null;} the list {@code [Object, Object[], int]} */
     public static final StdTypeList OBJECT_OBJECTARR_INT =
-            StdTypeList.make(Type.OBJECT, Type.OBJECT_ARRAY, Type.INT);
+        StdTypeList.make(Type.OBJECT, Type.OBJECT_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [int, boolean[], int]}
-     */
+    /** {@code non-null;} the list {@code [int, boolean[], int]} */
     public static final StdTypeList INT_BOOLEANARR_INT =
-            StdTypeList.make(Type.INT, Type.BOOLEAN_ARRAY, Type.INT);
+        StdTypeList.make(Type.INT, Type.BOOLEAN_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [int, byte[], int]}
-     */
+    /** {@code non-null;} the list {@code [int, byte[], int]} */
     public static final StdTypeList INT_BYTEARR_INT =
-            StdTypeList.make(Type.INT, Type.BYTE_ARRAY, Type.INT);
+        StdTypeList.make(Type.INT, Type.BYTE_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [int, char[], int]}
-     */
+    /** {@code non-null;} the list {@code [int, char[], int]} */
     public static final StdTypeList INT_CHARARR_INT =
-            StdTypeList.make(Type.INT, Type.CHAR_ARRAY, Type.INT);
+        StdTypeList.make(Type.INT, Type.CHAR_ARRAY, Type.INT);
 
-    /**
-     * {@code non-null;} the list {@code [int, short[], int]}
-     */
+    /** {@code non-null;} the list {@code [int, short[], int]} */
     public static final StdTypeList INT_SHORTARR_INT =
-            StdTypeList.make(Type.INT, Type.SHORT_ARRAY, Type.INT);
+        StdTypeList.make(Type.INT, Type.SHORT_ARRAY, Type.INT);
 
     /**
      * Makes a single-element instance.
@@ -295,7 +237,7 @@ public final class StdTypeList
             return "<empty>";
         }
 
-        StringBuffer sb = new StringBuffer(100);
+        StringBuilder sb = new StringBuilder(100);
 
         for (int i = 0; i < size; i++) {
             if (i != 0) {
@@ -343,7 +285,7 @@ public final class StdTypeList
         }
 
         for (int i = 0; i < size; i++) {
-            if (!list1.getType(i).equals(list2.getType(i))) {
+            if (! list1.getType(i).equals(list2.getType(i))) {
                 return false;
             }
         }
@@ -390,16 +332,14 @@ public final class StdTypeList
         super(size);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public Type getType(int n) {
         return get(n);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int getWordCount() {
         int sz = size();
         int result = 0;
@@ -411,9 +351,8 @@ public final class StdTypeList
         return result;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public TypeList withAddedType(Type type) {
         int sz = size();
         StdTypeList result = new StdTypeList(sz + 1);
@@ -442,7 +381,7 @@ public final class StdTypeList
     /**
      * Sets the type at the given index.
      *
-     * @param n    {@code >= 0, < size();} which element
+     * @param n {@code >= 0, < size();} which element
      * @param type {@code non-null;} the type to store
      */
     public void set(int n, Type type) {

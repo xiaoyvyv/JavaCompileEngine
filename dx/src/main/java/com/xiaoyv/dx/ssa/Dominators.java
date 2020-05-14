@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa;
 
@@ -9,16 +23,16 @@ import java.util.HashSet;
 /**
  * This class computes dominator and post-dominator information using the
  * Lengauer-Tarjan method.
- * <p>
+ *
  * See A Fast Algorithm for Finding Dominators in a Flowgraph
- * T. Lengauer & R. Tarjan, ACM TOPLAS July 1979, pgs 121-141.
- * <p>
+ * T. Lengauer &amp; R. Tarjan, ACM TOPLAS July 1979, pgs 121-141.
+ *
  * This implementation runs in time O(n log n).  The time bound
  * could be changed to O(n * ack(n)) with a small change to the link and eval,
  * and an addition of a child field to the DFS info. In reality, the constant
  * overheads are high enough that the current method is faster in all but the
  * strangest artificially constructed examples.
- * <p>
+ *
  * The basic idea behind this algorithm is to perform a DFS walk, keeping track
  * of various info about parents.  We then use this info to calculate the
  * dominators, using union-find structures to link together the DFS info,
@@ -36,27 +50,23 @@ public final class Dominators {
     /* Method's basic blocks. */
     private final ArrayList<SsaBasicBlock> blocks;
 
-    /**
-     * indexed by basic block index
-     */
+    /** indexed by basic block index */
     private final DFSInfo[] info;
 
     private final ArrayList<SsaBasicBlock> vertex;
 
-    /**
-     * {@code non-null;} the raw dominator info
-     */
-    private final DomFront.DomInfo[] domInfos;
+    /** {@code non-null;} the raw dominator info */
+    private final DomFront.DomInfo domInfos[];
 
     /**
      * Constructs an instance.
      *
-     * @param meth     {@code non-null;} method to process
+     * @param meth {@code non-null;} method to process
      * @param domInfos {@code non-null;} the raw dominator info
-     * @param postdom  true for postdom information, false for normal dom info
+     * @param postdom true for postdom information, false for normal dom info
      */
     private Dominators(SsaMethod meth, DomFront.DomInfo[] domInfos,
-                       boolean postdom) {
+            boolean postdom) {
         this.meth = meth;
         this.domInfos = domInfos;
         this.postdom = postdom;
@@ -69,12 +79,12 @@ public final class Dominators {
      * Constructs a fully-initialized instance. (This method exists so as
      * to avoid calling a large amount of code in the constructor.)
      *
-     * @param meth     {@code non-null;} method to process
+     * @param meth {@code non-null;} method to process
      * @param domInfos {@code non-null;} the raw dominator info
-     * @param postdom  true for postdom information, false for normal dom info
+     * @param postdom true for postdom information, false for normal dom info
      */
     public static Dominators make(SsaMethod meth, DomFront.DomInfo[] domInfos,
-                                  boolean postdom) {
+            boolean postdom) {
         Dominators result = new Dominators(meth, domInfos, postdom);
 
         result.run();
@@ -227,7 +237,7 @@ public final class Dominators {
         }
 
         // Now explicitly define the immediate dominator of each vertex
-        for (int i = 2; i <= dfsMax; ++i) {
+        for (int i =  2; i <= dfsMax; ++i) {
             SsaBasicBlock w = vertex.get(i);
             if (domInfos[w.getIndex()].idom
                     != vertex.get(info[w.getIndex()].semidom).getIndex()) {
@@ -245,6 +255,7 @@ public final class Dominators {
     private class DfsWalker implements SsaBasicBlock.Visitor {
         private int dfsNum = 0;
 
+        @Override
         public void visitBlock(SsaBasicBlock v, SsaBasicBlock parent) {
             DFSInfo bbInfo = new DFSInfo();
             bbInfo.semidom = ++dfsNum;

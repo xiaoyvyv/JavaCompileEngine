@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.cst;
 
@@ -9,16 +23,14 @@ import com.xiaoyv.dx.rop.type.Type;
  * value of an enumerated type.
  */
 public final class CstEnumRef extends CstMemberRef {
-    /**
-     * {@code null-ok;} the corresponding field ref, lazily initialized
-     */
+    /** {@code null-ok;} the corresponding field ref, lazily initialized */
     private CstFieldRef fieldRef;
 
     /**
      * Constructs an instance.
      *
      * @param nat {@code non-null;} the name-and-type; the defining class is derived
-     *            from this
+     * from this
      */
     public CstEnumRef(CstNat nat) {
         super(new CstType(nat.getFieldType()), nat);
@@ -26,9 +38,7 @@ public final class CstEnumRef extends CstMemberRef {
         fieldRef = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String typeName() {
         return "enum";
@@ -39,6 +49,7 @@ public final class CstEnumRef extends CstMemberRef {
      *
      * <b>Note:</b> This returns the enumerated type.
      */
+    @Override
     public Type getType() {
         return getDefiningClass().getClassType();
     }

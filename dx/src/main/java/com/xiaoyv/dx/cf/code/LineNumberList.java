@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.code;
 
@@ -9,9 +23,7 @@ import com.xiaoyv.dx.util.FixedSizeList;
  * {@code LineNumberTable} attributes.
  */
 public final class LineNumberList extends FixedSizeList {
-    /**
-     * {@code non-null;} zero-size instance
-     */
+    /** {@code non-null;} zero-size instance */
     public static final LineNumberList EMPTY = new LineNumberList(0);
 
     /**
@@ -66,7 +78,7 @@ public final class LineNumberList extends FixedSizeList {
     /**
      * Sets the item at the given index.
      *
-     * @param n    {@code >= 0, < size();} which element
+     * @param n {@code >= 0, < size();} which element
      * @param item {@code non-null;} the item
      */
     public void set(int n, Item item) {
@@ -80,8 +92,8 @@ public final class LineNumberList extends FixedSizeList {
     /**
      * Sets the item at the given index.
      *
-     * @param n          {@code >= 0, < size();} which element
-     * @param startPc    {@code >= 0;} start pc of this item
+     * @param n {@code >= 0, < size();} which element
+     * @param startPc {@code >= 0;} start pc of this item
      * @param lineNumber {@code >= 0;} corresponding line number
      */
     public void set(int n, int startPc, int lineNumber) {
@@ -126,20 +138,16 @@ public final class LineNumberList extends FixedSizeList {
      * Item in a line number table.
      */
     public static class Item {
-        /**
-         * {@code >= 0;} start pc of this item
-         */
+        /** {@code >= 0;} start pc of this item */
         private final int startPc;
 
-        /**
-         * {@code >= 0;} corresponding line number
-         */
+        /** {@code >= 0;} corresponding line number */
         private final int lineNumber;
 
         /**
          * Constructs an instance.
          *
-         * @param startPc    {@code >= 0;} start pc of this item
+         * @param startPc {@code >= 0;} start pc of this item
          * @param lineNumber {@code >= 0;} corresponding line number
          */
         public Item(int startPc, int lineNumber) {

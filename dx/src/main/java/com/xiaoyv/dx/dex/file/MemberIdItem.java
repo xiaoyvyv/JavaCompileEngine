@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
@@ -13,9 +27,7 @@ import com.xiaoyv.dx.util.Hex;
  * Dalvik file.
  */
 public abstract class MemberIdItem extends IdItem {
-    /**
-     * {@code non-null;} the constant for the member
-     */
+    /** {@code non-null;} the constant for the member */
     private final CstMemberRef cst;
 
     /**
@@ -29,17 +41,13 @@ public abstract class MemberIdItem extends IdItem {
         this.cst = cst;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int writeSize() {
         return SizeOf.MEMBER_ID_ITEM;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void addContents(DexFile file) {
         super.addContents(file);
@@ -48,9 +56,7 @@ public abstract class MemberIdItem extends IdItem {
         stringIds.intern(getRef().getNat().getName());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final void writeTo(DexFile file, AnnotatedOutput out) {
         TypeIdsSection typeIds = file.getTypeIds();
@@ -64,7 +70,7 @@ public abstract class MemberIdItem extends IdItem {
             out.annotate(0, indexString() + ' ' + cst.toHuman());
             out.annotate(2, "  class_idx: " + Hex.u2(classIdx));
             out.annotate(2, String.format("  %-10s %s", getTypoidName() + ':',
-                    Hex.u2(typoidIdx)));
+                            Hex.u2(typoidIdx)));
             out.annotate(4, "  name_idx:  " + Hex.u4(nameIdx));
         }
 

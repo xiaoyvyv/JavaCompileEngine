@@ -1,27 +1,38 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa;
 
 import com.xiaoyv.dx.rop.code.RegisterSpec;
 import com.xiaoyv.dx.rop.code.RegisterSpecSet;
 import com.xiaoyv.dx.util.MutabilityControl;
-
 import java.util.HashMap;
 import java.util.List;
 
 /**
  * Container for local variable information for a particular {@link
- * com.xiaoyv.dx .ssa.SsaMethod}.
- * Stolen from {@link com.xiaoyv.dx .rop.code.LocalVariableInfo}.
+ * com.xiaoyv.dx.ssa.SsaMethod}.
+ * Stolen from {@link com.xiaoyv.dx.rop.code.LocalVariableInfo}.
  */
-public class LocalVariableInfo extends MutabilityControl {
-    /**
-     * {@code >= 0;} the register count for the method
-     */
+public class LocalVariableInfo         extends MutabilityControl {
+    /** {@code >= 0;} the register count for the method */
     private final int regCount;
 
     /**
-     * {@code non-null;} {@link com.xiaoyv.dx .rop.code.RegisterSpecSet} to use when indicating a block
+     * {@code non-null;} {@link com.xiaoyv.dx.rop.code.RegisterSpecSet} to use when indicating a block
      * that has no locals; it is empty and immutable but has an appropriate
      * max size for the method
      */
@@ -34,9 +45,7 @@ public class LocalVariableInfo extends MutabilityControl {
      */
     private final RegisterSpecSet[] blockStarts;
 
-    /**
-     * {@code non-null;} map from instructions to the variable each assigns
-     */
+    /** {@code non-null;} map from instructions to the variable each assigns */
     private final HashMap<SsaInsn, RegisterSpec> insnAssignments;
 
     /**
@@ -55,7 +64,7 @@ public class LocalVariableInfo extends MutabilityControl {
         this.emptySet = new RegisterSpecSet(regCount);
         this.blockStarts = new RegisterSpecSet[blocks.size()];
         this.insnAssignments =
-                new HashMap<SsaInsn, RegisterSpec>(/*hint here*/);
+            new HashMap<SsaInsn, RegisterSpec>(/*hint here*/);
 
         emptySet.setImmutable();
     }
@@ -91,7 +100,7 @@ public class LocalVariableInfo extends MutabilityControl {
      *
      * @param index {@code >= 0;} the block index
      * @param specs {@code non-null;} the register set to merge into the start set
-     *              for the block
+     * for the block
      * @return {@code true} if the merge resulted in an actual change
      * to the associated set (including storing one for the first time) or
      * {@code false} if there was no change
@@ -157,7 +166,7 @@ public class LocalVariableInfo extends MutabilityControl {
         RegisterSpecSet result = getStarts0(index);
 
         return (result != null) ?
-                result.mutableCopy() : new RegisterSpecSet(regCount);
+            result.mutableCopy() : new RegisterSpecSet(regCount);
     }
 
     /**
@@ -169,7 +178,7 @@ public class LocalVariableInfo extends MutabilityControl {
      * the result, it still needs to be passed in explicitly to this
      * method, since the spec that is stored here should always have a
      * simple type and the one in the instruction can be an arbitrary
-     * {@link com.xiaoyv.dx .rop.type.TypeBearer} (such as a constant value).
+     * {@link com.xiaoyv.dx.rop.type.TypeBearer} (such as a constant value).
      *
      * @param insn {@code non-null;} the instruction in question
      * @param spec {@code non-null;} the associated register spec
@@ -209,7 +218,7 @@ public class LocalVariableInfo extends MutabilityControl {
     }
 
     public void debugDump() {
-        for (int index = 0; index < blockStarts.length; index++) {
+        for (int index = 0 ; index < blockStarts.length; index++) {
             if (blockStarts[index] == null) {
                 continue;
             }

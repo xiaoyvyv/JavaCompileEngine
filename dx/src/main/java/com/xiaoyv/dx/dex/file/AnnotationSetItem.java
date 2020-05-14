@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
@@ -11,19 +25,13 @@ import com.xiaoyv.dx.util.Hex;
  * Set of annotations, where no annotation type appears more than once.
  */
 public final class AnnotationSetItem extends OffsettedItem {
-    /**
-     * the required alignment for instances of this class
-     */
+    /** the required alignment for instances of this class */
     private static final int ALIGNMENT = 4;
 
-    /**
-     * the size of an entry int the set: one {@code uint}
-     */
+    /** the size of an entry int the set: one {@code uint} */
     private static final int ENTRY_WRITE_SIZE = 4;
 
-    /**
-     * {@code non-null;} the set of annotations
-     */
+    /** {@code non-null;} the set of annotations */
     private final Annotations annotations;
 
     /**
@@ -37,7 +45,7 @@ public final class AnnotationSetItem extends OffsettedItem {
      * Constructs an instance.
      *
      * @param annotations {@code non-null;} set of annotations
-     * @param dexFile     {@code non-null;} dex output
+     * @param dexFile {@code non-null;} dex output
      */
     public AnnotationSetItem(Annotations annotations, DexFile dexFile) {
         super(ALIGNMENT, writeSize(annotations));
@@ -78,17 +86,13 @@ public final class AnnotationSetItem extends OffsettedItem {
         return annotations;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return annotations.hashCode();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected int compareTo0(OffsettedItem other) {
         AnnotationSetItem otherSet = (AnnotationSetItem) other;
@@ -96,25 +100,20 @@ public final class AnnotationSetItem extends OffsettedItem {
         return annotations.compareTo(otherSet.annotations);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public ItemType itemType() {
         return ItemType.TYPE_ANNOTATION_SET_ITEM;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toHuman() {
         return annotations.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public void addContents(DexFile file) {
         MixedItemSection byteData = file.getByteData();
         int size = items.length;
@@ -124,18 +123,14 @@ public final class AnnotationSetItem extends OffsettedItem {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void place0(Section addedTo, int offset) {
         // Sort the array to be in type id index order.
         AnnotationItem.sortByTypeIdIndex(items);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void writeTo0(DexFile file, AnnotatedOutput out) {
         boolean annotates = out.annotates();

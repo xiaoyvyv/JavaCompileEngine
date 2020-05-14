@@ -1,26 +1,20 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.cst;
-
-import com.xiaoyv.dx.cf.iface.ParseException;
-import com.xiaoyv.dx.cf.iface.ParseObserver;
-import com.xiaoyv.dx.rop.cst.Constant;
-import com.xiaoyv.dx.rop.cst.CstDouble;
-import com.xiaoyv.dx.rop.cst.CstFieldRef;
-import com.xiaoyv.dx.rop.cst.CstFloat;
-import com.xiaoyv.dx.rop.cst.CstInteger;
-import com.xiaoyv.dx.rop.cst.CstInterfaceMethodRef;
-import com.xiaoyv.dx.rop.cst.CstLong;
-import com.xiaoyv.dx.rop.cst.CstMethodRef;
-import com.xiaoyv.dx.rop.cst.CstNat;
-import com.xiaoyv.dx.rop.cst.CstString;
-import com.xiaoyv.dx.rop.cst.CstType;
-import com.xiaoyv.dx.rop.cst.StdConstantPool;
-import com.xiaoyv.dx.rop.type.Type;
-import com.xiaoyv.dx.util.ByteArray;
-import com.xiaoyv.dx.util.Hex;
-
-import java.util.BitSet;
 
 import static com.xiaoyv.dx.cf.cst.ConstantTags.CONSTANT_Class;
 import static com.xiaoyv.dx.cf.cst.ConstantTags.CONSTANT_Double;
@@ -36,24 +30,39 @@ import static com.xiaoyv.dx.cf.cst.ConstantTags.CONSTANT_Methodref;
 import static com.xiaoyv.dx.cf.cst.ConstantTags.CONSTANT_NameAndType;
 import static com.xiaoyv.dx.cf.cst.ConstantTags.CONSTANT_String;
 import static com.xiaoyv.dx.cf.cst.ConstantTags.CONSTANT_Utf8;
+import com.xiaoyv.dx.cf.iface.ParseException;
+import com.xiaoyv.dx.cf.iface.ParseObserver;
+import com.xiaoyv.dx.rop.cst.Constant;
+import com.xiaoyv.dx.rop.cst.CstDouble;
+import com.xiaoyv.dx.rop.cst.CstFieldRef;
+import com.xiaoyv.dx.rop.cst.CstFloat;
+import com.xiaoyv.dx.rop.cst.CstInteger;
+import com.xiaoyv.dx.rop.cst.CstInterfaceMethodRef;
+import com.xiaoyv.dx.rop.cst.CstInvokeDynamic;
+import com.xiaoyv.dx.rop.cst.CstLong;
+import com.xiaoyv.dx.rop.cst.CstMethodHandle;
+import com.xiaoyv.dx.rop.cst.CstMethodRef;
+import com.xiaoyv.dx.rop.cst.CstNat;
+import com.xiaoyv.dx.rop.cst.CstProtoRef;
+import com.xiaoyv.dx.rop.cst.CstString;
+import com.xiaoyv.dx.rop.cst.CstType;
+import com.xiaoyv.dx.rop.cst.StdConstantPool;
+import com.xiaoyv.dx.rop.type.Type;
+import com.xiaoyv.dx.util.ByteArray;
+import com.xiaoyv.dx.util.Hex;
+import java.util.BitSet;
 
 /**
  * Parser for a constant pool embedded in a class file.
  */
 public final class ConstantPoolParser {
-    /**
-     * {@code non-null;} the bytes of the constant pool
-     */
+    /** {@code non-null;} the bytes of the constant pool */
     private final ByteArray bytes;
 
-    /**
-     * {@code non-null;} actual parsed constant pool contents
-     */
+    /** {@code non-null;} actual parsed constant pool contents */
     private final StdConstantPool pool;
 
-    /**
-     * {@code non-null;} byte offsets to each cst
-     */
+    /** {@code non-null;} byte offsets to each cst */
     private final int[] offsets;
 
     /**
@@ -63,9 +72,7 @@ public final class ConstantPoolParser {
      */
     private int endOffset;
 
-    /**
-     * {@code null-ok;} parse observer, if any
-     */
+    /** {@code null-ok;} parse observer, if any */
     private ParseObserver observer;
 
     /**
@@ -129,7 +136,7 @@ public final class ConstantPoolParser {
 
         if (observer != null) {
             observer.parsed(bytes, 8, 2,
-                    "constant_pool_count: " + Hex.u2(offsets.length));
+                            "constant_pool_count: " + Hex.u2(offsets.length));
             observer.parsed(bytes, 10, 0, "\nconstant_pool:");
             observer.changeIndent(1);
         }
@@ -213,13 +220,19 @@ public final class ConstantPoolParser {
                         break;
                     }
                     case CONSTANT_MethodHandle: {
-                        throw new ParseException("MethodHandle not supported");
+                        lastCategory = 1;
+                        at += 4;
+                        break;
                     }
                     case CONSTANT_MethodType: {
-                        throw new ParseException("MethodType not supported");
+                        lastCategory = 1;
+                        at += 3;
+                        break;
                     }
                     case CONSTANT_InvokeDynamic: {
-                        throw new ParseException("InvokeDynamic not supported");
+                        lastCategory = 1;
+                        at += 5;
+                        break;
                     }
                     default: {
                         throw new ParseException("unknown tag byte: " + Hex.u1(tag));
@@ -323,13 +336,53 @@ public final class ConstantPoolParser {
                     break;
                 }
                 case CONSTANT_MethodHandle: {
-                    throw new ParseException("MethodHandle not supported");
+                    final int kind = bytes.getUnsignedByte(at + 1);
+                    final int constantIndex = bytes.getUnsignedShort(at + 2);
+                    final Constant ref;
+                    switch (kind) {
+                        case MethodHandleKind.REF_getField:
+                        case MethodHandleKind.REF_getStatic:
+                        case MethodHandleKind.REF_putField:
+                        case MethodHandleKind.REF_putStatic:
+                            ref = (CstFieldRef) parse0(constantIndex, wasUtf8);
+                            break;
+                        case MethodHandleKind.REF_invokeVirtual:
+                        case MethodHandleKind.REF_newInvokeSpecial:
+                            ref = (CstMethodRef) parse0(constantIndex, wasUtf8);
+                            break;
+                        case MethodHandleKind.REF_invokeStatic:
+                        case MethodHandleKind.REF_invokeSpecial:
+                            ref = parse0(constantIndex, wasUtf8);
+                            if (!(ref instanceof CstMethodRef
+                                || ref instanceof CstInterfaceMethodRef)) {
+                              throw new ParseException(
+                                  "Unsupported ref constant type for MethodHandle "
+                                  + ref.getClass());
+                            }
+                            break;
+                        case MethodHandleKind.REF_invokeInterface:
+                            ref = (CstInterfaceMethodRef) parse0(constantIndex, wasUtf8);
+                            break;
+                        default:
+                            throw new ParseException("Unsupported MethodHandle kind: " + kind);
+                    }
+
+                    final int methodHandleType = getMethodHandleTypeForKind(kind);
+                    cst = CstMethodHandle.make(methodHandleType, ref);
+                    break;
                 }
                 case CONSTANT_MethodType: {
-                    throw new ParseException("MethodType not supported");
+                    int descriptorIndex = bytes.getUnsignedShort(at + 1);
+                    CstString descriptor = (CstString) parse0(descriptorIndex, wasUtf8);
+                    cst = CstProtoRef.make(descriptor);
+                    break;
                 }
                 case CONSTANT_InvokeDynamic: {
-                    throw new ParseException("InvokeDynamic not supported");
+                    int bootstrapMethodIndex = bytes.getUnsignedShort(at + 1);
+                    int natIndex = bytes.getUnsignedShort(at + 3);
+                    CstNat nat = (CstNat) parse0(natIndex, wasUtf8);
+                    cst = CstInvokeDynamic.make(bootstrapMethodIndex, nat);
+                    break;
                 }
                 default: {
                     throw new ParseException("unknown tag byte: " + Hex.u1(tag));
@@ -337,12 +390,12 @@ public final class ConstantPoolParser {
             }
         } catch (ParseException ex) {
             ex.addContext("...while parsing cst " + Hex.u2(idx) +
-                    " at offset " + Hex.u4(at));
+                          " at offset " + Hex.u4(at));
             throw ex;
         } catch (RuntimeException ex) {
             ParseException pe = new ParseException(ex);
             pe.addContext("...while parsing cst " + Hex.u2(idx) +
-                    " at offset " + Hex.u4(at));
+                          " at offset " + Hex.u4(at));
             throw pe;
         }
 
@@ -369,5 +422,29 @@ public final class ConstantPoolParser {
             // Translate the exception
             throw new ParseException(ex);
         }
+    }
+
+    private static int getMethodHandleTypeForKind(int kind) {
+        switch (kind) {
+            case MethodHandleKind.REF_getField:
+                return CstMethodHandle.METHOD_HANDLE_TYPE_INSTANCE_GET;
+            case MethodHandleKind.REF_getStatic:
+                return CstMethodHandle.METHOD_HANDLE_TYPE_STATIC_GET;
+            case MethodHandleKind.REF_putField:
+                return CstMethodHandle.METHOD_HANDLE_TYPE_INSTANCE_PUT;
+            case MethodHandleKind.REF_putStatic:
+                return CstMethodHandle.METHOD_HANDLE_TYPE_STATIC_PUT;
+            case MethodHandleKind.REF_invokeVirtual:
+                return CstMethodHandle.METHOD_HANDLE_TYPE_INVOKE_INSTANCE;
+            case MethodHandleKind.REF_invokeStatic:
+                return CstMethodHandle.METHOD_HANDLE_TYPE_INVOKE_STATIC;
+            case MethodHandleKind.REF_invokeSpecial:
+                return CstMethodHandle.METHOD_HANDLE_TYPE_INVOKE_DIRECT;
+            case MethodHandleKind.REF_newInvokeSpecial:
+                return CstMethodHandle.METHOD_HANDLE_TYPE_INVOKE_CONSTRUCTOR;
+            case MethodHandleKind.REF_invokeInterface:
+                return CstMethodHandle.METHOD_HANDLE_TYPE_INVOKE_INTERFACE;
+        }
+        throw new IllegalArgumentException("invalid kind: " + kind);
     }
 }

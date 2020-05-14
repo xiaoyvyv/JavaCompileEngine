@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.code;
 
@@ -13,9 +27,7 @@ import com.xiaoyv.dx.rop.type.TypeList;
  */
 public final class ThrowingInsn
         extends Insn {
-    /**
-     * {@code non-null;} list of exceptions caught
-     */
+    /** {@code non-null;} list of exceptions caught */
     private final TypeList catches;
 
     /**
@@ -26,7 +38,7 @@ public final class ThrowingInsn
      * @return {@code non-null;} the string form
      */
     public static String toCatchString(TypeList catches) {
-        StringBuffer sb = new StringBuffer(100);
+        StringBuilder sb = new StringBuilder(100);
 
         sb.append("catch");
 
@@ -42,10 +54,10 @@ public final class ThrowingInsn
     /**
      * Constructs an instance.
      *
-     * @param opcode   {@code non-null;} the opcode
+     * @param opcode {@code non-null;} the opcode
      * @param position {@code non-null;} source position
-     * @param sources  {@code non-null;} specs for all the sources
-     * @param catches  {@code non-null;} list of exceptions caught
+     * @param sources {@code non-null;} specs for all the sources
+     * @param catches {@code non-null;} list of exceptions caught
      */
     public ThrowingInsn(Rop opcode, SourcePosition position,
                         RegisterSpecList sources,
@@ -53,7 +65,7 @@ public final class ThrowingInsn
         super(opcode, position, null, sources);
 
         if (opcode.getBranchingness() != Rop.BRANCH_THROW) {
-            throw new IllegalArgumentException("bogus branchingness");
+            throw new IllegalArgumentException("opcode with invalid branchingness: " + opcode.getBranchingness());
         }
 
         if (catches == null) {
@@ -63,58 +75,46 @@ public final class ThrowingInsn
         this.catches = catches;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getInlineString() {
         return toCatchString(catches);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public TypeList getCatches() {
         return catches;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void accept(Visitor visitor) {
         visitor.visitThrowingInsn(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Insn withAddedCatch(Type type) {
         return new ThrowingInsn(getOpcode(), getPosition(),
-                getSources(), catches.withAddedType(type));
+                                getSources(), catches.withAddedType(type));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Insn withRegisterOffset(int delta) {
         return new ThrowingInsn(getOpcode(), getPosition(),
-                getSources().withOffset(delta),
-                catches);
+                                getSources().withOffset(delta),
+                                catches);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Insn withNewRegisters(RegisterSpec result,
-                                 RegisterSpecList sources) {
+            RegisterSpecList sources) {
 
         return new ThrowingInsn(getOpcode(), getPosition(),
-                sources,
-                catches);
+                                sources,
+                                catches);
     }
 }

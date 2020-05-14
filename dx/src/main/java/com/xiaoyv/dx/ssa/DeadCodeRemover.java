@@ -1,29 +1,38 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa;
 
 import com.xiaoyv.dx.rop.code.RegisterSpec;
 import com.xiaoyv.dx.rop.code.RegisterSpecList;
-
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
 
 /**
  * A variation on Appel Algorithm 19.12 "Dead code elimination in SSA form".
- * <p>
+ *
  * TODO this algorithm is more efficient if run in reverse from exit
  * block to entry block.
  */
 public class DeadCodeRemover {
-    /**
-     * method we're processing
-     */
+    /** method we're processing */
     private final SsaMethod ssaMeth;
 
-    /**
-     * ssaMeth.getRegCount()
-     */
+    /** ssaMeth.getRegCount() */
     private final int regCount;
 
     /**
@@ -32,9 +41,7 @@ public class DeadCodeRemover {
      */
     private final BitSet worklist;
 
-    /**
-     * use list indexed by register; modified during operation
-     */
+    /** use list indexed by register; modified during operation */
     private final ArrayList<SsaInsn>[] useList;
 
     /**
@@ -72,7 +79,7 @@ public class DeadCodeRemover {
 
         int regV;
 
-        while (0 <= (regV = worklist.nextSetBit(0))) {
+        while ( 0 <= (regV = worklist.nextSetBit(0)) ) {
             worklist.clear(regV);
 
             if (useList[regV].size() == 0
@@ -118,10 +125,13 @@ public class DeadCodeRemover {
     private void pruneDeadInstructions() {
         HashSet<SsaInsn> deletedInsns = new HashSet<SsaInsn>();
 
-        ssaMeth.computeReachability();
+        BitSet reachable = ssaMeth.computeReachability();
+        ArrayList<SsaBasicBlock> blocks = ssaMeth.getBlocks();
+        int blockIndex = 0;
 
-        for (SsaBasicBlock block : ssaMeth.getBlocks()) {
-            if (block.isReachable()) continue;
+        while ((blockIndex = reachable.nextClearBit(blockIndex)) < blocks.size()) {
+            SsaBasicBlock block = blocks.get(blockIndex);
+            blockIndex++;
 
             // Prune instructions from unreachable blocks
             for (int i = 0; i < block.getInsns().size(); i++) {
@@ -160,9 +170,9 @@ public class DeadCodeRemover {
      * operations with no side effects.
      *
      * @param regV register to examine
-     * @param set  a set of registers that we've already determined
-     *             are only used as sources in operations with no side effect or null
-     *             if this is the first recursion
+     * @param set a set of registers that we've already determined
+     * are only used as sources in operations with no side effect or null
+     * if this is the first recursion
      * @return true if usage is circular without side effect
      */
     private boolean isCircularNoSideEffect(int regV, BitSet set) {
@@ -225,36 +235,33 @@ public class DeadCodeRemover {
          * ssaMeth.forEachInsn() is called with this instance.
          *
          * @param noSideEffectRegs to-build bitset of regs that are
-         *                         results of regs with no side effects
+         * results of regs with no side effects
          */
         public NoSideEffectVisitor(BitSet noSideEffectRegs) {
             this.noSideEffectRegs = noSideEffectRegs;
         }
 
-        /**
-         * {@inheritDoc}
-         */
-        public void visitMoveInsn(NormalSsaInsn insn) {
+        /** {@inheritDoc} */
+        @Override
+        public void visitMoveInsn (NormalSsaInsn insn) {
             // If we're tracking local vars, some moves have side effects.
             if (!hasSideEffect(insn)) {
                 noSideEffectRegs.set(insn.getResult().getReg());
             }
         }
 
-        /**
-         * {@inheritDoc}
-         */
-        public void visitPhiInsn(PhiInsn phi) {
+        /** {@inheritDoc} */
+        @Override
+        public void visitPhiInsn (PhiInsn phi) {
             // If we're tracking local vars, then some phis have side effects.
             if (!hasSideEffect(phi)) {
                 noSideEffectRegs.set(phi.getResult().getReg());
             }
         }
 
-        /**
-         * {@inheritDoc}
-         */
-        public void visitNonMoveInsn(NormalSsaInsn insn) {
+        /** {@inheritDoc} */
+        @Override
+        public void visitNonMoveInsn (NormalSsaInsn insn) {
             RegisterSpec result = insn.getResult();
             if (!hasSideEffect(insn) && result != null) {
                 noSideEffectRegs.set(result.getReg());

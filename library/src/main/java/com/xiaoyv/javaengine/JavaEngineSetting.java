@@ -6,8 +6,8 @@ import com.xiaoyv.javaengine.utils.Utils;
 
 public class JavaEngineSetting {
     public static final String KEY = "JavaSetting";
-    private static final String sourceVersion = "1.6";
-    private static final String targetVersion = "1.6";
+    private static final String sourceVersion = "1.8";
+    private static final String targetVersion = "1.8";
     private static final String compileEncoding = "UTF-8";
 
     public static String getRtPath() {

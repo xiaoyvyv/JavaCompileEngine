@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
@@ -17,7 +31,6 @@ import com.xiaoyv.dx.rop.type.TypeList;
 import com.xiaoyv.dx.util.AnnotatedOutput;
 import com.xiaoyv.dx.util.Hex;
 import com.xiaoyv.dx.util.Writers;
-
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -29,14 +42,10 @@ import java.util.ArrayList;
  */
 public final class ClassDefItem extends IndexedItem {
 
-    /**
-     * {@code non-null;} type constant for this class
-     */
+    /** {@code non-null;} type constant for this class */
     private final CstType thisClass;
 
-    /**
-     * access flags
-     */
+    /** access flags */
     private final int accessFlags;
 
     /**
@@ -45,19 +54,13 @@ public final class ClassDefItem extends IndexedItem {
      */
     private final CstType superclass;
 
-    /**
-     * {@code null-ok;} list of implemented interfaces
-     */
+    /** {@code null-ok;} list of implemented interfaces */
     private TypeListItem interfaces;
 
-    /**
-     * {@code null-ok;} source file name or {@code null} if unknown
-     */
+    /** {@code null-ok;} source file name or {@code null} if unknown */
     private final CstString sourceFile;
 
-    /**
-     * {@code non-null;} associated class data object
-     */
+    /** {@code non-null;} associated class data object */
     private final ClassDataItem classData;
 
     /**
@@ -66,25 +69,23 @@ public final class ClassDefItem extends IndexedItem {
      */
     private EncodedArrayItem staticValuesItem;
 
-    /**
-     * {@code non-null;} annotations directory
-     */
+    /** {@code non-null;} annotations directory */
     private AnnotationsDirectoryItem annotationsDirectory;
 
     /**
      * Constructs an instance. Its sets of members and annotations are
      * initially empty.
      *
-     * @param thisClass   {@code non-null;} type constant for this class
+     * @param thisClass {@code non-null;} type constant for this class
      * @param accessFlags access flags
-     * @param superclass  {@code null-ok;} superclass or {@code null} if
-     *                    this class is a/the root class
-     * @param interfaces  {@code non-null;} list of implemented interfaces
-     * @param sourceFile  {@code null-ok;} source file name or
-     *                    {@code null} if unknown
+     * @param superclass {@code null-ok;} superclass or {@code null} if
+     * this class is a/the root class
+     * @param interfaces {@code non-null;} list of implemented interfaces
+     * @param sourceFile {@code null-ok;} source file name or
+     * {@code null} if unknown
      */
     public ClassDefItem(CstType thisClass, int accessFlags,
-                        CstType superclass, TypeList interfaces, CstString sourceFile) {
+            CstType superclass, TypeList interfaces, CstString sourceFile) {
         if (thisClass == null) {
             throw new NullPointerException("thisClass == null");
         }
@@ -102,32 +103,26 @@ public final class ClassDefItem extends IndexedItem {
         this.accessFlags = accessFlags;
         this.superclass = superclass;
         this.interfaces =
-                (interfaces.size() == 0) ? null : new TypeListItem(interfaces);
+            (interfaces.size() == 0) ? null :  new TypeListItem(interfaces);
         this.sourceFile = sourceFile;
         this.classData = new ClassDataItem(thisClass);
         this.staticValuesItem = null;
         this.annotationsDirectory = new AnnotationsDirectoryItem();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public ItemType itemType() {
         return ItemType.TYPE_CLASS_DEF_ITEM;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int writeSize() {
         return SizeOf.CLASS_DEF_ITEM;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void addContents(DexFile file) {
         TypeIdsSection typeIds = file.getTypeIds();
@@ -145,7 +140,7 @@ public final class ClassDefItem extends IndexedItem {
             CstArray staticValues = classData.getStaticValuesConstant();
             if (staticValues != null) {
                 staticValuesItem =
-                        byteData.intern(new EncodedArrayItem(staticValues));
+                    byteData.intern(new EncodedArrayItem(staticValues));
             }
         }
 
@@ -161,7 +156,7 @@ public final class ClassDefItem extends IndexedItem {
             stringIds.intern(sourceFile);
         }
 
-        if (!annotationsDirectory.isEmpty()) {
+        if (! annotationsDirectory.isEmpty()) {
             if (annotationsDirectory.isInternable()) {
                 annotationsDirectory = wordData.intern(annotationsDirectory);
             } else {
@@ -170,33 +165,31 @@ public final class ClassDefItem extends IndexedItem {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void writeTo(DexFile file, AnnotatedOutput out) {
         boolean annotates = out.annotates();
         TypeIdsSection typeIds = file.getTypeIds();
         int classIdx = typeIds.indexOf(thisClass);
         int superIdx = (superclass == null) ? -1 :
-                typeIds.indexOf(superclass);
+            typeIds.indexOf(superclass);
         int interOff = OffsettedItem.getAbsoluteOffsetOr0(interfaces);
         int annoOff = annotationsDirectory.isEmpty() ? 0 :
-                annotationsDirectory.getAbsoluteOffset();
+            annotationsDirectory.getAbsoluteOffset();
         int sourceFileIdx = (sourceFile == null) ? -1 :
-                file.getStringIds().indexOf(sourceFile);
-        int dataOff = classData.isEmpty() ? 0 : classData.getAbsoluteOffset();
+            file.getStringIds().indexOf(sourceFile);
+        int dataOff = classData.isEmpty()? 0 : classData.getAbsoluteOffset();
         int staticValuesOff =
-                OffsettedItem.getAbsoluteOffsetOr0(staticValuesItem);
+            OffsettedItem.getAbsoluteOffsetOr0(staticValuesItem);
 
         if (annotates) {
             out.annotate(0, indexString() + ' ' + thisClass.toHuman());
             out.annotate(4, "  class_idx:           " + Hex.u4(classIdx));
             out.annotate(4, "  access_flags:        " +
-                    AccessFlags.classString(accessFlags));
+                         AccessFlags.classString(accessFlags));
             out.annotate(4, "  superclass_idx:      " + Hex.u4(superIdx) +
-                    " // " + ((superclass == null) ? "<none>" :
-                    superclass.toHuman()));
+                         " // " + ((superclass == null) ? "<none>" :
+                          superclass.toHuman()));
             out.annotate(4, "  interfaces_off:      " + Hex.u4(interOff));
             if (interOff != 0) {
                 TypeList list = interfaces.getList();
@@ -206,8 +199,8 @@ public final class ClassDefItem extends IndexedItem {
                 }
             }
             out.annotate(4, "  source_file_idx:     " + Hex.u4(sourceFileIdx) +
-                    " // " + ((sourceFile == null) ? "<none>" :
-                    sourceFile.toHuman()));
+                         " // " + ((sourceFile == null) ? "<none>" :
+                          sourceFile.toHuman()));
             out.annotate(4, "  annotations_off:     " + Hex.u4(annoOff));
             out.annotate(4, "  class_data_off:      " + Hex.u4(dataOff));
             out.annotate(4, "  static_values_off:   " +
@@ -328,7 +321,7 @@ public final class ClassDefItem extends IndexedItem {
      * It is only valid to call this method at most once per instance.
      *
      * @param annotations {@code non-null;} annotations to set for this class
-     * @param dexFile     {@code non-null;} dex output
+     * @param dexFile {@code non-null;} dex output
      */
     public void setClassAnnotations(Annotations annotations, DexFile dexFile) {
         annotationsDirectory.setClassAnnotations(annotations, dexFile);
@@ -337,36 +330,36 @@ public final class ClassDefItem extends IndexedItem {
     /**
      * Adds a field annotations item to this class.
      *
-     * @param field       {@code non-null;} field in question
+     * @param field {@code non-null;} field in question
      * @param annotations {@code non-null;} associated annotations to add
-     * @param dexFile     {@code non-null;} dex output
+     * @param dexFile {@code non-null;} dex output
      */
     public void addFieldAnnotations(CstFieldRef field,
-                                    Annotations annotations, DexFile dexFile) {
+            Annotations annotations, DexFile dexFile) {
         annotationsDirectory.addFieldAnnotations(field, annotations, dexFile);
     }
 
     /**
      * Adds a method annotations item to this class.
      *
-     * @param method      {@code non-null;} method in question
+     * @param method {@code non-null;} method in question
      * @param annotations {@code non-null;} associated annotations to add
-     * @param dexFile     {@code non-null;} dex output
+     * @param dexFile {@code non-null;} dex output
      */
     public void addMethodAnnotations(CstMethodRef method,
-                                     Annotations annotations, DexFile dexFile) {
+            Annotations annotations, DexFile dexFile) {
         annotationsDirectory.addMethodAnnotations(method, annotations, dexFile);
     }
 
     /**
      * Adds a parameter annotations item to this class.
      *
-     * @param method  {@code non-null;} method in question
-     * @param list    {@code non-null;} associated list of annotation sets to add
+     * @param method {@code non-null;} method in question
+     * @param list {@code non-null;} associated list of annotation sets to add
      * @param dexFile {@code non-null;} dex output
      */
     public void addParameterAnnotations(CstMethodRef method,
-                                        AnnotationsList list, DexFile dexFile) {
+            AnnotationsList list, DexFile dexFile) {
         annotationsDirectory.addParameterAnnotations(method, list, dexFile);
     }
 
@@ -396,7 +389,7 @@ public final class ClassDefItem extends IndexedItem {
      * Prints out the contents of this instance, in a debugging-friendly
      * way.
      *
-     * @param out     {@code non-null;} where to output to
+     * @param out {@code non-null;} where to output to
      * @param verbose whether to be verbose with the output
      */
     public void debugPrint(Writer out, boolean verbose) {

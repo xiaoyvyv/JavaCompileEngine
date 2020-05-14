@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.code;
 
@@ -15,16 +29,14 @@ import com.xiaoyv.dx.util.AnnotatedOutput;
  * be met using a straightforward choice of a single opcode.
  */
 public final class HighRegisterPrefix extends VariableSizeInsn {
-    /**
-     * {@code null-ok;} cached instructions, if constructed
-     */
+    /** {@code null-ok;} cached instructions, if constructed */
     private SimpleInsn[] insns;
 
     /**
      * Constructs an instance. The output address of this instance is initially
      * unknown ({@code -1}).
      *
-     * @param position  {@code non-null;} source position
+     * @param position {@code non-null;} source position
      * @param registers {@code non-null;} source registers
      */
     public HighRegisterPrefix(SourcePosition position,
@@ -38,9 +50,7 @@ public final class HighRegisterPrefix extends VariableSizeInsn {
         insns = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int codeSize() {
         int result = 0;
@@ -54,9 +64,7 @@ public final class HighRegisterPrefix extends VariableSizeInsn {
         return result;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void writeTo(AnnotatedOutput out) {
         calculateInsnsIfNecessary();
@@ -81,36 +89,30 @@ public final class HighRegisterPrefix extends VariableSizeInsn {
         insns = new SimpleInsn[sz];
 
         for (int i = 0, outAt = 0; i < sz; i++) {
-            RegisterSpec src = registers.get(i);
-            insns[i] = moveInsnFor(src, outAt);
-            outAt += src.getCategory();
+          RegisterSpec src = registers.get(i);
+          insns[i] = moveInsnFor(src, outAt);
+          outAt += src.getCategory();
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public DalvInsn withRegisters(RegisterSpecList registers) {
         return new HighRegisterPrefix(getPosition(), registers);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected String argString() {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected String listingString0(boolean noteIndices) {
         RegisterSpecList registers = getRegisters();
         int sz = registers.size();
-        StringBuffer sb = new StringBuffer(100);
+        StringBuilder sb = new StringBuilder(100);
 
         for (int i = 0, outAt = 0; i < sz; i++) {
             RegisterSpec src = registers.get(i);
@@ -132,7 +134,7 @@ public final class HighRegisterPrefix extends VariableSizeInsn {
      * Returns the proper move instruction for the given source spec
      * and destination index.
      *
-     * @param src       {@code non-null;} the source register spec
+     * @param src {@code non-null;} the source register spec
      * @param destIndex {@code >= 0;} the destination register index
      * @return {@code non-null;} the appropriate move instruction
      */

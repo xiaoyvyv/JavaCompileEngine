@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.code;
 
@@ -10,15 +24,11 @@ import com.xiaoyv.dx.util.Hex;
  * line number and original bytecode address.
  */
 public final class SourcePosition {
-    /**
-     * {@code non-null;} convenient "no information known" instance
-     */
+    /** {@code non-null;} convenient "no information known" instance */
     public static final SourcePosition NO_INFO =
-            new SourcePosition(null, -1, -1);
+        new SourcePosition(null, -1, -1);
 
-    /**
-     * {@code null-ok;} name of the file of origin or {@code null} if unknown
-     */
+    /** {@code null-ok;} name of the file of origin or {@code null} if unknown */
     private final CstString sourceFile;
 
     /**
@@ -37,11 +47,11 @@ public final class SourcePosition {
      * Constructs an instance.
      *
      * @param sourceFile {@code null-ok;} name of the file of origin or
-     *                   {@code null} if unknown
-     * @param address    {@code >= -1;} original bytecode address or {@code -1}
-     *                   if unknown
-     * @param line       {@code >= -1;} original line number or {@code -1} if
-     *                   unknown
+     * {@code null} if unknown
+     * @param address {@code >= -1;} original bytecode address or {@code -1}
+     * if unknown
+     * @param line {@code >= -1;} original line number or {@code -1} if
+     * unknown
      */
     public SourcePosition(CstString sourceFile, int address, int line) {
         if (address < -1) {
@@ -57,12 +67,10 @@ public final class SourcePosition {
         this.line = line;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer(50);
+        StringBuilder sb = new StringBuilder(50);
 
         if (sourceFile != null) {
             sb.append(sourceFile.toHuman());
@@ -84,9 +92,7 @@ public final class SourcePosition {
         return sb.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof SourcePosition)) {
@@ -102,9 +108,7 @@ public final class SourcePosition {
         return (address == pos.address) && sameLineAndFile(pos);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return sourceFile.hashCode() + address + line;
@@ -130,8 +134,8 @@ public final class SourcePosition {
      */
     public boolean sameLineAndFile(SourcePosition other) {
         return (line == other.line) &&
-                ((sourceFile == other.sourceFile) ||
-                        ((sourceFile != null) && sourceFile.equals(other.sourceFile)));
+            ((sourceFile == other.sourceFile) ||
+             ((sourceFile != null) && sourceFile.equals(other.sourceFile)));
     }
 
     /**

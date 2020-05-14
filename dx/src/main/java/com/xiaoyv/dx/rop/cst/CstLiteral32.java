@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.cst;
 
@@ -7,9 +21,7 @@ package com.xiaoyv.dx.rop.cst;
  */
 public abstract class CstLiteral32
         extends CstLiteralBits {
-    /**
-     * the value as {@code int} bits
-     */
+    /** the value as {@code int} bits */
     private final int bits;
 
     /**
@@ -21,27 +33,21 @@ public abstract class CstLiteral32
         this.bits = bits;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final boolean equals(Object other) {
         return (other != null) &&
-                (getClass() == other.getClass()) &&
-                bits == ((CstLiteral32) other).bits;
+            (getClass() == other.getClass()) &&
+            bits == ((CstLiteral32) other).bits;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final int hashCode() {
         return bits;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected int compareTo0(Constant other) {
         int otherBits = ((CstLiteral32) other).bits;
@@ -55,33 +61,25 @@ public abstract class CstLiteral32
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final boolean isCategory2() {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final boolean fitsInInt() {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final int getIntBits() {
         return bits;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final long getLongBits() {
         return (long) bits;

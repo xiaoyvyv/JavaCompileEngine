@@ -1,8 +1,23 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.type;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Representation of a method descriptor. Instances of this class are
@@ -11,29 +26,23 @@ import java.util.HashMap;
  */
 public final class Prototype implements Comparable<Prototype> {
     /**
-     * {@code non-null;} intern table mapping string descriptors to instances
+     * Intern table for instances.
+     *
+     * <p>The initial capacity is based on a medium-size project.
      */
-    private static final HashMap<String, Prototype> internTable =
-            new HashMap<String, Prototype>(500);
+    private static final ConcurrentMap<String, Prototype> internTable =
+            new ConcurrentHashMap<>(10_000, 0.75f);
 
-    /**
-     * {@code non-null;} method descriptor
-     */
+    /** {@code non-null;} method descriptor */
     private final String descriptor;
 
-    /**
-     * {@code non-null;} return type
-     */
+    /** {@code non-null;} return type */
     private final Type returnType;
 
-    /**
-     * {@code non-null;} list of parameter types
-     */
+    /** {@code non-null;} list of parameter types */
     private final StdTypeList parameterTypes;
 
-    /**
-     * {@code null-ok;} list of parameter frame types, if calculated
-     */
+    /** {@code null-ok;} list of parameter frame types, if calculated */
     private StdTypeList parameterFrameTypes;
 
     /**
@@ -44,17 +53,36 @@ public final class Prototype implements Comparable<Prototype> {
      * @param descriptor {@code non-null;} the descriptor
      * @return {@code non-null;} the corresponding instance
      * @throws IllegalArgumentException thrown if the descriptor has
-     *                                  invalid syntax
+     * invalid syntax
      */
     public static Prototype intern(String descriptor) {
         if (descriptor == null) {
             throw new NullPointerException("descriptor == null");
         }
 
-        Prototype result;
-        synchronized (internTable) {
-            result = internTable.get(descriptor);
+        Prototype result = internTable.get(descriptor);
+        if (result != null) {
+            return result;
         }
+
+        result = fromDescriptor(descriptor);
+        return putIntern(result);
+    }
+
+    /**
+     * Returns a prototype for a method descriptor.
+     *
+     * The {@code Prototype} returned will be the interned value if present,
+     * or a new instance otherwise. If a new instance is created, it is not
+     * placed in the intern table.
+     *
+     * @param descriptor {@code non-null;} the descriptor
+     * @return {@code non-null;} the corresponding instance
+     * @throws IllegalArgumentException thrown if the descriptor has
+     * invalid syntax
+     */
+    public static Prototype fromDescriptor(String descriptor) {
+        Prototype result = internTable.get(descriptor);
         if (result != null) {
             return result;
         }
@@ -63,7 +91,7 @@ public final class Prototype implements Comparable<Prototype> {
         int paramCount = 0;
         int at = 1;
 
-        for (; ; ) {
+        for (;;) {
             int startAt = at;
             char c = descriptor.charAt(at);
             if (c == ')') {
@@ -89,7 +117,7 @@ public final class Prototype implements Comparable<Prototype> {
             }
 
             params[paramCount] =
-                    Type.intern(descriptor.substring(startAt, at));
+                Type.intern(descriptor.substring(startAt, at));
             paramCount++;
         }
 
@@ -100,8 +128,11 @@ public final class Prototype implements Comparable<Prototype> {
             parameterTypes.set(i, params[i]);
         }
 
-        result = new Prototype(descriptor, returnType, parameterTypes);
-        return putIntern(result);
+        return new Prototype(descriptor, returnType, parameterTypes);
+    }
+
+    public static void clearInternTable() {
+        internTable.clear();
     }
 
     /**
@@ -156,13 +187,13 @@ public final class Prototype implements Comparable<Prototype> {
      * as its first argument.
      *
      * @param descriptor {@code non-null;} the descriptor string
-     * @param definer    {@code non-null;} class the method is defined on
-     * @param isStatic   whether this is a static method
-     * @param isInit     whether this is an init method
+     * @param definer {@code non-null;} class the method is defined on
+     * @param isStatic whether this is a static method
+     * @param isInit whether this is an init method
      * @return {@code non-null;} the interned instance
      */
     public static Prototype intern(String descriptor, Type definer,
-                                   boolean isStatic, boolean isInit) {
+            boolean isStatic, boolean isInit) {
         Prototype base = intern(descriptor);
 
         if (isStatic) {
@@ -181,13 +212,13 @@ public final class Prototype implements Comparable<Prototype> {
      * {@code int}s along with the given return type
      *
      * @param returnType {@code non-null;} the return type
-     * @param count      {@code > 0;} the number of elements in the prototype
+     * @param count {@code > 0;} the number of elements in the prototype
      * @return {@code non-null;} the interned instance
      */
     public static Prototype internInts(Type returnType, int count) {
         // Make the descriptor...
 
-        StringBuffer sb = new StringBuffer(100);
+        StringBuilder sb = new StringBuilder(100);
 
         sb.append('(');
 
@@ -209,7 +240,7 @@ public final class Prototype implements Comparable<Prototype> {
      * @param descriptor {@code non-null;} the descriptor string
      */
     private Prototype(String descriptor, Type returnType,
-                      StdTypeList parameterTypes) {
+            StdTypeList parameterTypes) {
         if (descriptor == null) {
             throw new NullPointerException("descriptor == null");
         }
@@ -228,9 +259,7 @@ public final class Prototype implements Comparable<Prototype> {
         this.parameterFrameTypes = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object other) {
         if (this == other) {
@@ -248,17 +277,14 @@ public final class Prototype implements Comparable<Prototype> {
         return descriptor.equals(((Prototype) other).descriptor);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return descriptor.hashCode();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int compareTo(Prototype other) {
         if (this == other) {
             return 0;
@@ -300,9 +326,7 @@ public final class Prototype implements Comparable<Prototype> {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return descriptor;
@@ -377,7 +401,7 @@ public final class Prototype implements Comparable<Prototype> {
         newParams.setImmutable();
 
         Prototype result =
-                new Prototype(newDesc, returnType, newParams);
+            new Prototype(newDesc, returnType, newParams);
 
         return putIntern(result);
     }
@@ -391,14 +415,7 @@ public final class Prototype implements Comparable<Prototype> {
      * @return {@code non-null;} the actual interned object
      */
     private static Prototype putIntern(Prototype desc) {
-        synchronized (internTable) {
-            String descriptor = desc.getDescriptor();
-            Prototype already = internTable.get(descriptor);
-            if (already != null) {
-                return already;
-            }
-            internTable.put(descriptor, desc);
-            return desc;
-        }
+        Prototype result = internTable.putIfAbsent(desc.getDescriptor(), desc);
+        return result != null ? result : desc;
     }
 }

@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.code;
 
@@ -9,14 +23,10 @@ import com.xiaoyv.dx.io.Opcodes;
  * Representation of an opcode.
  */
 public final class Dop {
-    /**
-     * {@code Opcodes.isValid();} the opcode value itself
-     */
+    /** {@code Opcodes.isValid();} the opcode value itself */
     private final int opcode;
 
-    /**
-     * {@code Opcodes.isValid();} the opcode family
-     */
+    /** {@code Opcodes.isValid();} the opcode family */
     private final int family;
 
     /**
@@ -27,32 +37,28 @@ public final class Dop {
      */
     private final int nextOpcode;
 
-    /**
-     * {@code non-null;} the instruction format
-     */
+    /** {@code non-null;} the instruction format */
     private final InsnFormat format;
 
-    /**
-     * whether this opcode uses a result register
-     */
+    /** whether this opcode uses a result register */
     private final boolean hasResult;
 
     /**
      * Constructs an instance.
      *
-     * @param opcode     {@code Opcodes.isValid();} the opcode value
-     *                   itself
-     * @param family     {@code Opcodes.isValid();} the opcode family
+     * @param opcode {@code Opcodes.isValid();} the opcode value
+     * itself
+     * @param family {@code Opcodes.isValid();} the opcode family
      * @param nextOpcode {@code Opcodes.isValid();} what opcode (by
-     *                   number) to try next when attempting to match an opcode to
-     *                   particular arguments; {@code Opcodes.NO_NEXT} to indicate that
-     *                   this is the last opcode to try in a particular chain
-     * @param format     {@code non-null;} the instruction format
-     * @param hasResult  whether the opcode has a result register; if so it
-     *                   is always the first register
+     * number) to try next when attempting to match an opcode to
+     * particular arguments; {@code Opcodes.NO_NEXT} to indicate that
+     * this is the last opcode to try in a particular chain
+     * @param format {@code non-null;} the instruction format
+     * @param hasResult whether the opcode has a result register; if so it
+     * is always the first register
      */
     public Dop(int opcode, int family, int nextOpcode, InsnFormat format,
-               boolean hasResult) {
+            boolean hasResult) {
         if (!Opcodes.isValidShape(opcode)) {
             throw new IllegalArgumentException("bogus opcode");
         }
@@ -76,9 +82,7 @@ public final class Dop {
         this.hasResult = hasResult;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return getName();
@@ -150,30 +154,18 @@ public final class Dop {
      */
     public Dop getOppositeTest() {
         switch (opcode) {
-            case Opcodes.IF_EQ:
-                return Dops.IF_NE;
-            case Opcodes.IF_NE:
-                return Dops.IF_EQ;
-            case Opcodes.IF_LT:
-                return Dops.IF_GE;
-            case Opcodes.IF_GE:
-                return Dops.IF_LT;
-            case Opcodes.IF_GT:
-                return Dops.IF_LE;
-            case Opcodes.IF_LE:
-                return Dops.IF_GT;
-            case Opcodes.IF_EQZ:
-                return Dops.IF_NEZ;
-            case Opcodes.IF_NEZ:
-                return Dops.IF_EQZ;
-            case Opcodes.IF_LTZ:
-                return Dops.IF_GEZ;
-            case Opcodes.IF_GEZ:
-                return Dops.IF_LTZ;
-            case Opcodes.IF_GTZ:
-                return Dops.IF_LEZ;
-            case Opcodes.IF_LEZ:
-                return Dops.IF_GTZ;
+            case Opcodes.IF_EQ:  return Dops.IF_NE;
+            case Opcodes.IF_NE:  return Dops.IF_EQ;
+            case Opcodes.IF_LT:  return Dops.IF_GE;
+            case Opcodes.IF_GE:  return Dops.IF_LT;
+            case Opcodes.IF_GT:  return Dops.IF_LE;
+            case Opcodes.IF_LE:  return Dops.IF_GT;
+            case Opcodes.IF_EQZ: return Dops.IF_NEZ;
+            case Opcodes.IF_NEZ: return Dops.IF_EQZ;
+            case Opcodes.IF_LTZ: return Dops.IF_GEZ;
+            case Opcodes.IF_GEZ: return Dops.IF_LTZ;
+            case Opcodes.IF_GTZ: return Dops.IF_LEZ;
+            case Opcodes.IF_LEZ: return Dops.IF_GTZ;
         }
 
         throw new IllegalArgumentException("bogus opcode: " + this);

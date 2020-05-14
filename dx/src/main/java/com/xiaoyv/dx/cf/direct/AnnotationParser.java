@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.direct;
 
@@ -28,36 +42,25 @@ import com.xiaoyv.dx.rop.cst.CstType;
 import com.xiaoyv.dx.rop.type.Type;
 import com.xiaoyv.dx.util.ByteArray;
 import com.xiaoyv.dx.util.Hex;
-
 import java.io.IOException;
 
 /**
  * Parser for annotations.
  */
 public final class AnnotationParser {
-    /**
-     * {@code non-null;} class file being parsed
-     */
+    /** {@code non-null;} class file being parsed */
     private final DirectClassFile cf;
 
-    /**
-     * {@code non-null;} constant pool to use
-     */
+    /** {@code non-null;} constant pool to use */
     private final ConstantPool pool;
 
-    /**
-     * {@code non-null;} bytes of the attribute data
-     */
+    /** {@code non-null;} bytes of the attribute data */
     private final ByteArray bytes;
 
-    /**
-     * {@code null-ok;} parse observer, if any
-     */
+    /** {@code null-ok;} parse observer, if any */
     private final ParseObserver observer;
 
-    /**
-     * {@code non-null;} input stream to parse from
-     */
+    /** {@code non-null;} input stream to parse from */
     private final ByteArray.MyDataInputStream input;
 
     /**
@@ -69,13 +72,13 @@ public final class AnnotationParser {
     /**
      * Constructs an instance.
      *
-     * @param cf       {@code non-null;} class file to parse from
-     * @param offset   {@code >= 0;} offset into the class file data to parse at
-     * @param length   {@code >= 0;} number of bytes left in the attribute data
+     * @param cf {@code non-null;} class file to parse from
+     * @param offset {@code >= 0;} offset into the class file data to parse at
+     * @param length {@code >= 0;} number of bytes left in the attribute data
      * @param observer {@code null-ok;} parse observer to notify, if any
      */
     public AnnotationParser(DirectClassFile cf, int offset, int length,
-                            ParseObserver observer) {
+            ParseObserver observer) {
         if (cf == null) {
             throw new NullPointerException("cf == null");
         }
@@ -373,7 +376,7 @@ public final class AnnotationParser {
             }
             case '@': {
                 Annotation annotation =
-                        parseAnnotation(AnnotationVisibility.EMBEDDED);
+                    parseAnnotation(AnnotationVisibility.EMBEDDED);
                 return new CstAnnotation(annotation);
             }
             case '[': {
@@ -422,8 +425,8 @@ public final class AnnotationParser {
 
         if (observer != null) {
             String human = (value instanceof CstString)
-                    ? ((CstString) value).toQuoted()
-                    : value.toHuman();
+                ? ((CstString) value).toQuoted()
+                : value.toHuman();
             parsed(2, "constant_value: " + human);
         }
 
@@ -447,7 +450,7 @@ public final class AnnotationParser {
      * only be used (for efficiency sake) if the parse is known to be
      * observed.
      *
-     * @param length  {@code >= 0;} number of bytes parsed
+     * @param length {@code >= 0;} number of bytes parsed
      * @param message {@code non-null;} associated message
      */
     private void parsed(int length, String message) {

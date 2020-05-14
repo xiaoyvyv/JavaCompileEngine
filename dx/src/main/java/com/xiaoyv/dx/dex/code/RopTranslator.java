@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.code;
 
@@ -8,6 +22,7 @@ import com.xiaoyv.dx.rop.code.BasicBlock;
 import com.xiaoyv.dx.rop.code.BasicBlockList;
 import com.xiaoyv.dx.rop.code.FillArrayDataInsn;
 import com.xiaoyv.dx.rop.code.Insn;
+import com.xiaoyv.dx.rop.code.InvokePolymorphicInsn;
 import com.xiaoyv.dx.rop.code.LocalVariableInfo;
 import com.xiaoyv.dx.rop.code.PlainCstInsn;
 import com.xiaoyv.dx.rop.code.PlainInsn;
@@ -25,7 +40,6 @@ import com.xiaoyv.dx.rop.cst.Constant;
 import com.xiaoyv.dx.rop.cst.CstInteger;
 import com.xiaoyv.dx.util.Bits;
 import com.xiaoyv.dx.util.IntList;
-
 import java.util.ArrayList;
 
 /**
@@ -33,14 +47,10 @@ import java.util.ArrayList;
  * #translate} method is the thing to call on this class.
  */
 public final class RopTranslator {
-    /**
-     * {@code non-null;} options for dex output
-     */
+    /** {@code non-null;} options for dex output */
     private final DexOptions dexOptions;
 
-    /**
-     * {@code non-null;} method to translate
-     */
+    /** {@code non-null;} method to translate */
     private final RopMethod method;
 
     /**
@@ -49,80 +59,66 @@ public final class RopTranslator {
      */
     private final int positionInfo;
 
-    /**
-     * {@code null-ok;} local variable info to use
-     */
+    /** {@code null-ok;} local variable info to use */
     private final LocalVariableInfo locals;
 
-    /**
-     * {@code non-null;} container for all the address objects for the method
-     */
+    /** {@code non-null;} container for all the address objects for the method */
     private final BlockAddresses addresses;
 
-    /**
-     * {@code non-null;} list of output instructions in-progress
-     */
+    /** {@code non-null;} list of output instructions in-progress */
     private final OutputCollector output;
 
-    /**
-     * {@code non-null;} visitor to use during translation
-     */
+    /** {@code non-null;} visitor to use during translation */
     private final TranslationVisitor translationVisitor;
 
-    /**
-     * {@code >= 0;} register count for the method
-     */
+    /** {@code >= 0;} register count for the method */
     private final int regCount;
 
-    /**
-     * {@code null-ok;} block output order; becomes non-null in {@link #pickOrder}
-     */
+    /** {@code null-ok;} block output order; becomes non-null in {@link #pickOrder} */
     private int[] order;
 
-    /**
-     * size, in register units, of all the parameters to this method
-     */
+    /** size, in register units, of all the parameters to this method */
     private final int paramSize;
 
     /**
      * true if the parameters to this method happen to be in proper order
      * at the end of the frame (as the optimizer emits them)
      */
-    private boolean paramsAreInOrder;
+    private final boolean paramsAreInOrder;
 
     /**
      * Translates a {@link RopMethod}. This may modify the given
      * input.
      *
-     * @param method       {@code non-null;} the original method
+     * @param method {@code non-null;} the original method
      * @param positionInfo how much position info to preserve; one of the
-     *                     static constants in {@link PositionList}
-     * @param locals       {@code null-ok;} local variable information to use
-     * @param paramSize    size, in register units, of all the parameters to
-     *                     this method
-     * @param dexOptions   {@code non-null;} options for dex output
+     * static constants in {@link PositionList}
+     * @param locals {@code null-ok;} local variable information to use
+     * @param paramSize size, in register units, of all the parameters to
+     * this method
+     * @param dexOptions {@code non-null;} options for dex output
      * @return {@code non-null;} the translated version
      */
     public static DalvCode translate(RopMethod method, int positionInfo,
-                                     LocalVariableInfo locals, int paramSize, DexOptions dexOptions) {
+            LocalVariableInfo locals, int paramSize, DexOptions dexOptions) {
         RopTranslator translator =
-                new RopTranslator(method, positionInfo, locals, paramSize, dexOptions);
+            new RopTranslator(method, positionInfo, locals, paramSize, dexOptions);
         return translator.translateAndGetResult();
     }
 
     /**
      * Constructs an instance. This method is private. Use {@link #translate}.
      *
-     * @param method       {@code non-null;} the original method
+     * @param method {@code non-null;} the original method
      * @param positionInfo how much position info to preserve; one of the
-     *                     static constants in {@link PositionList}
-     * @param locals       {@code null-ok;} local variable information to use
-     * @param paramSize    size, in register units, of all the parameters to
-     *                     this method
-     * @param dexOptions   {@code non-null;} options for dex output
+     * static constants in {@link PositionList}
+     * @param locals {@code null-ok;} local variable information to use
+     * @param paramSize size, in register units, of all the parameters to
+     * this method
+     * @param dexOptions {@code non-null;} options for dex output
      */
     private RopTranslator(RopMethod method, int positionInfo, LocalVariableInfo locals,
-                          int paramSize, DexOptions dexOptions) {
+            int paramSize, DexOptions dexOptions) {
         this.dexOptions = dexOptions;
         this.method = method;
         this.positionInfo = positionInfo;
@@ -164,7 +160,7 @@ public final class RopTranslator {
 
         if (locals != null) {
             this.translationVisitor =
-                    new LocalVariableAwareTranslationVisitor(output, locals);
+                new LocalVariableAwareTranslationVisitor(output, locals);
         } else {
             this.translationVisitor = new TranslationVisitor(output);
         }
@@ -178,11 +174,11 @@ public final class RopTranslator {
      * SSA optimizer.
      *
      * @param paramSize size, in register units, of all the parameters
-     *                  to this method
+     * to this method
      */
     private static boolean calculateParamsAreInOrder(RopMethod method,
-                                                     final int paramSize) {
-        final boolean[] paramsAreInOrder = {true};
+            final int paramSize) {
+        final boolean[] paramsAreInOrder = { true };
         final int initialRegCount = method.getBlocks().getRegCount();
 
         /*
@@ -193,13 +189,13 @@ public final class RopTranslator {
         method.getBlocks().forEachInsn(new Insn.BaseVisitor() {
             @Override
             public void visitPlainCstInsn(PlainCstInsn insn) {
-                if (insn.getOpcode().getOpcode() == RegOps.MOVE_PARAM) {
+                if (insn.getOpcode().getOpcode()== RegOps.MOVE_PARAM) {
                     int param =
-                            ((CstInteger) insn.getConstant()).getValue();
+                        ((CstInteger) insn.getConstant()).getValue();
 
                     paramsAreInOrder[0] = paramsAreInOrder[0]
                             && ((initialRegCount - paramSize + param)
-                            == insn.getResult().getReg());
+                                == insn.getResult().getReg());
                 }
             }
         });
@@ -217,7 +213,7 @@ public final class RopTranslator {
         outputInstructions();
 
         StdCatchBuilder catches =
-                new StdCatchBuilder(method, order, addresses);
+            new StdCatchBuilder(method, order, addresses);
 
         return new DalvCode(positionInfo, output.getFinisher(), catches);
     }
@@ -243,9 +239,9 @@ public final class RopTranslator {
      * Helper for {@link #outputInstructions}, which does the processing
      * and output of one block.
      *
-     * @param block     {@code non-null;} the block to process and output
+     * @param block {@code non-null;} the block to process and output
      * @param nextLabel {@code >= -1;} the next block that will be processed, or
-     *                  {@code -1} if there is no next block
+     * {@code -1} if there is no next block
      */
     private void outputBlock(BasicBlock block, int nextLabel) {
         // Append the code address for this block.
@@ -256,7 +252,7 @@ public final class RopTranslator {
         if (locals != null) {
             RegisterSpecSet starts = locals.getStarts(block);
             output.add(new LocalSnapshot(startAddress.getPosition(),
-                    starts));
+                                         starts));
         }
 
         /*
@@ -301,9 +297,9 @@ public final class RopTranslator {
                  * flow to be correct.
                  */
                 TargetInsn insn =
-                        new TargetInsn(Dops.GOTO, lastInsn.getPosition(),
-                                RegisterSpecList.EMPTY,
-                                addresses.getStart(succ));
+                    new TargetInsn(Dops.GOTO, lastInsn.getPosition(),
+                            RegisterSpecList.EMPTY,
+                            addresses.getStart(succ));
                 output.add(insn);
             }
         }
@@ -352,7 +348,7 @@ public final class RopTranslator {
              * picking a new starter block.
              */
             traceBack:
-            for (; ; ) {
+            for (;;) {
                 IntList preds = method.labelToPredecessors(label);
                 int psz = preds.size();
 
@@ -464,12 +460,12 @@ public final class RopTranslator {
      * two register sources, and have a source equal to the result,
      * place that source first.
      *
-     * @param insn      {@code non-null;} instruction in question
+     * @param insn {@code non-null;} instruction in question
      * @param resultReg {@code null-ok;} the real result to use (ignore the insn's)
      * @return {@code non-null;} the instruction's complete register list
      */
     private static RegisterSpecList getRegs(Insn insn,
-                                            RegisterSpec resultReg) {
+            RegisterSpec resultReg) {
         RegisterSpecList regs = insn.getSources();
 
         if (insn.getOpcode().isCommutative()
@@ -497,14 +493,10 @@ public final class RopTranslator {
      * Instruction visitor class for doing the instruction translation per se.
      */
     private class TranslationVisitor implements Insn.Visitor {
-        /**
-         * {@code non-null;} list of output instructions in-progress
-         */
+        /** {@code non-null;} list of output instructions in-progress */
         private final OutputCollector output;
 
-        /**
-         * {@code non-null;} basic block being worked on
-         */
+        /** {@code non-null;} basic block being worked on */
         private BasicBlock block;
 
         /**
@@ -525,18 +517,17 @@ public final class RopTranslator {
         /**
          * Sets the block currently being worked on.
          *
-         * @param block       {@code non-null;} the block
+         * @param block {@code non-null;} the block
          * @param lastAddress {@code non-null;} code address for the salient
-         *                    last instruction of the block
+         * last instruction of the block
          */
         public void setBlock(BasicBlock block, CodeAddress lastAddress) {
             this.block = block;
             this.lastAddress = lastAddress;
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitPlainInsn(PlainInsn insn) {
             Rop rop = insn.getOpcode();
             if (rop.getOpcode() == RegOps.MARK_LOCAL) {
@@ -573,7 +564,7 @@ public final class RopTranslator {
                 case Rop.BRANCH_IF: {
                     int target = block.getSuccessors().get(1);
                     di = new TargetInsn(opcode, pos, getRegs(insn),
-                            addresses.getStart(target));
+                                        addresses.getStart(target));
                     break;
                 }
                 default: {
@@ -584,9 +575,8 @@ public final class RopTranslator {
             addOutput(di);
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitPlainCstInsn(PlainCstInsn insn) {
             SourcePosition pos = insn.getPosition();
             Dop opcode = RopToDop.dopFor(insn);
@@ -607,12 +597,12 @@ public final class RopTranslator {
 
                     RegisterSpec dest = insn.getResult();
                     int param =
-                            ((CstInteger) insn.getConstant()).getValue();
+                        ((CstInteger) insn.getConstant()).getValue();
                     RegisterSpec source =
-                            RegisterSpec.make(regCount - paramSize + param,
-                                    dest.getType());
+                        RegisterSpec.make(regCount - paramSize + param,
+                                dest.getType());
                     di = new SimpleInsn(opcode, pos,
-                            RegisterSpecList.make(dest, source));
+                                        RegisterSpecList.make(dest, source));
                     addOutput(di);
                 }
             } else {
@@ -623,9 +613,8 @@ public final class RopTranslator {
             }
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitSwitchInsn(SwitchInsn insn) {
             SourcePosition pos = insn.getPosition();
             IntList cases = insn.getCases();
@@ -643,7 +632,7 @@ public final class RopTranslator {
              * constructed also gets changed.
              */
             if ((casesSz != (succSz - 1)) ||
-                    (primarySuccessor != successors.get(casesSz))) {
+                (primarySuccessor != successors.get(casesSz))) {
                 throw new RuntimeException("shouldn't happen");
             }
 
@@ -657,13 +646,13 @@ public final class RopTranslator {
             CodeAddress dataAddress = new CodeAddress(pos);
             // make a new address that binds closely to the switch instruction
             CodeAddress switchAddress =
-                    new CodeAddress(lastAddress.getPosition(), true);
+                new CodeAddress(lastAddress.getPosition(), true);
             SwitchData dataInsn =
-                    new SwitchData(pos, switchAddress, cases, switchTargets);
+                new SwitchData(pos, switchAddress, cases, switchTargets);
             Dop opcode = dataInsn.isPacked() ?
-                    Dops.PACKED_SWITCH : Dops.SPARSE_SWITCH;
+                Dops.PACKED_SWITCH : Dops.SPARSE_SWITCH;
             TargetInsn switchInsn =
-                    new TargetInsn(opcode, pos, getRegs(insn), dataAddress);
+                new TargetInsn(opcode, pos, getRegs(insn), dataAddress);
 
             addOutput(switchAddress);
             addOutput(switchInsn);
@@ -681,7 +670,8 @@ public final class RopTranslator {
          * @return {@code null-ok;} result of move-result-pseudo at the beginning of
          * primary successor
          */
-        private RegisterSpec getNextMoveResultPseudo() {
+        private RegisterSpec getNextMoveResultPseudo()
+        {
             int label = block.getPrimarySuccessor();
 
             if (label < 0) {
@@ -698,9 +688,33 @@ public final class RopTranslator {
             }
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
+        public void visitInvokePolymorphicInsn(InvokePolymorphicInsn insn) {
+            SourcePosition pos = insn.getPosition();
+            Dop opcode = RopToDop.dopFor(insn);
+            Rop rop = insn.getOpcode();
+
+            if (rop.getBranchingness() != Rop.BRANCH_THROW) {
+                throw new RuntimeException("Expected BRANCH_THROW got " + rop.getBranchingness());
+            } else if (!rop.isCallLike()) {
+                throw new RuntimeException("Expected call-like operation");
+            }
+
+            addOutput(lastAddress);
+
+            RegisterSpecList regs = insn.getSources();
+            Constant[] constants = new Constant[] {
+                insn.getPolymorphicMethod(),
+                insn.getCallSiteProto()
+                };
+            DalvInsn di = new MultiCstInsn(opcode, pos, regs, constants);
+
+            addOutput(di);
+        }
+
+        /** {@inheritDoc} */
+        @Override
         public void visitThrowingCstInsn(ThrowingCstInsn insn) {
             SourcePosition pos = insn.getPosition();
             Dop opcode = RopToDop.dopFor(insn);
@@ -708,7 +722,7 @@ public final class RopTranslator {
             Constant cst = insn.getConstant();
 
             if (rop.getBranchingness() != Rop.BRANCH_THROW) {
-                throw new RuntimeException("shouldn't happen");
+                throw new RuntimeException("Expected BRANCH_THROW got " + rop.getBranchingness());
             }
 
             addOutput(lastAddress);
@@ -730,11 +744,11 @@ public final class RopTranslator {
                 if (hasResult != (realResult != null)) {
                     throw new RuntimeException(
                             "Insn with result/move-result-pseudo mismatch " +
-                                    insn);
+                            insn);
                 }
 
                 if ((rop.getOpcode() == RegOps.NEW_ARRAY) &&
-                        (opcode.getOpcode() != Opcodes.NEW_ARRAY)) {
+                    (opcode.getOpcode() != Opcodes.NEW_ARRAY)) {
                     /*
                      * It's a type-specific new-array-<primitive>, and
                      * so it should be turned into a SimpleInsn (no
@@ -748,14 +762,33 @@ public final class RopTranslator {
                      */
                     di = new CstInsn(opcode, pos, regs, cst);
                 }
-
+                // (b/120985556) update the following code
+                // move-object vX, vY
+                // instance-of vY, vX, LMyClass;
+                // into
+                // move-object vX, vY
+                // nop
+                // instance-of vY, vX, LMyClass;
+                DalvInsn previousDi = getPrevNonSpecialInsn();
+                if (opcode.getOpcode() == Opcodes.INSTANCE_OF && previousDi != null) {
+                    int prevOpcode = previousDi.getOpcode().getOpcode();
+                    if (prevOpcode == Opcodes.MOVE_OBJECT
+                        || prevOpcode == Opcodes.MOVE_OBJECT_FROM16
+                        || prevOpcode == Opcodes.MOVE_OBJECT_16) {
+                        if (di.getRegisters().size() > 0 && previousDi.getRegisters().size() > 1
+                            && (di.getRegisters().get(0).getReg()
+                                    == previousDi.getRegisters().get(1).getReg())) {
+                            DalvInsn nopDi = new SimpleInsn(Dops.NOP, pos, RegisterSpecList.EMPTY);
+                            addOutput(nopDi);
+                        }
+                    }
+                }
                 addOutput(di);
             }
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitThrowingInsn(ThrowingInsn insn) {
             SourcePosition pos = insn.getPosition();
             Dop opcode = RopToDop.dopFor(insn);
@@ -781,9 +814,8 @@ public final class RopTranslator {
             addOutput(di);
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitFillArrayDataInsn(FillArrayDataInsn insn) {
             SourcePosition pos = insn.getPosition();
             Constant cst = insn.getConstant();
@@ -795,11 +827,11 @@ public final class RopTranslator {
             }
             CodeAddress dataAddress = new CodeAddress(pos);
             ArrayData dataInsn =
-                    new ArrayData(pos, lastAddress, values, cst);
+                new ArrayData(pos, lastAddress, values, cst);
 
             TargetInsn fillArrayDataInsn =
-                    new TargetInsn(Dops.FILL_ARRAY_DATA, pos, getRegs(insn),
-                            dataAddress);
+                new TargetInsn(Dops.FILL_ARRAY_DATA, pos, getRegs(insn),
+                        dataAddress);
 
             addOutput(lastAddress);
             addOutput(fillArrayDataInsn);
@@ -818,6 +850,16 @@ public final class RopTranslator {
             output.add(insn);
         }
 
+        protected DalvInsn getPrevNonSpecialInsn() {
+            for (int i = output.size() - 1; i >= 0; --i) {
+                DalvInsn insn = output.get(i);
+                if (insn.getOpcode().getOpcode() != Opcodes.SPECIAL_FORMAT) {
+                    return insn;
+                }
+            }
+            return null;
+        }
+
         /**
          * Adds to the output suffix.
          *
@@ -834,10 +876,8 @@ public final class RopTranslator {
      */
     private class LocalVariableAwareTranslationVisitor
             extends TranslationVisitor {
-        /**
-         * {@code non-null;} local variable info
-         */
-        private LocalVariableInfo locals;
+        /** {@code non-null;} local variable info */
+        private final LocalVariableInfo locals;
 
         /**
          * Constructs an instance.
@@ -851,45 +891,35 @@ public final class RopTranslator {
             this.locals = locals;
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void visitPlainInsn(PlainInsn insn) {
             super.visitPlainInsn(insn);
             addIntroductionIfNecessary(insn);
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void visitPlainCstInsn(PlainCstInsn insn) {
             super.visitPlainCstInsn(insn);
             addIntroductionIfNecessary(insn);
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void visitSwitchInsn(SwitchInsn insn) {
             super.visitSwitchInsn(insn);
             addIntroductionIfNecessary(insn);
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void visitThrowingCstInsn(ThrowingCstInsn insn) {
             super.visitThrowingCstInsn(insn);
             addIntroductionIfNecessary(insn);
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void visitThrowingInsn(ThrowingInsn insn) {
             super.visitThrowingInsn(insn);

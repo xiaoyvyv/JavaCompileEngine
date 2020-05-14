@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.cst;
 
@@ -12,18 +26,16 @@ import com.xiaoyv.dx.util.MutabilityControl;
  */
 public final class StdConstantPool
         extends MutabilityControl implements ConstantPool {
-    /**
-     * {@code non-null;} array of entries
-     */
+    /** {@code non-null;} array of entries */
     private final Constant[] entries;
 
     /**
      * Constructs an instance. All indices initially contain {@code null}.
      *
      * @param size the size of the pool; this corresponds to the
-     *             class file field {@code constant_pool_count}, and is in fact
-     *             always at least one more than the actual size of the constant pool,
-     *             as element {@code 0} is always invalid.
+     * class file field {@code constant_pool_count}, and is in fact
+     * always at least one more than the actual size of the constant pool,
+     * as element {@code 0} is always invalid.
      */
     public StdConstantPool(int size) {
         super(size > 1);
@@ -35,16 +47,14 @@ public final class StdConstantPool
         entries = new Constant[size];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int size() {
         return entries.length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public Constant getOrNull(int n) {
         try {
             return entries[n];
@@ -54,9 +64,8 @@ public final class StdConstantPool
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public Constant get0Ok(int n) {
         if (n == 0) {
             return null;
@@ -65,9 +74,8 @@ public final class StdConstantPool
         return get(n);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public Constant get(int n) {
         try {
             Constant result = entries[n];
@@ -88,6 +96,7 @@ public final class StdConstantPool
      *
      * @return the returned array may contain null entries.
      */
+    @Override
     public Constant[] getEntries() {
         return entries;
     }
@@ -95,7 +104,7 @@ public final class StdConstantPool
     /**
      * Sets the entry at the given index.
      *
-     * @param n   {@code >= 1, < size();} which entry
+     * @param n {@code >= 1, < size();} which entry
      * @param cst {@code null-ok;} the constant to store
      */
     public void set(int n, Constant cst) {
@@ -111,7 +120,7 @@ public final class StdConstantPool
             // Storing a category-2 entry nulls out the next index.
             if (n == (entries.length - 1)) {
                 throw new IllegalArgumentException("(n == size - 1) && " +
-                        "cst.isCategory2()");
+                                                   "cst.isCategory2()");
             }
             entries[n + 1] = null;
         }
@@ -139,6 +148,6 @@ public final class StdConstantPool
      */
     private static Constant throwInvalid(int idx) {
         throw new ExceptionWithContext("invalid constant pool index " +
-                Hex.u2(idx));
+                                       Hex.u2(idx));
     }
 }

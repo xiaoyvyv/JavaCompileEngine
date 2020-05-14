@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.code;
 
@@ -10,43 +24,33 @@ import com.xiaoyv.dx.util.LabeledItem;
  * Representation of a basic block in a bytecode array.
  */
 public final class ByteBlock implements LabeledItem {
-    /**
-     * {@code >= 0;} label for this block
-     */
+    /** {@code >= 0;} label for this block */
     private final int label;
 
-    /**
-     * {@code >= 0;} bytecode offset (inclusive) of the start of the block
-     */
+    /** {@code >= 0;} bytecode offset (inclusive) of the start of the block */
     private final int start;
 
-    /**
-     * {@code > start;} bytecode offset (exclusive) of the end of the block
-     */
+    /** {@code > start;} bytecode offset (exclusive) of the end of the block */
     private final int end;
 
-    /**
-     * {@code non-null;} list of successors that this block may branch to
-     */
+    /** {@code non-null;} list of successors that this block may branch to */
     private final IntList successors;
 
-    /**
-     * {@code non-null;} list of exceptions caught and their handler targets
-     */
+    /** {@code non-null;} list of exceptions caught and their handler targets */
     private final ByteCatchList catches;
 
     /**
      * Constructs an instance.
      *
-     * @param label      {@code >= 0;} target label for this block
-     * @param start      {@code >= 0;} bytecode offset (inclusive) of the start
-     *                   of the block
-     * @param end        {@code > start;} bytecode offset (exclusive) of the end
-     *                   of the block
+     * @param label {@code >= 0;} target label for this block
+     * @param start {@code >= 0;} bytecode offset (inclusive) of the start
+     * of the block
+     * @param end {@code > start;} bytecode offset (exclusive) of the end
+     * of the block
      * @param successors {@code non-null;} list of successors that this block may
-     *                   branch to
-     * @param catches    {@code non-null;} list of exceptions caught and their
-     *                   handler targets
+     * branch to
+     * @param catches {@code non-null;} list of exceptions caught and their
+     * handler targets
      */
     public ByteBlock(int label, int start, int end, IntList successors,
                      ByteCatchList catches) {
@@ -70,8 +74,8 @@ public final class ByteBlock implements LabeledItem {
         for (int i = 0; i < sz; i++) {
             if (successors.get(i) < 0) {
                 throw new IllegalArgumentException("successors[" + i +
-                        "] == " +
-                        successors.get(i));
+                                                   "] == " +
+                                                   successors.get(i));
             }
         }
 
@@ -86,13 +90,11 @@ public final class ByteBlock implements LabeledItem {
         this.catches = catches;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return '{' + Hex.u2(label) + ": " + Hex.u2(start) + ".." +
-                Hex.u2(end) + '}';
+            Hex.u2(end) + '}';
     }
 
     /**
@@ -100,6 +102,7 @@ public final class ByteBlock implements LabeledItem {
      *
      * @return {@code >= 0;} the label
      */
+    @Override
     public int getLabel() {
         return label;
     }

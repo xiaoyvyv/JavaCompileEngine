@@ -1,11 +1,24 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.code;
 
 import com.xiaoyv.dx.rop.type.Type;
 import com.xiaoyv.dx.rop.type.TypeList;
 import com.xiaoyv.dx.util.FixedSizeList;
-
 import java.util.BitSet;
 
 /**
@@ -13,9 +26,7 @@ import java.util.BitSet;
  */
 public final class RegisterSpecList
         extends FixedSizeList implements TypeList {
-    /**
-     * {@code non-null;} no-element instance
-     */
+    /** {@code non-null;} no-element instance */
     public static final RegisterSpecList EMPTY = new RegisterSpecList(0);
 
     /**
@@ -91,16 +102,14 @@ public final class RegisterSpecList
         super(size);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public Type getType(int n) {
         return get(n).getType().getType();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int getWordCount() {
         int sz = size();
         int result = 0;
@@ -112,9 +121,8 @@ public final class RegisterSpecList
         return result;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public TypeList withAddedType(Type type) {
         throw new UnsupportedOperationException("unsupported");
     }
@@ -134,7 +142,6 @@ public final class RegisterSpecList
     /**
      * Returns a RegisterSpec in this list that uses the specified register,
      * or null if there is none in this list.
-     *
      * @param reg Register to find
      * @return RegisterSpec that uses argument or null.
      */
@@ -156,7 +163,6 @@ public final class RegisterSpecList
     /**
      * Returns the index of a RegisterSpec in this list that uses the specified
      * register, or -1 if none in this list uses the register.
-     *
      * @param reg Register to find
      * @return index of RegisterSpec or -1
      */
@@ -178,7 +184,7 @@ public final class RegisterSpecList
     /**
      * Sets the element at the given index.
      *
-     * @param n    {@code >= 0, < size();} which element
+     * @param n {@code >= 0, < size();} which element
      * @param spec {@code non-null;} the value to store
      */
     public void set(int n, RegisterSpec spec) {
@@ -359,11 +365,11 @@ public final class RegisterSpecList
      * the given base, with the first number duplicated if indicated. If
      * a null BitSet is given, it indicates all registers are incompatible.
      *
-     * @param base           the base register number
+     * @param base the base register number
      * @param duplicateFirst whether to duplicate the first number
-     * @param compatRegs     {@code null-ok;} either a {@code non-null} set of
-     *                       compatible registers, or {@code null} to indicate all registers are
-     *                       incompatible
+     * @param compatRegs {@code null-ok;} either a {@code non-null} set of
+     * compatible registers, or {@code null} to indicate all registers are
+     * incompatible
      * @return {@code non-null;} an appropriately-constructed instance
      */
     public RegisterSpecList withExpandedRegisters(int base,
@@ -379,55 +385,57 @@ public final class RegisterSpecList
         Expander expander = new Expander(this, compatRegs, base, duplicateFirst);
 
         for (int regIdx = 0; regIdx < sz; regIdx++) {
-            expander.expandRegister(regIdx);
+          expander.expandRegister(regIdx);
         }
 
         return expander.getResult();
     }
 
     private static class Expander {
-        private BitSet compatRegs;
-        private RegisterSpecList regSpecList;
-        private int base;
-        private RegisterSpecList result;
-        private boolean duplicateFirst;
+      private final BitSet compatRegs;
+      private final RegisterSpecList regSpecList;
+      private int base;
+      private final RegisterSpecList result;
+      private boolean duplicateFirst;
 
-        private Expander(RegisterSpecList regSpecList, BitSet compatRegs, int base,
-                         boolean duplicateFirst) {
-            this.regSpecList = regSpecList;
-            this.compatRegs = compatRegs;
-            this.base = base;
-            this.result = new RegisterSpecList(regSpecList.size());
-            this.duplicateFirst = duplicateFirst;
+      private Expander(RegisterSpecList regSpecList, BitSet compatRegs, int base,
+          boolean duplicateFirst) {
+        this.regSpecList = regSpecList;
+        this.compatRegs = compatRegs;
+        this.base = base;
+        this.result = new RegisterSpecList(regSpecList.size());
+        this.duplicateFirst = duplicateFirst;
+      }
+
+      private void expandRegister(int regIdx) {
+        expandRegister(regIdx, (RegisterSpec) regSpecList.get0(regIdx));
+      }
+
+      private void expandRegister(int regIdx, RegisterSpec registerToExpand) {
+        boolean replace = (compatRegs == null) ? true : !compatRegs.get(regIdx);
+        RegisterSpec expandedReg;
+
+        if (replace) {
+          expandedReg = registerToExpand.withReg(base);
+          if (!duplicateFirst) {
+            base += expandedReg.getCategory();
+          }
+        } else {
+          expandedReg = registerToExpand;
         }
 
-        private void expandRegister(int regIdx) {
-            expandRegister(regIdx, (RegisterSpec) regSpecList.get0(regIdx));
+        // Reset duplicateFirst when the first register has been dealt with.
+        duplicateFirst = false;
+
+        result.set0(regIdx, expandedReg);
+      }
+
+      private RegisterSpecList getResult() {
+        if (regSpecList.isImmutable()) {
+          result.setImmutable();
         }
 
-        private void expandRegister(int regIdx, RegisterSpec registerToExpand) {
-            boolean replace = (compatRegs == null) || !compatRegs.get(regIdx);
-            RegisterSpec expandedReg;
-
-            if (replace) {
-                expandedReg = registerToExpand.withReg(base);
-                if (!duplicateFirst) {
-                    base += expandedReg.getCategory();
-                }
-                duplicateFirst = false;
-            } else {
-                expandedReg = registerToExpand;
-            }
-
-            result.set0(regIdx, expandedReg);
-        }
-
-        private RegisterSpecList getResult() {
-            if (regSpecList.isImmutable()) {
-                result.setImmutable();
-            }
-
-            return result;
-        }
+        return result;
+      }
     }
 }

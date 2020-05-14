@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.code;
 
@@ -12,13 +26,11 @@ import com.xiaoyv.dx.util.Hex;
  * Representation of an array of local variables, with Java semantics.
  *
  * <p><b>Note:</b> For the most part, the documentation for this class
- * ignores the distinction between {@link com.xiaoyv.dx .rop.type.Type} and {@link
- * com.xiaoyv.dx .rop.type.TypeBearer}.</p>
+ * ignores the distinction between {@link com.xiaoyv.dx.rop.type.Type} and {@link
+ * com.xiaoyv.dx.rop.type.TypeBearer}.</p>
  */
 public class OneLocalsArray extends LocalsArray {
-    /**
-     * {@code non-null;} actual array
-     */
+    /** {@code non-null;} actual array */
     private final TypeBearer[] locals;
 
     /**
@@ -26,16 +38,15 @@ public class OneLocalsArray extends LocalsArray {
      * all-uninitialized values (represented as {@code null}s).
      *
      * @param maxLocals {@code >= 0;} the maximum number of locals this instance
-     *                  can refer to
+     * can refer to
      */
     public OneLocalsArray(int maxLocals) {
         super(maxLocals != 0);
         locals = new TypeBearer[maxLocals];
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public OneLocalsArray copy() {
         OneLocalsArray result = new OneLocalsArray(locals.length);
 
@@ -44,9 +55,8 @@ public class OneLocalsArray extends LocalsArray {
         return result;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public void annotate(ExceptionWithContext ex) {
         for (int i = 0; i < locals.length; i++) {
             TypeBearer type = locals[i];
@@ -55,9 +65,8 @@ public class OneLocalsArray extends LocalsArray {
         }
     }
 
-    /**
-     * {@inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public String toHuman() {
         StringBuilder sb = new StringBuilder();
 
@@ -70,9 +79,8 @@ public class OneLocalsArray extends LocalsArray {
         return sb.toString();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public void makeInitialized(Type type) {
         int len = locals.length;
 
@@ -92,16 +100,14 @@ public class OneLocalsArray extends LocalsArray {
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public int getMaxLocals() {
         return locals.length;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public void set(int idx, TypeBearer type) {
         throwIfImmutable();
 
@@ -131,31 +137,27 @@ public class OneLocalsArray extends LocalsArray {
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public void set(RegisterSpec spec) {
         set(spec.getReg(), spec);
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public void invalidate(int idx) {
         throwIfImmutable();
         locals[idx] = null;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public TypeBearer getOrNull(int idx) {
         return locals[idx];
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public TypeBearer get(int idx) {
         TypeBearer result = locals[idx];
 
@@ -166,9 +168,8 @@ public class OneLocalsArray extends LocalsArray {
         return result;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public TypeBearer getCategory1(int idx) {
         TypeBearer result = get(idx);
         Type type = result.getType();
@@ -184,9 +185,8 @@ public class OneLocalsArray extends LocalsArray {
         return result;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
+    @Override
     public TypeBearer getCategory2(int idx) {
         TypeBearer result = get(idx);
 
@@ -197,13 +197,11 @@ public class OneLocalsArray extends LocalsArray {
         return result;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
     @Override
     public LocalsArray merge(LocalsArray other) {
         if (other instanceof OneLocalsArray) {
-            return merge((OneLocalsArray) other);
+            return merge((OneLocalsArray)other);
         } else { //LocalsArraySet
             // LocalsArraySet knows how to merge me.
             return other.merge(this);
@@ -231,20 +229,16 @@ public class OneLocalsArray extends LocalsArray {
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
     @Override
     public LocalsArraySet mergeWithSubroutineCaller
-    (LocalsArray other, int predLabel) {
+            (LocalsArray other, int predLabel) {
 
         LocalsArraySet result = new LocalsArraySet(getMaxLocals());
         return result.mergeWithSubroutineCaller(other, predLabel);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /**{@inheritDoc}*/
     @Override
     protected OneLocalsArray getPrimary() {
         return this;

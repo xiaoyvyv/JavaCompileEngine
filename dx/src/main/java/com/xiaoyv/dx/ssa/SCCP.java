@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa;
 
@@ -15,7 +29,6 @@ import com.xiaoyv.dx.rop.cst.CstInteger;
 import com.xiaoyv.dx.rop.cst.TypedConstant;
 import com.xiaoyv.dx.rop.type.Type;
 import com.xiaoyv.dx.rop.type.TypeBearer;
-
 import java.util.ArrayList;
 import java.util.BitSet;
 
@@ -24,54 +37,34 @@ import java.util.BitSet;
  * Propagation algorithm.
  */
 public class SCCP {
-    /**
-     * Lattice values
-     */
+    /** Lattice values  */
     private static final int TOP = 0;
     private static final int CONSTANT = 1;
     private static final int VARYING = 2;
-    /**
-     * method we're processing
-     */
-    private SsaMethod ssaMeth;
-    /**
-     * ssaMeth.getRegCount()
-     */
-    private int regCount;
-    /**
-     * Lattice values for each SSA register
-     */
-    private int[] latticeValues;
-    /**
-     * For those registers that are constant, this is the constant value
-     */
-    private Constant[] latticeConstants;
-    /**
-     * Worklist of basic blocks to be processed
-     */
-    private ArrayList<SsaBasicBlock> cfgWorklist;
-    /**
-     * Worklist of executed basic blocks with phis to be processed
-     */
-    private ArrayList<SsaBasicBlock> cfgPhiWorklist;
-    /**
-     * Bitset containing bits for each block that has been found executable
-     */
-    private BitSet executableBlocks;
-    /**
-     * Worklist for SSA edges.  This is a list of registers to process
-     */
-    private ArrayList<SsaInsn> ssaWorklist;
+    /** method we're processing */
+    private final SsaMethod ssaMeth;
+    /** ssaMeth.getRegCount() */
+    private final int regCount;
+    /** Lattice values for each SSA register */
+    private final int[] latticeValues;
+    /** For those registers that are constant, this is the constant value */
+    private final Constant[] latticeConstants;
+    /** Worklist of basic blocks to be processed */
+    private final ArrayList<SsaBasicBlock> cfgWorklist;
+    /** Worklist of executed basic blocks with phis to be processed */
+    private final ArrayList<SsaBasicBlock> cfgPhiWorklist;
+    /** Bitset containing bits for each block that has been found executable */
+    private final BitSet executableBlocks;
+    /** Worklist for SSA edges.  This is a list of registers to process */
+    private final ArrayList<SsaInsn> ssaWorklist;
     /**
      * Worklist for SSA edges that represent varying values.  It makes the
      * algorithm much faster if you move all values to VARYING as fast as
      * possible.
      */
-    private ArrayList<SsaInsn> varyingWorklist;
-    /**
-     * Worklist of potential branches to convert to gotos
-     */
-    private ArrayList<SsaInsn> branchWorklist;
+    private final ArrayList<SsaInsn> varyingWorklist;
+    /** Worklist of potential branches to convert to gotos */
+    private final ArrayList<SsaInsn> branchWorklist;
 
     private SCCP(SsaMethod ssaMeth) {
         this.ssaMeth = ssaMeth;
@@ -92,17 +85,15 @@ public class SCCP {
 
     /**
      * Performs sparse conditional constant propagation on a method.
-     *
      * @param ssaMethod Method to process
      */
-    public static void process(SsaMethod ssaMethod) {
+    public static void process (SsaMethod ssaMethod) {
         new SCCP(ssaMethod).run();
     }
 
     /**
      * Adds a SSA basic block to the CFG worklist if it's unexecuted, or
      * to the CFG phi worklist if it's already executed.
-     *
      * @param ssaBlock Block to add
      */
     private void addBlockToWorklist(SsaBasicBlock ssaBlock) {
@@ -116,8 +107,7 @@ public class SCCP {
 
     /**
      * Adds an SSA register's uses to the SSA worklist.
-     *
-     * @param reg          SSA register
+     * @param reg SSA register
      * @param latticeValue new lattice value for @param reg.
      */
     private void addUsersToWorklist(int reg, int latticeValue) {
@@ -134,10 +124,9 @@ public class SCCP {
 
     /**
      * Sets a lattice value for a register to value.
-     *
-     * @param reg   SSA register
+     * @param reg SSA register
      * @param value Lattice value
-     * @param cst   Constant value (may be null)
+     * @param cst Constant value (may be null)
      * @return true if the lattice value changed.
      */
     private boolean setLatticeValueTo(int reg, int value, Constant cst) {
@@ -165,7 +154,6 @@ public class SCCP {
      * TOP x anything = TOP
      * VARYING x anything = VARYING
      * CONSTANT x CONSTANT = CONSTANT if equal constants, VARYING otherwise
-     *
      * @param insn PHI to simulate.
      */
     private void simulatePhi(PhiInsn insn) {
@@ -193,7 +181,7 @@ public class SCCP {
                 if (phiConstant == null) {
                     phiConstant = latticeConstants[sourceReg];
                     phiResultValue = CONSTANT;
-                } else if (!latticeConstants[sourceReg].equals(phiConstant)) {
+                 } else if (!latticeConstants[sourceReg].equals(phiConstant)){
                     phiResultValue = VARYING;
                     break;
                 }
@@ -209,7 +197,6 @@ public class SCCP {
 
     /**
      * Simulate a block and note the results in the lattice.
-     *
      * @param block Block to visit
      */
     private void simulateBlock(SsaBasicBlock block) {
@@ -224,7 +211,6 @@ public class SCCP {
 
     /**
      * Simulate the phis in a block and note the results in the lattice.
-     *
      * @param block Block to visit
      */
     private void simulatePhiBlock(SsaBasicBlock block) {
@@ -239,21 +225,16 @@ public class SCCP {
 
     private static String latticeValName(int latticeVal) {
         switch (latticeVal) {
-            case TOP:
-                return "TOP";
-            case CONSTANT:
-                return "CONSTANT";
-            case VARYING:
-                return "VARYING";
-            default:
-                return "UNKNOWN";
+            case TOP: return "TOP";
+            case CONSTANT: return "CONSTANT";
+            case VARYING: return "VARYING";
+            default: return "UNKNOWN";
         }
     }
 
     /**
      * Simulates branch insns, if possible. Adds reachable successor blocks
      * to the CFG worklists.
-     *
      * @param insn branch to simulate
      */
     private void simulateBranch(SsaInsn insn) {
@@ -377,7 +358,7 @@ public class SCCP {
     /**
      * Simulates math insns, if possible.
      *
-     * @param insn       non-null insn to simulate
+     * @param insn non-null insn to simulate
      * @param resultType basic type of the result
      * @return constant result or null if not simulatable.
      */
@@ -415,7 +396,7 @@ public class SCCP {
         switch (resultType) {
             case Type.BT_INT:
                 int vR;
-                boolean skip = false;
+                boolean skip=false;
 
                 int vA = ((CstInteger) cA).getValue();
                 int vB = ((CstInteger) cB).getValue();
@@ -483,7 +464,6 @@ public class SCCP {
 
     /**
      * Simulates a statement and set the result lattice value.
-     *
      * @param insn instruction to simulate
      */
     private void simulateStmt(SsaInsn insn) {
@@ -512,7 +492,7 @@ public class SCCP {
 
         switch (opcode) {
             case RegOps.CONST: {
-                CstInsn cstInsn = (CstInsn) ropInsn;
+                CstInsn cstInsn = (CstInsn)ropInsn;
                 resultValue = CONSTANT;
                 resultConstant = cstInsn.getConstant();
                 break;
@@ -551,8 +531,7 @@ public class SCCP {
             }
             // TODO: Handle non-int arithmetic.
             // TODO: Eliminate check casts that we can prove the type of.
-            default: {
-            }
+            default: {}
         }
         if (setLatticeValueTo(resultReg, resultValue, resultConstant)) {
             addUsersToWorklist(resultReg, resultValue);
@@ -589,7 +568,7 @@ public class SCCP {
                 }
 
                 if (insn instanceof PhiInsn) {
-                    simulatePhi((PhiInsn) insn);
+                    simulatePhi((PhiInsn)insn);
                 } else {
                     simulateStmt(insn);
                 }
@@ -603,7 +582,7 @@ public class SCCP {
                 }
 
                 if (insn instanceof PhiInsn) {
-                    simulatePhi((PhiInsn) insn);
+                    simulatePhi((PhiInsn)insn);
                 } else {
                     simulateStmt(insn);
                 }
@@ -643,7 +622,7 @@ public class SCCP {
             // Update the destination RegisterSpec with the constant value
             RegisterSpec dest = defn.getResult();
             RegisterSpec newDest
-                    = dest.withType((TypedConstant) latticeConstants[reg]);
+                    = dest.withType((TypedConstant)latticeConstants[reg]);
             defn.setResult(newDest);
 
             /*
@@ -662,7 +641,7 @@ public class SCCP {
 
                 RegisterSpec spec = sources.get(index);
                 RegisterSpec newSpec
-                        = spec.withType((TypedConstant) latticeConstants[reg]);
+                        = spec.withType((TypedConstant)latticeConstants[reg]);
 
                 nInsn.changeOneSource(index, newSpec);
             }
@@ -694,7 +673,7 @@ public class SCCP {
             // Replace branch with goto
             Insn originalRopInsn = insn.getOriginalRopInsn();
             block.replaceLastInsn(new PlainInsn(Rops.GOTO,
-                    originalRopInsn.getPosition(), null, RegisterSpecList.EMPTY));
+                originalRopInsn.getPosition(), null, RegisterSpecList.EMPTY));
             block.removeSuccessor(oldSuccessor);
         }
     }

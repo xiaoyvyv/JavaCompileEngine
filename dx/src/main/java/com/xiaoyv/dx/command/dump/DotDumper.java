@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.command.dump;
 
@@ -9,6 +23,7 @@ import com.xiaoyv.dx.cf.direct.StdAttributeFactory;
 import com.xiaoyv.dx.cf.iface.Member;
 import com.xiaoyv.dx.cf.iface.Method;
 import com.xiaoyv.dx.cf.iface.ParseObserver;
+import com.xiaoyv.dx.dex.DexOptions;
 import com.xiaoyv.dx.rop.code.AccessFlags;
 import com.xiaoyv.dx.rop.code.BasicBlock;
 import com.xiaoyv.dx.rop.code.BasicBlockList;
@@ -32,6 +47,7 @@ public class DotDumper implements ParseObserver {
     private final boolean strictParse;
     private final boolean optimize;
     private final Args args;
+    private final DexOptions dexOptions;
 
     static void dump(byte[] bytes, String filePath, Args args) {
         new DotDumper(bytes, filePath, args).run();
@@ -43,6 +59,7 @@ public class DotDumper implements ParseObserver {
         this.strictParse = args.strictParse;
         this.optimize = args.optimize;
         this.args = args;
+        this.dexOptions = new DexOptions();
     }
 
     private void run() {
@@ -58,7 +75,7 @@ public class DotDumper implements ParseObserver {
 
         // Next, reparse it and observe the process.
         DirectClassFile liveCf =
-                new DirectClassFile(ba, filePath, strictParse);
+            new DirectClassFile(ba, filePath, strictParse);
         liveCf.setAttributeFactory(StdAttributeFactory.THE_ONE);
         liveCf.setObserver(this);
         liveCf.getMagic(); // Force parsing to happen.
@@ -72,22 +89,24 @@ public class DotDumper implements ParseObserver {
         return args.method == null || args.method.equals(name);
     }
 
+    @Override
     public void changeIndent(int indentDelta) {
         // This space intentionally left blank.
     }
 
+    @Override
     public void parsed(ByteArray bytes, int offset, int len, String human) {
         // This space intentionally left blank.
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public void startParsingMember(ByteArray bytes, int offset, String name,
                                    String descriptor) {
         // This space intentionally left blank.
     }
 
+    @Override
     public void endParsingMember(ByteArray bytes, int offset, String name,
                                  String descriptor, Member member) {
         if (!(member instanceof Method)) {
@@ -99,11 +118,11 @@ public class DotDumper implements ParseObserver {
         }
 
         ConcreteMethod meth = new ConcreteMethod((Method) member, classFile,
-                true, true);
+                                                 true, true);
 
         TranslationAdvice advice = DexTranslationAdvice.THE_ONE;
         RopMethod rmeth =
-                Ropper.convert(meth, advice, classFile.getMethods());
+            Ropper.convert(meth, advice, classFile.getMethods(), dexOptions);
 
         if (optimize) {
             boolean isStatic = AccessFlags.isStatic(meth.getAccessFlags());
@@ -112,7 +131,7 @@ public class DotDumper implements ParseObserver {
                     true, advice);
         }
 
-        System.out.println("digraph " + name + "{");
+        System.out.println("digraph "  + name + "{");
 
         System.out.println("\tfirst -> n"
                 + Hex.u2(rmeth.getFirstLabel()) + ";");
@@ -132,7 +151,7 @@ public class DotDumper implements ParseObserver {
                         + Hex.u2(successors.get(0)) + ";");
             } else {
                 System.out.print("\tn" + Hex.u2(label) + " -> {");
-                for (int j = 0; j < successors.size(); j++) {
+                for (int j = 0; j < successors.size(); j++ ) {
                     int successor = successors.get(j);
 
                     if (successor != bb.getPrimarySuccessor()) {

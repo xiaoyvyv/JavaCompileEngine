@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.code;
 
@@ -9,14 +23,10 @@ import com.xiaoyv.dx.util.IntList;
  * All of the parts that make up a method at the rop layer.
  */
 public final class RopMethod {
-    /**
-     * {@code non-null;} basic block list of the method
-     */
+    /** {@code non-null;} basic block list of the method */
     private final BasicBlockList blocks;
 
-    /**
-     * {@code >= 0;} label for the block which starts the method
-     */
+    /** {@code >= 0;} label for the block which starts the method */
     private final int firstLabel;
 
     /**
@@ -34,7 +44,7 @@ public final class RopMethod {
     /**
      * Constructs an instance.
      *
-     * @param blocks     {@code non-null;} basic block list of the method
+     * @param blocks {@code non-null;} basic block list of the method
      * @param firstLabel {@code >= 0;} the label of the first block to execute
      */
     public RopMethod(BasicBlockList blocks, int firstLabel) {
@@ -117,7 +127,7 @@ public final class RopMethod {
      */
     public RopMethod withRegisterOffset(int delta) {
         RopMethod result = new RopMethod(blocks.withRegisterOffset(delta),
-                firstLabel);
+                                         firstLabel);
 
         if (exitPredecessors != null) {
             /*

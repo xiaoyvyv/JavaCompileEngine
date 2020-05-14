@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.code;
 
@@ -23,57 +37,35 @@ import com.xiaoyv.dx.rop.type.Prototype;
  * stuff extracted from the method's {@code Code} attribute.
  */
 public final class ConcreteMethod implements Method {
-    /**
-     * {@code non-null;} method being wrapped
-     */
+    /** {@code non-null;} method being wrapped */
     private final Method method;
 
-    /**
-     * {@code null-ok;} the class's {@code SourceFile} attribute value,
-     * if any
-     */
-    private final CstString sourceFile;
+    /** {@code non-null;} the {@code ClassFile} the method belongs to. */
+    private final ClassFile classFile;
 
-    /**
-     * whether the class that this method is part of is defined with
-     * {@code ACC_SUPER}
-     */
-    private final boolean accSuper;
-
-    /**
-     * {@code non-null;} the code attribute
-     */
+    /** {@code non-null;} the code attribute */
     private final AttCode attCode;
 
-    /**
-     * {@code non-null;} line number list
-     */
+    /** {@code non-null;} line number list */
     private final LineNumberList lineNumbers;
 
-    /**
-     * {@code non-null;} local variable list
-     */
+    /** {@code non-null;} local variable list */
     private final LocalVariableList localVariables;
 
     /**
      * Constructs an instance.
      *
-     * @param method     {@code non-null;} the method to be based on
-     * @param cf         {@code non-null;} the class file that contains this method
-     * @param keepLines  whether to keep the line number information
-     *                   (if any)
+     * @param method {@code non-null;} the method to be based on
+     * @param classFile {@code non-null;} the class file that contains this method
+     * @param keepLines whether to keep the line number information
+     * (if any)
      * @param keepLocals whether to keep the local variable
-     *                   information (if any)
+     * information (if any)
      */
-    public ConcreteMethod(Method method, ClassFile cf, boolean keepLines, boolean keepLocals) {
-        this(method, cf.getAccessFlags(), cf.getSourceFile(), keepLines, keepLocals);
-    }
-
-    public ConcreteMethod(Method method, int accessFlags, CstString sourceFile,
-                          boolean keepLines, boolean keepLocals) {
+    public ConcreteMethod(Method method, ClassFile classFile,
+            boolean keepLines, boolean keepLocals) {
         this.method = method;
-        this.accSuper = (accessFlags & AccessFlags.ACC_SUPER) != 0;
-        this.sourceFile = sourceFile;
+        this.classFile = classFile;
 
         AttributeList attribs = method.getAttributes();
         this.attCode = (AttCode) attribs.findFirst(AttCode.ATTRIBUTE_NAME);
@@ -87,19 +79,18 @@ public final class ConcreteMethod implements Method {
          * as I know, this situation rarely occurs "in the
          * wild," so there's not much point in optimizing for it.
          */
-        LineNumberList lineNumbers = LineNumberList.EMPTY;
+        LineNumberList lnl = LineNumberList.EMPTY;
         if (keepLines) {
             for (AttLineNumberTable lnt = (AttLineNumberTable)
-                    codeAttribs.findFirst(AttLineNumberTable.ATTRIBUTE_NAME);
+                     codeAttribs.findFirst(AttLineNumberTable.ATTRIBUTE_NAME);
                  lnt != null;
                  lnt = (AttLineNumberTable) codeAttribs.findNext(lnt)) {
-                lineNumbers = LineNumberList.concat(lineNumbers,
-                        lnt.getLineNumbers());
+                lnl = LineNumberList.concat(lnl, lnt.getLineNumbers());
             }
         }
-        this.lineNumbers = lineNumbers;
+        this.lineNumbers = lnl;
 
-        LocalVariableList localVariables = LocalVariableList.EMPTY;
+        LocalVariableList lvl = LocalVariableList.EMPTY;
         if (keepLocals) {
             /*
              * Do likewise (and with the same caveat) for
@@ -108,93 +99,97 @@ public final class ConcreteMethod implements Method {
              * single LocalVariableList.
              */
             for (AttLocalVariableTable lvt = (AttLocalVariableTable)
-                    codeAttribs.findFirst(
-                            AttLocalVariableTable.ATTRIBUTE_NAME);
+                     codeAttribs.findFirst(
+                             AttLocalVariableTable.ATTRIBUTE_NAME);
                  lvt != null;
                  lvt = (AttLocalVariableTable) codeAttribs.findNext(lvt)) {
-                localVariables =
-                        LocalVariableList.concat(localVariables,
-                                lvt.getLocalVariables());
+
+                lvl = LocalVariableList.concat(lvl, lvt.getLocalVariables());
             }
 
             LocalVariableList typeList = LocalVariableList.EMPTY;
             for (AttLocalVariableTypeTable lvtt = (AttLocalVariableTypeTable)
-                    codeAttribs.findFirst(
-                            AttLocalVariableTypeTable.ATTRIBUTE_NAME);
+                     codeAttribs.findFirst(
+                             AttLocalVariableTypeTable.ATTRIBUTE_NAME);
                  lvtt != null;
-                 lvtt =
-                         (AttLocalVariableTypeTable) codeAttribs.findNext(lvtt)) {
-                typeList =
-                        LocalVariableList.concat(typeList,
-                                lvtt.getLocalVariables());
+                 lvtt = (AttLocalVariableTypeTable) codeAttribs.findNext(lvtt)) {
+                typeList = LocalVariableList.concat(typeList, lvtt.getLocalVariables());
             }
 
             if (typeList.size() != 0) {
-                localVariables =
-                        LocalVariableList.mergeDescriptorsAndSignatures(
-                                localVariables, typeList);
+
+                lvl = LocalVariableList.mergeDescriptorsAndSignatures(lvl, typeList);
             }
         }
-        this.localVariables = localVariables;
+        this.localVariables = lvl;
+    }
+
+
+    /**
+     * Gets the source file associated with the method if known.
+     * @return {null-ok;} the source file defining the method if known, null otherwise.
+     */
+    public CstString getSourceFile() {
+        return classFile.getSourceFile();
     }
 
     /**
-     * {@inheritDoc}
+     * Tests whether the method is being defined on an interface.
+     * @return true if the method is being defined on an interface.
      */
+    public final boolean isDefaultOrStaticInterfaceMethod() {
+        return (classFile.getAccessFlags() & AccessFlags.ACC_INTERFACE) != 0
+            && !getNat().isClassInit();
+    }
+
+    /**
+     * Tests whether the method is being defined is declared as static.
+     * @return true if the method is being defined is declared as static.
+     */
+    public final boolean isStaticMethod() {
+        return (getAccessFlags() & AccessFlags.ACC_STATIC) != 0;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public CstNat getNat() {
         return method.getNat();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public CstString getName() {
         return method.getName();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public CstString getDescriptor() {
         return method.getDescriptor();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int getAccessFlags() {
         return method.getAccessFlags();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public AttributeList getAttributes() {
         return method.getAttributes();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public CstType getDefiningClass() {
         return method.getDefiningClass();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public Prototype getEffectiveDescriptor() {
         return method.getEffectiveDescriptor();
-    }
-
-    /**
-     * Gets whether the class that this method is part of is defined with
-     * {@code ACC_SUPER}.
-     *
-     * @return the {@code ACC_SUPER} value
-     */
-    public boolean getAccSuper() {
-        return accSuper;
     }
 
     /**
@@ -259,7 +254,7 @@ public final class ConcreteMethod implements Method {
      * @return {@code non-null;} an appropriate instance
      */
     public SourcePosition makeSourcePosistion(int offset) {
-        return new SourcePosition(sourceFile, offset,
-                lineNumbers.pcToLine(offset));
+        return new SourcePosition(getSourceFile(), offset,
+                                  lineNumbers.pcToLine(offset));
     }
 }

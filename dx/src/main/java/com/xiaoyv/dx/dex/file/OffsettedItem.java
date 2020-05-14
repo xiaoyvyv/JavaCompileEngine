@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
@@ -10,15 +24,11 @@ import com.xiaoyv.dx.util.AnnotatedOutput;
  */
 public abstract class OffsettedItem extends Item
         implements Comparable<OffsettedItem> {
-    /**
-     * {@code > 0;} alignment requirement
-     */
+    /** {@code > 0;} alignment requirement */
     private final int alignment;
 
-    /**
-     * {@code >= -1;} the size of this instance when written, in bytes, or
-     * {@code -1} if not yet known
-     */
+    /** {@code >= -1;} the size of this instance when written, in bytes, or
+     * {@code -1} if not yet known */
     private int writeSize;
 
     /**
@@ -53,9 +63,9 @@ public abstract class OffsettedItem extends Item
      * Constructs an instance. The offset is initially unassigned.
      *
      * @param alignment {@code > 0;} output alignment requirement; must be a
-     *                  power of 2
+     * power of 2
      * @param writeSize {@code >= -1;} the size of this instance when written,
-     *                  in bytes, or {@code -1} if not immediately known
+     * in bytes, or {@code -1} if not immediately known
      */
     public OffsettedItem(int alignment, int writeSize) {
         Section.validateAlignment(alignment);
@@ -72,7 +82,7 @@ public abstract class OffsettedItem extends Item
 
     /**
      * {@inheritDoc}
-     * <p>
+     *
      * Comparisons for this class are defined to be type-major (if the
      * types don't match then the objects are not equal), with
      * {@link #compareTo0} deciding same-type comparisons.
@@ -96,11 +106,12 @@ public abstract class OffsettedItem extends Item
 
     /**
      * {@inheritDoc}
-     * <p>
+     *
      * Comparisons for this class are defined to be class-major (if the
      * classes don't match then the objects are not equal), with
      * {@link #compareTo0} deciding same-class comparisons.
      */
+    @Override
     public final int compareTo(OffsettedItem other) {
         if (this == other) {
             return 0;
@@ -135,11 +146,10 @@ public abstract class OffsettedItem extends Item
         this.writeSize = writeSize;
     }
 
-    /**
-     * {@inheritDoc}
+    /** {@inheritDoc}
      *
      * @throws UnsupportedOperationException thrown if the write size
-     *                                       is not yet known
+     * is not yet known
      */
     @Override
     public final int writeSize() {
@@ -150,9 +160,7 @@ public abstract class OffsettedItem extends Item
         return writeSize;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final void writeTo(DexFile file, AnnotatedOutput out) {
         out.alignTo(alignment);
@@ -207,9 +215,9 @@ public abstract class OffsettedItem extends Item
      * instance.
      *
      * @param addedTo {@code non-null;} the section this instance has
-     *                been added to
-     * @param offset  {@code >= 0;} the desired offset from the start of the
-     *                section where this instance was placed
+     * been added to
+     * @param offset {@code >= 0;} the desired offset from the start of the
+     * section where this instance was placed
      * @return {@code >= 0;} the offset that this instance should be placed at
      * in order to meet its alignment constraint
      */
@@ -288,8 +296,8 @@ public abstract class OffsettedItem extends Item
      * for setting it.
      *
      * @param addedTo {@code non-null;} the section this instance has been added to
-     * @param offset  {@code >= 0;} the offset from the start of the
-     *                section where this instance was placed
+     * @param offset {@code >= 0;} the offset from the start of the
+     * section where this instance was placed
      */
     protected void place0(Section addedTo, int offset) {
         // This space intentionally left blank.
@@ -301,7 +309,7 @@ public abstract class OffsettedItem extends Item
      * which will have taken care of ensuring alignment.
      *
      * @param file {@code non-null;} the file to use for reference
-     * @param out  {@code non-null;} where to write to
+     * @param out {@code non-null;} where to write to
      */
     protected abstract void writeTo0(DexFile file, AnnotatedOutput out);
 }

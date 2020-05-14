@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.code;
 
@@ -11,9 +25,7 @@ import com.xiaoyv.dx.util.Hex;
  */
 public final class CatchHandlerList extends FixedSizeList
         implements Comparable<CatchHandlerList> {
-    /**
-     * {@code non-null;} empty instance
-     */
+    /** {@code non-null;} empty instance */
     public static final CatchHandlerList EMPTY = new CatchHandlerList(0);
 
     /**
@@ -37,9 +49,8 @@ public final class CatchHandlerList extends FixedSizeList
         return (Entry) get0(n);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public String toHuman() {
         return toHuman("", "");
     }
@@ -50,7 +61,7 @@ public final class CatchHandlerList extends FixedSizeList
      *
      * @param prefix {@code non-null;} the prefix for every line
      * @param header {@code non-null;} the header for the first line (after the
-     *               first prefix)
+     * first prefix)
      * @return {@code non-null;} the human form
      */
     public String toHuman(String prefix, String header) {
@@ -104,9 +115,9 @@ public final class CatchHandlerList extends FixedSizeList
     /**
      * Sets the entry at the given index.
      *
-     * @param n             {@code >= 0, < size();} which index
+     * @param n {@code >= 0, < size();} which index
      * @param exceptionType {@code non-null;} type of exception handled
-     * @param handler       {@code >= 0;} exception handler address
+     * @param handler {@code >= 0;} exception handler address
      */
     public void set(int n, CstType exceptionType, int handler) {
         set0(n, new Entry(exceptionType, handler));
@@ -115,16 +126,15 @@ public final class CatchHandlerList extends FixedSizeList
     /**
      * Sets the entry at the given index.
      *
-     * @param n     {@code >= 0, < size();} which index
+     * @param n {@code >= 0, < size();} which index
      * @param entry {@code non-null;} the entry to set at {@code n}
      */
     public void set(int n, Entry entry) {
         set0(n, entry);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int compareTo(CatchHandlerList other) {
         if (this == other) {
             // Easy out.
@@ -157,21 +167,17 @@ public final class CatchHandlerList extends FixedSizeList
      * Entry in the list.
      */
     public static class Entry implements Comparable<Entry> {
-        /**
-         * {@code non-null;} type of exception handled
-         */
+        /** {@code non-null;} type of exception handled */
         private final CstType exceptionType;
 
-        /**
-         * {@code >= 0;} exception handler address
-         */
+        /** {@code >= 0;} exception handler address */
         private final int handler;
 
         /**
          * Constructs an instance.
          *
          * @param exceptionType {@code non-null;} type of exception handled
-         * @param handler       {@code >= 0;} exception handler address
+         * @param handler {@code >= 0;} exception handler address
          */
         public Entry(CstType exceptionType, int handler) {
             if (handler < 0) {
@@ -186,17 +192,13 @@ public final class CatchHandlerList extends FixedSizeList
             this.exceptionType = exceptionType;
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public int hashCode() {
             return (handler * 31) + exceptionType.hashCode();
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public boolean equals(Object other) {
             if (other instanceof Entry) {
@@ -206,9 +208,8 @@ public final class CatchHandlerList extends FixedSizeList
             return false;
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public int compareTo(Entry other) {
             if (handler < other.handler) {
                 return -1;

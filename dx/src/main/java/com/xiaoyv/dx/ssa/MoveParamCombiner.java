@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa;
 
@@ -7,7 +21,6 @@ import com.xiaoyv.dx.rop.code.LocalItem;
 import com.xiaoyv.dx.rop.code.RegOps;
 import com.xiaoyv.dx.rop.code.RegisterSpec;
 import com.xiaoyv.dx.rop.cst.CstInteger;
-
 import java.util.HashSet;
 import java.util.List;
 
@@ -17,9 +30,7 @@ import java.util.List;
  */
 public class MoveParamCombiner {
 
-    /**
-     * method to process
-     */
+    /** method to process */
     private final SsaMethod ssaMeth;
 
     /**
@@ -47,13 +58,14 @@ public class MoveParamCombiner {
         final HashSet<SsaInsn> deletedInsns = new HashSet();
 
         ssaMeth.forEachInsn(new SsaInsn.Visitor() {
-            public void visitMoveInsn(NormalSsaInsn insn) {
+            @Override
+            public void visitMoveInsn (NormalSsaInsn insn) {
             }
-
-            public void visitPhiInsn(PhiInsn phi) {
+            @Override
+            public void visitPhiInsn (PhiInsn phi) {
             }
-
-            public void visitNonMoveInsn(NormalSsaInsn insn) {
+            @Override
+            public void visitNonMoveInsn (NormalSsaInsn insn) {
                 if (insn.getOpcode().getOpcode() != RegOps.MOVE_PARAM) {
                     return;
                 }
@@ -95,12 +107,14 @@ public class MoveParamCombiner {
                      */
 
                     RegisterMapper mapper = new RegisterMapper() {
-                        /** @inheritDoc */
+                        /** {@inheritDoc} */
+                        @Override
                         public int getNewRegisterCount() {
                             return ssaMeth.getRegCount();
                         }
 
-                        /** @inheritDoc */
+                        /** {@inheritDoc} */
+                        @Override
                         public RegisterSpec map(RegisterSpec registerSpec) {
                             if (registerSpec.getReg() == specB.getReg()) {
                                 return specA;
@@ -136,9 +150,9 @@ public class MoveParamCombiner {
      * @return {@code >=0;} parameter index
      */
     private int getParamIndex(NormalSsaInsn insn) {
-        CstInsn cstInsn = (CstInsn) (insn.getOriginalRopInsn());
+        CstInsn cstInsn = (CstInsn)(insn.getOriginalRopInsn());
 
-        int param = ((CstInteger) cstInsn.getConstant()).getValue();
+        int param = ((CstInteger)cstInsn.getConstant()).getValue();
         return param;
     }
 

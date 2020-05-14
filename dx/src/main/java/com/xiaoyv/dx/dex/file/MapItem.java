@@ -1,34 +1,39 @@
-
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
 import com.xiaoyv.dx.util.AnnotatedOutput;
 import com.xiaoyv.dx.util.Hex;
-
 import java.util.ArrayList;
 
 /**
  * Class that represents a map item.
  */
 public final class MapItem extends OffsettedItem {
-    /**
-     * file alignment of this class, in bytes
-     */
+    /** file alignment of this class, in bytes */
     private static final int ALIGNMENT = 4;
 
-    /**
-     * write size of this class, in bytes: three {@code uint}s
-     */
+    /** write size of this class, in bytes: three {@code uint}s */
     private static final int WRITE_SIZE = (4 * 3);
 
-    /**
-     * {@code non-null;} item type this instance covers
-     */
+    /** {@code non-null;} item type this instance covers */
     private final ItemType type;
 
-    /**
-     * {@code non-null;} section this instance covers
-     */
+    /** {@code non-null;} section this instance covers */
     private final Section section;
 
     /**
@@ -54,12 +59,12 @@ public final class MapItem extends OffsettedItem {
      * the contents of the given array of sections, adding it to the
      * given map section.
      *
-     * @param sections   {@code non-null;} the sections
+     * @param sections {@code non-null;} the sections
      * @param mapSection {@code non-null;} the section that the resulting map
-     *                   should be added to; it should be empty on entry to this method
+     * should be added to; it should be empty on entry to this method
      */
     public static void addMap(Section[] sections,
-                              MixedItemSection mapSection) {
+            MixedItemSection mapSection) {
         if (sections == null) {
             throw new NullPointerException("sections == null");
         }
@@ -82,7 +87,7 @@ public final class MapItem extends OffsettedItem {
                 if (type != currentType) {
                     if (count != 0) {
                         items.add(new MapItem(currentType, section,
-                                firstItem, lastItem, count));
+                                        firstItem, lastItem, count));
                     }
                     currentType = type;
                     firstItem = item;
@@ -95,7 +100,7 @@ public final class MapItem extends OffsettedItem {
             if (count != 0) {
                 // Add a MapItem for the final items in the section.
                 items.add(new MapItem(currentType, section,
-                        firstItem, lastItem, count));
+                                firstItem, lastItem, count));
             } else if (section == mapSection) {
                 // Add a MapItem for the self-referential section.
                 items.add(new MapItem(mapSection));
@@ -109,14 +114,14 @@ public final class MapItem extends OffsettedItem {
     /**
      * Constructs an instance.
      *
-     * @param type      {@code non-null;} item type this instance covers
-     * @param section   {@code non-null;} section this instance covers
+     * @param type {@code non-null;} item type this instance covers
+     * @param section {@code non-null;} section this instance covers
      * @param firstItem {@code non-null;} first item covered
-     * @param lastItem  {@code non-null;} last item covered
+     * @param lastItem {@code non-null;} last item covered
      * @param itemCount {@code > 0;} count of items covered
      */
     private MapItem(ItemType type, Section section, Item firstItem,
-                    Item lastItem, int itemCount) {
+            Item lastItem, int itemCount) {
         super(ALIGNMENT, WRITE_SIZE);
 
         if (type == null) {
@@ -166,20 +171,16 @@ public final class MapItem extends OffsettedItem {
         this.itemCount = 1;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public ItemType itemType() {
         return ItemType.TYPE_MAP_ITEM;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer(100);
+        StringBuilder sb = new StringBuilder(100);
 
         sb.append(getClass().getName());
         sb.append('{');
@@ -191,25 +192,19 @@ public final class MapItem extends OffsettedItem {
         return sb.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void addContents(DexFile file) {
         // We have nothing to add.
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final String toHuman() {
         return toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void writeTo0(DexFile file, AnnotatedOutput out) {
         int value = type.getMapValue();

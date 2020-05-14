@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa;
 
@@ -6,7 +20,6 @@ import com.xiaoyv.dx.rop.code.RopMethod;
 import com.xiaoyv.dx.rop.code.TranslationAdvice;
 import com.xiaoyv.dx.ssa.back.LivenessAnalyzer;
 import com.xiaoyv.dx.ssa.back.SsaToRop;
-
 import java.util.EnumSet;
 
 /**
@@ -18,12 +31,10 @@ public class Optimizer {
 
     private static TranslationAdvice advice;
 
-    /**
-     * optional optimizer steps
-     */
+    /** optional optimizer steps */
     public enum OptionalStep {
         MOVE_PARAM_COMBINER, SCCP, LITERAL_UPGRADE, CONST_COLLECTOR,
-        ESCAPE_ANALYSIS
+            ESCAPE_ANALYSIS
     }
 
     /**
@@ -45,18 +56,18 @@ public class Optimizer {
      * Runs optimization algorthims over this method, and returns a new
      * instance of RopMethod with the changes.
      *
-     * @param rmeth            method to process
-     * @param paramWidth       the total width, in register-units, of this method's
-     *                         parameters
-     * @param isStatic         true if this method has no 'this' pointer argument.
+     * @param rmeth method to process
+     * @param paramWidth the total width, in register-units, of this method's
+     * parameters
+     * @param isStatic true if this method has no 'this' pointer argument.
      * @param inPreserveLocals true if local variable info should be preserved,
-     *                         at the cost of some registers and insns
-     * @param inAdvice         {@code non-null;} translation advice
+     * at the cost of some registers and insns
+     * @param inAdvice {@code non-null;} translation advice
      * @return optimized method
      */
     public static RopMethod optimize(RopMethod rmeth, int paramWidth,
-                                     boolean isStatic, boolean inPreserveLocals,
-                                     TranslationAdvice inAdvice) {
+            boolean isStatic, boolean inPreserveLocals,
+            TranslationAdvice inAdvice) {
 
         return optimize(rmeth, paramWidth, isStatic, inPreserveLocals, inAdvice,
                 EnumSet.allOf(OptionalStep.class));
@@ -66,19 +77,19 @@ public class Optimizer {
      * Runs optimization algorthims over this method, and returns a new
      * instance of RopMethod with the changes.
      *
-     * @param rmeth            method to process
-     * @param paramWidth       the total width, in register-units, of this method's
-     *                         parameters
-     * @param isStatic         true if this method has no 'this' pointer argument.
+     * @param rmeth method to process
+     * @param paramWidth the total width, in register-units, of this method's
+     * parameters
+     * @param isStatic true if this method has no 'this' pointer argument.
      * @param inPreserveLocals true if local variable info should be preserved,
-     *                         at the cost of some registers and insns
-     * @param inAdvice         {@code non-null;} translation advice
-     * @param steps            set of optional optimization steps to run
+     * at the cost of some registers and insns
+     * @param inAdvice {@code non-null;} translation advice
+     * @param steps set of optional optimization steps to run
      * @return optimized method
      */
     public static RopMethod optimize(RopMethod rmeth, int paramWidth,
-                                     boolean isStatic, boolean inPreserveLocals,
-                                     TranslationAdvice inAdvice, EnumSet<OptionalStep> steps) {
+            boolean isStatic, boolean inPreserveLocals,
+            TranslationAdvice inAdvice, EnumSet<OptionalStep> steps) {
         SsaMethod ssaMeth = null;
 
         preserveLocals = inPreserveLocals;
@@ -106,16 +117,16 @@ public class Optimizer {
      * with a different strategy to see if we can get under the bar. The end
      * result will be much more efficient.
      *
-     * @param rmeth      method to process
+     * @param rmeth method to process
      * @param paramWidth the total width, in register-units, of this method's
-     *                   parameters
-     * @param isStatic   true if this method has no 'this' pointer argument.
-     * @param steps      set of optional optimization steps to run
+     * parameters
+     * @param isStatic true if this method has no 'this' pointer argument.
+     * @param steps set of optional optimization steps to run
      * @return optimized method
      */
     private static RopMethod optimizeMinimizeRegisters(RopMethod rmeth,
-                                                       int paramWidth, boolean isStatic,
-                                                       EnumSet<OptionalStep> steps) {
+            int paramWidth, boolean isStatic,
+            EnumSet<OptionalStep> steps) {
         SsaMethod ssaMeth;
         RopMethod resultMeth;
 
@@ -137,7 +148,7 @@ public class Optimizer {
     }
 
     private static void runSsaFormSteps(SsaMethod ssaMeth,
-                                        EnumSet<OptionalStep> steps) {
+            EnumSet<OptionalStep> steps) {
         boolean needsDeadCodeRemover = true;
 
         if (steps.contains(OptionalStep.MOVE_PARAM_COMBINER)) {
@@ -181,8 +192,8 @@ public class Optimizer {
     }
 
     public static SsaMethod debugEdgeSplit(RopMethod rmeth, int paramWidth,
-                                           boolean isStatic, boolean inPreserveLocals,
-                                           TranslationAdvice inAdvice) {
+            boolean isStatic, boolean inPreserveLocals,
+            TranslationAdvice inAdvice) {
 
         preserveLocals = inPreserveLocals;
         advice = inAdvice;
@@ -191,8 +202,8 @@ public class Optimizer {
     }
 
     public static SsaMethod debugPhiPlacement(RopMethod rmeth, int paramWidth,
-                                              boolean isStatic, boolean inPreserveLocals,
-                                              TranslationAdvice inAdvice) {
+            boolean isStatic, boolean inPreserveLocals,
+            TranslationAdvice inAdvice) {
 
         preserveLocals = inPreserveLocals;
         advice = inAdvice;
@@ -201,8 +212,8 @@ public class Optimizer {
     }
 
     public static SsaMethod debugRenaming(RopMethod rmeth, int paramWidth,
-                                          boolean isStatic, boolean inPreserveLocals,
-                                          TranslationAdvice inAdvice) {
+            boolean isStatic, boolean inPreserveLocals,
+            TranslationAdvice inAdvice) {
 
         preserveLocals = inPreserveLocals;
         advice = inAdvice;
@@ -211,8 +222,8 @@ public class Optimizer {
     }
 
     public static SsaMethod debugDeadCodeRemover(RopMethod rmeth,
-                                                 int paramWidth, boolean isStatic, boolean inPreserveLocals,
-                                                 TranslationAdvice inAdvice) {
+            int paramWidth, boolean isStatic, boolean inPreserveLocals,
+            TranslationAdvice inAdvice) {
 
         SsaMethod ssaMeth;
 
@@ -226,8 +237,8 @@ public class Optimizer {
     }
 
     public static SsaMethod debugNoRegisterAllocation(RopMethod rmeth,
-                                                      int paramWidth, boolean isStatic, boolean inPreserveLocals,
-                                                      TranslationAdvice inAdvice, EnumSet<OptionalStep> steps) {
+            int paramWidth, boolean isStatic, boolean inPreserveLocals,
+            TranslationAdvice inAdvice, EnumSet<OptionalStep> steps) {
 
         SsaMethod ssaMeth;
 

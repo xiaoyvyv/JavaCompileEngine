@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.code.form;
 
@@ -8,11 +22,11 @@ import com.xiaoyv.dx.dex.code.InsnFormat;
 import com.xiaoyv.dx.rop.code.RegisterSpec;
 import com.xiaoyv.dx.rop.code.RegisterSpecList;
 import com.xiaoyv.dx.rop.cst.Constant;
+import com.xiaoyv.dx.rop.cst.CstCallSiteRef;
 import com.xiaoyv.dx.rop.cst.CstMethodRef;
 import com.xiaoyv.dx.rop.cst.CstType;
 import com.xiaoyv.dx.rop.type.Type;
 import com.xiaoyv.dx.util.AnnotatedOutput;
-
 import java.util.BitSet;
 
 /**
@@ -20,14 +34,10 @@ import java.util.BitSet;
  * for details.
  */
 public final class Form35c extends InsnFormat {
-    /**
-     * {@code non-null;} unique instance of this class
-     */
+    /** {@code non-null;} unique instance of this class */
     public static final InsnFormat THE_ONE = new Form35c();
 
-    /**
-     * Maximal number of operands
-     */
+    /** Maximal number of operands */
     private static final int MAX_NUM_OPS = 5;
 
     /**
@@ -38,38 +48,30 @@ public final class Form35c extends InsnFormat {
         // This space intentionally left blank.
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String insnArgString(DalvInsn insn) {
         RegisterSpecList regs = explicitize(insn.getRegisters());
-        return regListString(regs) + ", " + cstString(insn);
+        return regListString(regs) + ", " + insn.cstString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String insnCommentString(DalvInsn insn, boolean noteIndices) {
         if (noteIndices) {
-            return cstComment(insn);
+            return insn.cstComment();
         } else {
             return "";
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int codeSize() {
         return 3;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isCompatible(DalvInsn insn) {
         if (!(insn instanceof CstInsn)) {
@@ -79,13 +81,14 @@ public final class Form35c extends InsnFormat {
         CstInsn ci = (CstInsn) insn;
         int cpi = ci.getIndex();
 
-        if (!unsignedFitsInShort(cpi)) {
+        if (! unsignedFitsInShort(cpi)) {
             return false;
         }
 
         Constant cst = ci.getConstant();
         if (!((cst instanceof CstMethodRef) ||
-                (cst instanceof CstType))) {
+              (cst instanceof CstType) ||
+              (cst instanceof CstCallSiteRef))) {
             return false;
         }
 
@@ -93,9 +96,7 @@ public final class Form35c extends InsnFormat {
         return (wordCount(regs) >= 0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public BitSet compatibleRegs(DalvInsn insn) {
         RegisterSpecList regs = insn.getRegisters();
@@ -111,15 +112,13 @@ public final class Form35c extends InsnFormat {
              * the result.
              */
             bits.set(i, unsignedFitsInNibble(reg.getReg() +
-                    reg.getCategory() - 1));
+                                             reg.getCategory() - 1));
         }
 
         return bits;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void writeTo(AnnotatedOutput out, DalvInsn insn) {
         int cpi = ((CstInsn) insn).getIndex();
@@ -132,10 +131,10 @@ public final class Form35c extends InsnFormat {
         int r4 = (sz > 4) ? regs.get(4).getReg() : 0;
 
         write(out,
-                opcodeUnit(insn,
-                        makeByte(r4, sz)), // encode the fifth operand here
-                (short) cpi,
-                codeUnit(r0, r1, r2, r3));
+              opcodeUnit(insn,
+                         makeByte(r4, sz)), // encode the fifth operand here
+              (short) cpi,
+              codeUnit(r0, r1, r2, r3));
     }
 
     /**
@@ -200,7 +199,7 @@ public final class Form35c extends InsnFormat {
             result.set(wordAt, one);
             if (one.getCategory() == 2) {
                 result.set(wordAt + 1,
-                        RegisterSpec.make(one.getReg() + 1, Type.VOID));
+                           RegisterSpec.make(one.getReg() + 1, Type.VOID));
                 wordAt += 2;
             } else {
                 wordAt++;

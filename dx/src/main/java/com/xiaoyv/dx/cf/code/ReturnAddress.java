@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.code;
 
@@ -14,16 +28,14 @@ import com.xiaoyv.dx.util.Hex;
  * what instances of this class hang onto.
  */
 public final class ReturnAddress implements TypeBearer {
-    /**
-     * {@code >= 0;} the start address of the subroutine being returned from
-     */
+    /** {@code >= 0;} the start address of the subroutine being returned from */
     private final int subroutineAddress;
 
     /**
      * Constructs an instance.
      *
      * @param subroutineAddress {@code >= 0;} the start address of the
-     *                          subroutine being returned from
+     * subroutine being returned from
      */
     public ReturnAddress(int subroutineAddress) {
         if (subroutineAddress < 0) {
@@ -33,59 +45,49 @@ public final class ReturnAddress implements TypeBearer {
         this.subroutineAddress = subroutineAddress;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ("<addr:" + Hex.u2(subroutineAddress) + ">");
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public String toHuman() {
         return toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public Type getType() {
         return Type.RETURN_ADDRESS;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public TypeBearer getFrameType() {
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int getBasicType() {
         return Type.RETURN_ADDRESS.getBasicType();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int getBasicFrameType() {
         return Type.RETURN_ADDRESS.getBasicFrameType();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public boolean isConstant() {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof ReturnAddress)) {
@@ -95,9 +97,7 @@ public final class ReturnAddress implements TypeBearer {
         return subroutineAddress == ((ReturnAddress) other).subroutineAddress;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return subroutineAddress;

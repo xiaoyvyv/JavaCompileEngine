@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa.back;
 
@@ -10,7 +24,6 @@ import com.xiaoyv.dx.ssa.RegisterMapper;
 import com.xiaoyv.dx.ssa.SsaMethod;
 import com.xiaoyv.dx.util.BitIntSet;
 import com.xiaoyv.dx.util.IntSet;
-
 import java.util.BitSet;
 
 /**
@@ -25,14 +38,10 @@ public class FirstFitAllocator extends RegisterAllocator {
      */
     private static final boolean PRESLOT_PARAMS = true;
 
-    /**
-     * indexed by old reg; the set of old regs we've mapped
-     */
+    /** indexed by old reg; the set of old regs we've mapped */
     private final BitSet mapped;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     public FirstFitAllocator(
             final SsaMethod ssaMeth, final InterferenceGraph interference) {
         super(ssaMeth, interference);
@@ -40,17 +49,13 @@ public class FirstFitAllocator extends RegisterAllocator {
         mapped = new BitSet(ssaMeth.getRegCount());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean wantsParamsMovedHigh() {
         return PRESLOT_PARAMS;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public RegisterMapper allocateRegisters() {
         int oldRegCount = ssaMeth.getRegCount();
@@ -87,7 +92,7 @@ public class FirstFitAllocator extends RegisterAllocator {
             if (PRESLOT_PARAMS && isDefinitionMoveParam(i)) {
                 // Any move-param definition must be a NormalSsaInsn
                 NormalSsaInsn defInsn = (NormalSsaInsn)
-                        ssaMeth.getDefinitionForRegister(i);
+                       ssaMeth.getDefinitionForRegister(i);
 
                 newReg = paramNumberFromMoveParam(defInsn);
 
@@ -110,7 +115,7 @@ public class FirstFitAllocator extends RegisterAllocator {
                  */
                 if (!current.has(j)
                         && !(isPreslotted
-                        && (maxCategory < getCategoryForSsaReg(j)))) {
+                            && (maxCategory < getCategoryForSsaReg(j)))) {
 
                     interference.mergeInterferenceSet(j, current);
 
@@ -133,7 +138,6 @@ public class FirstFitAllocator extends RegisterAllocator {
 
     /**
      * Returns the parameter number that this move-param insn refers to
-     *
      * @param ndefInsn a move-param insn (otherwise, exceptions will be thrown)
      * @return parameter number (offset in the total parameter width)
      */

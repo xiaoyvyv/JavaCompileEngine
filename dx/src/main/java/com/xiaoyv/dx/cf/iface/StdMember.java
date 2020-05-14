@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.iface;
 
@@ -11,33 +25,25 @@ import com.xiaoyv.dx.rop.cst.CstType;
  * all the associated data.
  */
 public abstract class StdMember implements Member {
-    /**
-     * {@code non-null;} the defining class
-     */
+    /** {@code non-null;} the defining class */
     private final CstType definingClass;
 
-    /**
-     * access flags
-     */
+    /** access flags */
     private final int accessFlags;
 
-    /**
-     * {@code non-null;} member name and type
-     */
+    /** {@code non-null;} member name and type */
     private final CstNat nat;
 
-    /**
-     * {@code non-null;} list of associated attributes
-     */
+    /** {@code non-null;} list of associated attributes */
     private final AttributeList attributes;
 
     /**
      * Constructs an instance.
      *
      * @param definingClass {@code non-null;} the defining class
-     * @param accessFlags   access flags
-     * @param nat           {@code non-null;} member name and type (descriptor)
-     * @param attributes    {@code non-null;} list of associated attributes
+     * @param accessFlags access flags
+     * @param nat {@code non-null;} member name and type (descriptor)
+     * @param attributes {@code non-null;} list of associated attributes
      */
     public StdMember(CstType definingClass, int accessFlags, CstNat nat,
                      AttributeList attributes) {
@@ -59,12 +65,10 @@ public abstract class StdMember implements Member {
         this.attributes = attributes;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer(100);
+        StringBuilder sb = new StringBuilder(100);
 
         sb.append(getClass().getName());
         sb.append('{');
@@ -74,44 +78,38 @@ public abstract class StdMember implements Member {
         return sb.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public final CstType getDefiningClass() {
         return definingClass;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public final int getAccessFlags() {
         return accessFlags;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public final CstNat getNat() {
         return nat;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public final CstString getName() {
         return nat.getName();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public final CstString getDescriptor() {
         return nat.getDescriptor();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public final AttributeList getAttributes() {
         return attributes;
     }

@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.cf;
 
@@ -11,6 +25,7 @@ import com.xiaoyv.dx.cf.attrib.AttRuntimeInvisibleParameterAnnotations;
 import com.xiaoyv.dx.cf.attrib.AttRuntimeVisibleAnnotations;
 import com.xiaoyv.dx.cf.attrib.AttRuntimeVisibleParameterAnnotations;
 import com.xiaoyv.dx.cf.attrib.AttSignature;
+import com.xiaoyv.dx.cf.attrib.AttSourceDebugExtension;
 import com.xiaoyv.dx.cf.attrib.InnerClassList;
 import com.xiaoyv.dx.cf.direct.DirectClassFile;
 import com.xiaoyv.dx.cf.iface.AttributeList;
@@ -30,7 +45,6 @@ import com.xiaoyv.dx.rop.type.StdTypeList;
 import com.xiaoyv.dx.rop.type.Type;
 import com.xiaoyv.dx.rop.type.TypeList;
 import com.xiaoyv.dx.util.Warning;
-
 import java.util.ArrayList;
 
 /**
@@ -54,7 +68,7 @@ import java.util.ArrayList;
     public static TypeList getExceptions(Method method) {
         AttributeList attribs = method.getAttributes();
         AttExceptions exceptions = (AttExceptions)
-                attribs.findFirst(AttExceptions.ATTRIBUTE_NAME);
+            attribs.findFirst(AttExceptions.ATTRIBUTE_NAME);
 
         if (exceptions == null) {
             return StdTypeList.EMPTY;
@@ -75,9 +89,14 @@ import java.util.ArrayList;
     public static Annotations getAnnotations(AttributeList attribs) {
         Annotations result = getAnnotations0(attribs);
         Annotation signature = getSignature(attribs);
+        Annotation sourceDebugExtension = getSourceDebugExtension(attribs);
 
         if (signature != null) {
             result = Annotations.combine(result, signature);
+        }
+
+        if (sourceDebugExtension != null) {
+            result = Annotations.combine(result, sourceDebugExtension);
         }
 
         return result;
@@ -92,12 +111,12 @@ import java.util.ArrayList;
      * representation of all the {@code AnnotationDefault}
      * values.
      *
-     * @param cf   {@code non-null;} the class in question
+     * @param cf {@code non-null;} the class in question
      * @param args {@code non-null;} the high-level options
      * @return {@code non-null;} the set of annotations, which may be empty
      */
     public static Annotations getClassAnnotations(DirectClassFile cf,
-                                                  CfOptions args) {
+            CfOptions args) {
         CstType thisClass = cf.getThisClass();
         AttributeList attribs = cf.getAttributes();
         Annotations result = getAnnotations(attribs);
@@ -105,8 +124,8 @@ import java.util.ArrayList;
 
         try {
             Annotations innerClassAnnotations =
-                    translateInnerClasses(thisClass, attribs,
-                            enclosingMethod == null);
+                translateInnerClasses(thisClass, attribs,
+                        enclosingMethod == null);
             if (innerClassAnnotations != null) {
                 result = Annotations.combine(result, innerClassAnnotations);
             }
@@ -120,7 +139,7 @@ import java.util.ArrayList;
 
         if (AccessFlags.isAnnotation(cf.getAccessFlags())) {
             Annotation annotationDefault =
-                    translateAnnotationDefaults(cf);
+                translateAnnotationDefaults(cf);
             if (annotationDefault != null) {
                 result = Annotations.combine(result, annotationDefault);
             }
@@ -143,7 +162,7 @@ import java.util.ArrayList;
 
         if (exceptions.size() != 0) {
             Annotation throwsAnnotation =
-                    AnnotationUtils.makeThrows(exceptions);
+                AnnotationUtils.makeThrows(exceptions);
             result = Annotations.combine(result, throwsAnnotation);
         }
 
@@ -159,11 +178,11 @@ import java.util.ArrayList;
      */
     private static Annotations getAnnotations0(AttributeList attribs) {
         AttRuntimeVisibleAnnotations visible =
-                (AttRuntimeVisibleAnnotations)
-                        attribs.findFirst(AttRuntimeVisibleAnnotations.ATTRIBUTE_NAME);
+            (AttRuntimeVisibleAnnotations)
+            attribs.findFirst(AttRuntimeVisibleAnnotations.ATTRIBUTE_NAME);
         AttRuntimeInvisibleAnnotations invisible =
-                (AttRuntimeInvisibleAnnotations)
-                        attribs.findFirst(AttRuntimeInvisibleAnnotations.ATTRIBUTE_NAME);
+            (AttRuntimeInvisibleAnnotations)
+            attribs.findFirst(AttRuntimeInvisibleAnnotations.ATTRIBUTE_NAME);
 
         if (visible == null) {
             if (invisible == null) {
@@ -192,13 +211,25 @@ import java.util.ArrayList;
      */
     private static Annotation getSignature(AttributeList attribs) {
         AttSignature signature = (AttSignature)
-                attribs.findFirst(AttSignature.ATTRIBUTE_NAME);
+            attribs.findFirst(AttSignature.ATTRIBUTE_NAME);
 
         if (signature == null) {
             return null;
         }
 
         return AnnotationUtils.makeSignature(signature.getSignature());
+    }
+
+
+    private static Annotation getSourceDebugExtension(AttributeList attribs) {
+        AttSourceDebugExtension extension = (AttSourceDebugExtension)
+            attribs.findFirst(AttSourceDebugExtension.ATTRIBUTE_NAME);
+
+        if (extension == null) {
+            return null;
+        }
+
+        return AnnotationUtils.makeSourceDebugExtension(extension.getSmapString());
     }
 
     /**
@@ -215,7 +246,7 @@ import java.util.ArrayList;
      */
     private static Annotation translateEnclosingMethod(AttributeList attribs) {
         AttEnclosingMethod enclosingMethod = (AttEnclosingMethod)
-                attribs.findFirst(AttEnclosingMethod.ATTRIBUTE_NAME);
+            attribs.findFirst(AttEnclosingMethod.ATTRIBUTE_NAME);
 
         if (enclosingMethod == null) {
             return null;
@@ -245,18 +276,18 @@ import java.util.ArrayList;
      * {@code InnerClass}, {@code EnclosingClass}, or
      * {@code MemberClasses} annotation.
      *
-     * @param thisClass          {@code non-null;} type representing the class being
-     *                           processed
-     * @param attribs            {@code non-null;} the attributes list to search in
+     * @param thisClass {@code non-null;} type representing the class being
+     * processed
+     * @param attribs {@code non-null;} the attributes list to search in
      * @param needEnclosingClass whether to include an
-     *                           {@code EnclosingClass} annotation
+     * {@code EnclosingClass} annotation
      * @return {@code null-ok;} the converted list of annotations, if there
      * was an attribute to translate
      */
     private static Annotations translateInnerClasses(CstType thisClass,
-                                                     AttributeList attribs, boolean needEnclosingClass) {
+            AttributeList attribs, boolean needEnclosingClass) {
         AttInnerClasses innerClasses = (AttInnerClasses)
-                attribs.findFirst(AttInnerClasses.ATTRIBUTE_NAME);
+            attribs.findFirst(AttInnerClasses.ATTRIBUTE_NAME);
 
         if (innerClasses == null) {
             return null;
@@ -292,30 +323,30 @@ import java.util.ArrayList;
 
         if (foundThisClass != null) {
             result.add(AnnotationUtils.makeInnerClass(
-                    foundThisClass.getInnerName(),
-                    foundThisClass.getAccessFlags()));
+                               foundThisClass.getInnerName(),
+                               foundThisClass.getAccessFlags()));
             if (needEnclosingClass) {
                 CstType outer = foundThisClass.getOuterClass();
                 if (outer == null) {
                     throw new Warning(
                             "Ignoring InnerClasses attribute for an " +
-                                    "anonymous inner class\n" +
-                                    "(" + thisClass.toHuman() +
-                                    ") that doesn't come with an\n" +
-                                    "associated EnclosingMethod attribute. " +
-                                    "This class was probably produced by a\n" +
-                                    "compiler that did not target the modern " +
-                                    ".class file format. The recommended\n" +
-                                    "solution is to recompile the class from " +
-                                    "source, using an up-to-date compiler\n" +
-                                    "and without specifying any \"-target\" type " +
-                                    "options. The consequence of ignoring\n" +
-                                    "this warning is that reflective operations " +
-                                    "on this class will incorrectly\n" +
-                                    "indicate that it is *not* an inner class.");
+                            "anonymous inner class\n" +
+                            "(" + thisClass.toHuman() +
+                            ") that doesn't come with an\n" +
+                            "associated EnclosingMethod attribute. " +
+                            "This class was probably produced by a\n" +
+                            "compiler that did not target the modern " +
+                            ".class file format. The recommended\n" +
+                            "solution is to recompile the class from " +
+                            "source, using an up-to-date compiler\n" +
+                            "and without specifying any \"-target\" type " +
+                            "options. The consequence of ignoring\n" +
+                            "this warning is that reflective operations " +
+                            "on this class will incorrectly\n" +
+                            "indicate that it is *not* an inner class.");
                 }
                 result.add(AnnotationUtils.makeEnclosingClass(
-                        foundThisClass.getOuterClass()));
+                                   foundThisClass.getOuterClass()));
             }
         }
 
@@ -344,13 +375,13 @@ import java.util.ArrayList;
     public static AnnotationsList getParameterAnnotations(Method method) {
         AttributeList attribs = method.getAttributes();
         AttRuntimeVisibleParameterAnnotations visible =
-                (AttRuntimeVisibleParameterAnnotations)
-                        attribs.findFirst(
-                                AttRuntimeVisibleParameterAnnotations.ATTRIBUTE_NAME);
+            (AttRuntimeVisibleParameterAnnotations)
+            attribs.findFirst(
+                    AttRuntimeVisibleParameterAnnotations.ATTRIBUTE_NAME);
         AttRuntimeInvisibleParameterAnnotations invisible =
-                (AttRuntimeInvisibleParameterAnnotations)
-                        attribs.findFirst(
-                                AttRuntimeInvisibleParameterAnnotations.ATTRIBUTE_NAME);
+            (AttRuntimeInvisibleParameterAnnotations)
+            attribs.findFirst(
+                    AttRuntimeInvisibleParameterAnnotations.ATTRIBUTE_NAME);
 
         if (visible == null) {
             if (invisible == null) {
@@ -384,14 +415,14 @@ import java.util.ArrayList;
         MethodList methods = cf.getMethods();
         int sz = methods.size();
         Annotation result =
-                new Annotation(thisClass, AnnotationVisibility.EMBEDDED);
+            new Annotation(thisClass, AnnotationVisibility.EMBEDDED);
         boolean any = false;
 
         for (int i = 0; i < sz; i++) {
             Method one = methods.get(i);
             AttributeList attribs = one.getAttributes();
             AttAnnotationDefault oneDefault = (AttAnnotationDefault)
-                    attribs.findFirst(AttAnnotationDefault.ATTRIBUTE_NAME);
+                attribs.findFirst(AttAnnotationDefault.ATTRIBUTE_NAME);
 
             if (oneDefault != null) {
                 NameValuePair pair = new NameValuePair(
@@ -402,7 +433,7 @@ import java.util.ArrayList;
             }
         }
 
-        if (!any) {
+        if (! any) {
             return null;
         }
 

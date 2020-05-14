@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.type;
 
@@ -14,7 +28,7 @@ public interface TypeBearer
      *
      * @return {@code non-null;} the type
      */
-    Type getType();
+    public Type getType();
 
     /**
      * Gets the frame type corresponding to this type. This method returns
@@ -25,7 +39,7 @@ public interface TypeBearer
      *
      * @return {@code non-null;} the frame type for this instance
      */
-    TypeBearer getFrameType();
+    public TypeBearer getFrameType();
 
     /**
      * Gets the basic type corresponding to this instance.
@@ -33,7 +47,7 @@ public interface TypeBearer
      * @return the basic type; one of the {@code BT_*} constants
      * defined by {@link Type}
      */
-    int getBasicType();
+    public int getBasicType();
 
     /**
      * Gets the basic type corresponding to this instance's frame type. This
@@ -42,12 +56,13 @@ public interface TypeBearer
      * instance is an int-like type, in which case this method returns
      * {@code BT_INT}.
      *
-     * @return the basic frame type; one of the {@code BT_*} constants
-     * defined by {@link Type}
      * @see #getBasicType
      * @see #getFrameType
+     *
+     * @return the basic frame type; one of the {@code BT_*} constants
+     * defined by {@link Type}
      */
-    int getBasicFrameType();
+    public int getBasicFrameType();
 
     /**
      * Returns whether this instance represents a constant value.
@@ -55,5 +70,5 @@ public interface TypeBearer
      * @return {@code true} if this instance represents a constant value
      * and {@code false} if not
      */
-    boolean isConstant();
+    public boolean isConstant();
 }

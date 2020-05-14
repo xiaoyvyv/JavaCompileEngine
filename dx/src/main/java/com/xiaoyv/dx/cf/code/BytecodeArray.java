@@ -1,13 +1,27 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.code;
 
-import com.xiaoyv.dx.cf.iface.ParseException;
 import com.xiaoyv.dx.rop.cst.Constant;
 import com.xiaoyv.dx.rop.cst.ConstantPool;
 import com.xiaoyv.dx.rop.cst.CstDouble;
 import com.xiaoyv.dx.rop.cst.CstFloat;
 import com.xiaoyv.dx.rop.cst.CstInteger;
+import com.xiaoyv.dx.rop.cst.CstInvokeDynamic;
 import com.xiaoyv.dx.rop.cst.CstKnownNull;
 import com.xiaoyv.dx.rop.cst.CstLiteralBits;
 import com.xiaoyv.dx.rop.cst.CstLong;
@@ -16,21 +30,16 @@ import com.xiaoyv.dx.rop.type.Type;
 import com.xiaoyv.dx.util.Bits;
 import com.xiaoyv.dx.util.ByteArray;
 import com.xiaoyv.dx.util.Hex;
-
 import java.util.ArrayList;
 
 /**
  * Bytecode array, which is part of a standard {@code Code} attribute.
  */
 public final class BytecodeArray {
-    /**
-     * convenient no-op implementation of {@link Visitor}
-     */
+    /** convenient no-op implementation of {@link Visitor} */
     public static final Visitor EMPTY_VISITOR = new BaseVisitor();
 
-    /**
-     * {@code non-null;} underlying bytes
-     */
+    /** {@code non-null;} underlying bytes */
     private final ByteArray bytes;
 
     /**
@@ -43,8 +52,8 @@ public final class BytecodeArray {
      * Constructs an instance.
      *
      * @param bytes {@code non-null;} underlying bytes
-     * @param pool  {@code non-null;} constant pool to use when
-     *              resolving constant pool indices
+     * @param pool {@code non-null;} constant pool to use when
+     * resolving constant pool indices
      */
     public BytecodeArray(ByteArray bytes, ConstantPool pool) {
         if (bytes == null) {
@@ -92,7 +101,7 @@ public final class BytecodeArray {
      * Parses each instruction in the array, in order.
      *
      * @param visitor {@code null-ok;} visitor to call back to for
-     *                each instruction
+     * each instruction
      */
     public void forEach(Visitor visitor) {
         int sz = bytes.size();
@@ -111,8 +120,8 @@ public final class BytecodeArray {
      * Finds the offset to each instruction in the bytecode array. The
      * result is a bit set with the offset of each opcode-per-se flipped on.
      *
-     * @return {@code non-null;} appropriately constructed bit set
      * @see Bits
+     * @return {@code non-null;} appropriately constructed bit set
      */
     public int[] getInstructionOffsets() {
         int sz = bytes.size();
@@ -137,14 +146,14 @@ public final class BytecodeArray {
      *
      * @param workSet {@code non-null;} the work set to process
      * @param visitor {@code non-null;} visitor to call back to for
-     *                each instruction
+     * each instruction
      */
     public void processWorkSet(int[] workSet, Visitor visitor) {
         if (visitor == null) {
             throw new NullPointerException("visitor == null");
         }
 
-        for (; ; ) {
+        for (;;) {
             int offset = Bits.findFirst(workSet, 0);
             if (offset < 0) {
                 break;
@@ -167,41 +176,41 @@ public final class BytecodeArray {
      *
      * <ul>
      * <li>The opcodes to push literal constants of primitive types all become
-     * {@code ldc}.
-     * E.g., {@code fconst_0}, {@code sipush}, and
-     * {@code lconst_0} qualify for this treatment.</li>
+     *   {@code ldc}.
+     *   E.g., {@code fconst_0}, {@code sipush}, and
+     *   {@code lconst_0} qualify for this treatment.</li>
      * <li>{@code aconst_null} becomes {@code ldc} of a
-     * "known null."</li>
+     *   "known null."</li>
      * <li>Shorthand local variable accessors become the corresponding
-     * longhand. E.g. {@code aload_2} becomes {@code aload}.</li>
+     *   longhand. E.g. {@code aload_2} becomes {@code aload}.</li>
      * <li>{@code goto_w} and {@code jsr_w} become {@code goto}
-     * and {@code jsr} (respectively).</li>
+     *   and {@code jsr} (respectively).</li>
      * <li>{@code ldc_w} becomes {@code ldc}.</li>
      * <li>{@code tableswitch} becomes {@code lookupswitch}.
      * <li>Arithmetic, array, and value-returning ops are collapsed
-     * to the {@code int} variant opcode, with the {@code type}
-     * argument set to indicate the actual type. E.g.,
-     * {@code fadd} becomes {@code iadd}, but
-     * {@code type} is passed as {@code Type.FLOAT} in that
-     * case. Similarly, {@code areturn} becomes
-     * {@code ireturn}. (However, {@code return} remains
-     * unchanged.</li>
+     *   to the {@code int} variant opcode, with the {@code type}
+     *   argument set to indicate the actual type. E.g.,
+     *   {@code fadd} becomes {@code iadd}, but
+     *   {@code type} is passed as {@code Type.FLOAT} in that
+     *   case. Similarly, {@code areturn} becomes
+     *   {@code ireturn}. (However, {@code return} remains
+     *   unchanged.</li>
      * <li>Local variable access ops are collapsed to the {@code int}
-     * variant opcode, with the {@code type} argument set to indicate
-     * the actual type. E.g., {@code aload} becomes {@code iload},
-     * but {@code type} is passed as {@code Type.OBJECT} in
-     * that case.</li>
+     *   variant opcode, with the {@code type} argument set to indicate
+     *   the actual type. E.g., {@code aload} becomes {@code iload},
+     *   but {@code type} is passed as {@code Type.OBJECT} in
+     *   that case.</li>
      * <li>Numeric conversion ops ({@code i2l}, etc.) are left alone
-     * to avoid too much confustion, but their {@code type} is
-     * the pushed type. E.g., {@code i2b} gets type
-     * {@code Type.INT}, and {@code f2d} gets type
-     * {@code Type.DOUBLE}. Other unaltered opcodes also get
-     * their pushed type. E.g., {@code arraylength} gets type
-     * {@code Type.INT}.</li>
+     *   to avoid too much confustion, but their {@code type} is
+     *   the pushed type. E.g., {@code i2b} gets type
+     *   {@code Type.INT}, and {@code f2d} gets type
+     *   {@code Type.DOUBLE}. Other unaltered opcodes also get
+     *   their pushed type. E.g., {@code arraylength} gets type
+     *   {@code Type.INT}.</li>
      * </ul>
      *
-     * @param offset  {@code >= 0, < bytes.size();} offset to the start of the
-     *                instruction
+     * @param offset {@code >= 0, < bytes.size();} offset to the start of the
+     * instruction
      * @param visitor {@code null-ok;} visitor to call back to
      * @return the length of the instruction, in bytes
      */
@@ -222,96 +231,96 @@ public final class BytecodeArray {
                 }
                 case ByteOps.ACONST_NULL: {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstKnownNull.THE_ONE, 0);
+                                          CstKnownNull.THE_ONE, 0);
                     return 1;
                 }
                 case ByteOps.ICONST_M1: {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstInteger.VALUE_M1, -1);
+                                          CstInteger.VALUE_M1, -1);
                     return 1;
                 }
                 case ByteOps.ICONST_0: {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstInteger.VALUE_0, 0);
+                                          CstInteger.VALUE_0, 0);
                     return 1;
                 }
                 case ByteOps.ICONST_1: {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstInteger.VALUE_1, 1);
+                                          CstInteger.VALUE_1, 1);
                     return 1;
                 }
                 case ByteOps.ICONST_2: {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstInteger.VALUE_2, 2);
+                                          CstInteger.VALUE_2, 2);
                     return 1;
                 }
                 case ByteOps.ICONST_3: {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstInteger.VALUE_3, 3);
+                                          CstInteger.VALUE_3, 3);
                     return 1;
                 }
                 case ByteOps.ICONST_4: {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstInteger.VALUE_4, 4);
+                                          CstInteger.VALUE_4, 4);
                     return 1;
                 }
-                case ByteOps.ICONST_5: {
+                case ByteOps.ICONST_5:  {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstInteger.VALUE_5, 5);
+                                          CstInteger.VALUE_5, 5);
                     return 1;
                 }
                 case ByteOps.LCONST_0: {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstLong.VALUE_0, 0);
+                                          CstLong.VALUE_0, 0);
                     return 1;
                 }
                 case ByteOps.LCONST_1: {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstLong.VALUE_1, 0);
+                                          CstLong.VALUE_1, 0);
                     return 1;
                 }
                 case ByteOps.FCONST_0: {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstFloat.VALUE_0, 0);
+                                          CstFloat.VALUE_0, 0);
                     return 1;
                 }
                 case ByteOps.FCONST_1: {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstFloat.VALUE_1, 0);
+                                          CstFloat.VALUE_1, 0);
                     return 1;
                 }
-                case ByteOps.FCONST_2: {
+                case ByteOps.FCONST_2:  {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstFloat.VALUE_2, 0);
+                                          CstFloat.VALUE_2, 0);
                     return 1;
                 }
                 case ByteOps.DCONST_0: {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstDouble.VALUE_0, 0);
+                                          CstDouble.VALUE_0, 0);
                     return 1;
                 }
                 case ByteOps.DCONST_1: {
                     visitor.visitConstant(ByteOps.LDC, offset, 1,
-                            CstDouble.VALUE_1, 0);
+                                          CstDouble.VALUE_1, 0);
                     return 1;
                 }
                 case ByteOps.BIPUSH: {
                     int value = bytes.getByte(offset + 1);
                     visitor.visitConstant(ByteOps.LDC, offset, 2,
-                            CstInteger.make(value), value);
+                                          CstInteger.make(value), value);
                     return 2;
                 }
                 case ByteOps.SIPUSH: {
                     int value = bytes.getShort(offset + 1);
                     visitor.visitConstant(ByteOps.LDC, offset, 3,
-                            CstInteger.make(value), value);
+                                          CstInteger.make(value), value);
                     return 3;
                 }
                 case ByteOps.LDC: {
                     int idx = bytes.getUnsignedByte(offset + 1);
                     Constant cst = pool.get(idx);
                     int value = (cst instanceof CstInteger) ?
-                            ((CstInteger) cst).getValue() : 0;
+                        ((CstInteger) cst).getValue() : 0;
                     visitor.visitConstant(ByteOps.LDC, offset, 2, cst, value);
                     return 2;
                 }
@@ -319,7 +328,7 @@ public final class BytecodeArray {
                     int idx = bytes.getUnsignedShort(offset + 1);
                     Constant cst = pool.get(idx);
                     int value = (cst instanceof CstInteger) ?
-                            ((CstInteger) cst).getValue() : 0;
+                        ((CstInteger) cst).getValue() : 0;
                     visitor.visitConstant(ByteOps.LDC, offset, 3, cst, value);
                     return 3;
                 }
@@ -332,31 +341,31 @@ public final class BytecodeArray {
                 case ByteOps.ILOAD: {
                     int idx = bytes.getUnsignedByte(offset + 1);
                     visitor.visitLocal(ByteOps.ILOAD, offset, 2, idx,
-                            Type.INT, 0);
+                                       Type.INT, 0);
                     return 2;
                 }
                 case ByteOps.LLOAD: {
                     int idx = bytes.getUnsignedByte(offset + 1);
                     visitor.visitLocal(ByteOps.ILOAD, offset, 2, idx,
-                            Type.LONG, 0);
+                                       Type.LONG, 0);
                     return 2;
                 }
                 case ByteOps.FLOAD: {
                     int idx = bytes.getUnsignedByte(offset + 1);
                     visitor.visitLocal(ByteOps.ILOAD, offset, 2, idx,
-                            Type.FLOAT, 0);
+                                       Type.FLOAT, 0);
                     return 2;
                 }
                 case ByteOps.DLOAD: {
                     int idx = bytes.getUnsignedByte(offset + 1);
                     visitor.visitLocal(ByteOps.ILOAD, offset, 2, idx,
-                            Type.DOUBLE, 0);
+                                       Type.DOUBLE, 0);
                     return 2;
                 }
                 case ByteOps.ALOAD: {
                     int idx = bytes.getUnsignedByte(offset + 1);
                     visitor.visitLocal(ByteOps.ILOAD, offset, 2, idx,
-                            Type.OBJECT, 0);
+                                       Type.OBJECT, 0);
                     return 2;
                 }
                 case ByteOps.ILOAD_0:
@@ -365,7 +374,7 @@ public final class BytecodeArray {
                 case ByteOps.ILOAD_3: {
                     int idx = opcode - ByteOps.ILOAD_0;
                     visitor.visitLocal(ByteOps.ILOAD, offset, 1, idx,
-                            Type.INT, 0);
+                                       Type.INT, 0);
                     return 1;
                 }
                 case ByteOps.LLOAD_0:
@@ -374,7 +383,7 @@ public final class BytecodeArray {
                 case ByteOps.LLOAD_3: {
                     int idx = opcode - ByteOps.LLOAD_0;
                     visitor.visitLocal(ByteOps.ILOAD, offset, 1, idx,
-                            Type.LONG, 0);
+                                       Type.LONG, 0);
                     return 1;
                 }
                 case ByteOps.FLOAD_0:
@@ -383,7 +392,7 @@ public final class BytecodeArray {
                 case ByteOps.FLOAD_3: {
                     int idx = opcode - ByteOps.FLOAD_0;
                     visitor.visitLocal(ByteOps.ILOAD, offset, 1, idx,
-                            Type.FLOAT, 0);
+                                       Type.FLOAT, 0);
                     return 1;
                 }
                 case ByteOps.DLOAD_0:
@@ -392,7 +401,7 @@ public final class BytecodeArray {
                 case ByteOps.DLOAD_3: {
                     int idx = opcode - ByteOps.DLOAD_0;
                     visitor.visitLocal(ByteOps.ILOAD, offset, 1, idx,
-                            Type.DOUBLE, 0);
+                                       Type.DOUBLE, 0);
                     return 1;
                 }
                 case ByteOps.ALOAD_0:
@@ -401,7 +410,7 @@ public final class BytecodeArray {
                 case ByteOps.ALOAD_3: {
                     int idx = opcode - ByteOps.ALOAD_0;
                     visitor.visitLocal(ByteOps.ILOAD, offset, 1, idx,
-                            Type.OBJECT, 0);
+                                       Type.OBJECT, 0);
                     return 1;
                 }
                 case ByteOps.IALOAD: {
@@ -414,17 +423,17 @@ public final class BytecodeArray {
                 }
                 case ByteOps.FALOAD: {
                     visitor.visitNoArgs(ByteOps.IALOAD, offset, 1,
-                            Type.FLOAT);
+                                        Type.FLOAT);
                     return 1;
                 }
                 case ByteOps.DALOAD: {
                     visitor.visitNoArgs(ByteOps.IALOAD, offset, 1,
-                            Type.DOUBLE);
+                                        Type.DOUBLE);
                     return 1;
                 }
                 case ByteOps.AALOAD: {
                     visitor.visitNoArgs(ByteOps.IALOAD, offset, 1,
-                            Type.OBJECT);
+                                        Type.OBJECT);
                     return 1;
                 }
                 case ByteOps.BALOAD: {
@@ -441,37 +450,37 @@ public final class BytecodeArray {
                 }
                 case ByteOps.SALOAD: {
                     visitor.visitNoArgs(ByteOps.IALOAD, offset, 1,
-                            Type.SHORT);
+                                        Type.SHORT);
                     return 1;
                 }
                 case ByteOps.ISTORE: {
                     int idx = bytes.getUnsignedByte(offset + 1);
                     visitor.visitLocal(ByteOps.ISTORE, offset, 2, idx,
-                            Type.INT, 0);
+                                       Type.INT, 0);
                     return 2;
                 }
                 case ByteOps.LSTORE: {
                     int idx = bytes.getUnsignedByte(offset + 1);
                     visitor.visitLocal(ByteOps.ISTORE, offset, 2, idx,
-                            Type.LONG, 0);
+                                       Type.LONG, 0);
                     return 2;
                 }
                 case ByteOps.FSTORE: {
                     int idx = bytes.getUnsignedByte(offset + 1);
                     visitor.visitLocal(ByteOps.ISTORE, offset, 2, idx,
-                            Type.FLOAT, 0);
+                                       Type.FLOAT, 0);
                     return 2;
                 }
                 case ByteOps.DSTORE: {
                     int idx = bytes.getUnsignedByte(offset + 1);
                     visitor.visitLocal(ByteOps.ISTORE, offset, 2, idx,
-                            Type.DOUBLE, 0);
+                                       Type.DOUBLE, 0);
                     return 2;
                 }
                 case ByteOps.ASTORE: {
                     int idx = bytes.getUnsignedByte(offset + 1);
                     visitor.visitLocal(ByteOps.ISTORE, offset, 2, idx,
-                            Type.OBJECT, 0);
+                                       Type.OBJECT, 0);
                     return 2;
                 }
                 case ByteOps.ISTORE_0:
@@ -480,7 +489,7 @@ public final class BytecodeArray {
                 case ByteOps.ISTORE_3: {
                     int idx = opcode - ByteOps.ISTORE_0;
                     visitor.visitLocal(ByteOps.ISTORE, offset, 1, idx,
-                            Type.INT, 0);
+                                       Type.INT, 0);
                     return 1;
                 }
                 case ByteOps.LSTORE_0:
@@ -489,7 +498,7 @@ public final class BytecodeArray {
                 case ByteOps.LSTORE_3: {
                     int idx = opcode - ByteOps.LSTORE_0;
                     visitor.visitLocal(ByteOps.ISTORE, offset, 1, idx,
-                            Type.LONG, 0);
+                                       Type.LONG, 0);
                     return 1;
                 }
                 case ByteOps.FSTORE_0:
@@ -498,7 +507,7 @@ public final class BytecodeArray {
                 case ByteOps.FSTORE_3: {
                     int idx = opcode - ByteOps.FSTORE_0;
                     visitor.visitLocal(ByteOps.ISTORE, offset, 1, idx,
-                            Type.FLOAT, 0);
+                                       Type.FLOAT, 0);
                     return 1;
                 }
                 case ByteOps.DSTORE_0:
@@ -507,7 +516,7 @@ public final class BytecodeArray {
                 case ByteOps.DSTORE_3: {
                     int idx = opcode - ByteOps.DSTORE_0;
                     visitor.visitLocal(ByteOps.ISTORE, offset, 1, idx,
-                            Type.DOUBLE, 0);
+                                       Type.DOUBLE, 0);
                     return 1;
                 }
                 case ByteOps.ASTORE_0:
@@ -516,7 +525,7 @@ public final class BytecodeArray {
                 case ByteOps.ASTORE_3: {
                     int idx = opcode - ByteOps.ASTORE_0;
                     visitor.visitLocal(ByteOps.ISTORE, offset, 1, idx,
-                            Type.OBJECT, 0);
+                                       Type.OBJECT, 0);
                     return 1;
                 }
                 case ByteOps.IASTORE: {
@@ -525,22 +534,22 @@ public final class BytecodeArray {
                 }
                 case ByteOps.LASTORE: {
                     visitor.visitNoArgs(ByteOps.IASTORE, offset, 1,
-                            Type.LONG);
+                                        Type.LONG);
                     return 1;
                 }
                 case ByteOps.FASTORE: {
                     visitor.visitNoArgs(ByteOps.IASTORE, offset, 1,
-                            Type.FLOAT);
+                                        Type.FLOAT);
                     return 1;
                 }
                 case ByteOps.DASTORE: {
                     visitor.visitNoArgs(ByteOps.IASTORE, offset, 1,
-                            Type.DOUBLE);
+                                        Type.DOUBLE);
                     return 1;
                 }
                 case ByteOps.AASTORE: {
                     visitor.visitNoArgs(ByteOps.IASTORE, offset, 1,
-                            Type.OBJECT);
+                                        Type.OBJECT);
                     return 1;
                 }
                 case ByteOps.BASTORE: {
@@ -549,17 +558,17 @@ public final class BytecodeArray {
                      * boolean[].
                      */
                     visitor.visitNoArgs(ByteOps.IASTORE, offset, 1,
-                            Type.BYTE);
+                                        Type.BYTE);
                     return 1;
                 }
                 case ByteOps.CASTORE: {
                     visitor.visitNoArgs(ByteOps.IASTORE, offset, 1,
-                            Type.CHAR);
+                                        Type.CHAR);
                     return 1;
                 }
                 case ByteOps.SASTORE: {
                     visitor.visitNoArgs(ByteOps.IASTORE, offset, 1,
-                            Type.SHORT);
+                                        Type.SHORT);
                     return 1;
                 }
                 case ByteOps.POP:
@@ -638,7 +647,7 @@ public final class BytecodeArray {
                     int idx = bytes.getUnsignedByte(offset + 1);
                     int value = bytes.getByte(offset + 2);
                     visitor.visitLocal(opcode, offset, 3, idx,
-                            Type.INT, value);
+                                       Type.INT, value);
                     return 3;
                 }
                 case ByteOps.I2L:
@@ -699,7 +708,7 @@ public final class BytecodeArray {
                 case ByteOps.RET: {
                     int idx = bytes.getUnsignedByte(offset + 1);
                     visitor.visitLocal(opcode, offset, 2, idx,
-                            Type.RETURN_ADDRESS, 0);
+                                       Type.RETURN_ADDRESS, 0);
                     return 2;
                 }
                 case ByteOps.TABLESWITCH: {
@@ -714,22 +723,22 @@ public final class BytecodeArray {
                 }
                 case ByteOps.LRETURN: {
                     visitor.visitNoArgs(ByteOps.IRETURN, offset, 1,
-                            Type.LONG);
+                                        Type.LONG);
                     return 1;
                 }
                 case ByteOps.FRETURN: {
                     visitor.visitNoArgs(ByteOps.IRETURN, offset, 1,
-                            Type.FLOAT);
+                                        Type.FLOAT);
                     return 1;
                 }
                 case ByteOps.DRETURN: {
                     visitor.visitNoArgs(ByteOps.IRETURN, offset, 1,
-                            Type.DOUBLE);
+                                        Type.DOUBLE);
                     return 1;
                 }
                 case ByteOps.ARETURN: {
                     visitor.visitNoArgs(ByteOps.IRETURN, offset, 1,
-                            Type.OBJECT);
+                                        Type.OBJECT);
                     return 1;
                 }
                 case ByteOps.RETURN:
@@ -761,11 +770,15 @@ public final class BytecodeArray {
                     int expectZero = bytes.getUnsignedByte(offset + 4);
                     Constant cst = pool.get(idx);
                     visitor.visitConstant(opcode, offset, 5, cst,
-                            count | (expectZero << 8));
+                                          count | (expectZero << 8));
                     return 5;
                 }
                 case ByteOps.INVOKEDYNAMIC: {
-                    throw new ParseException("invokedynamic not supported");
+                    int idx = bytes.getUnsignedShort(offset + 1);
+                    // Skip to must-be-zero bytes at offsets 3 and 4
+                    CstInvokeDynamic cstInvokeDynamic = (CstInvokeDynamic) pool.get(idx);
+                    visitor.visitConstant(opcode, offset, 5, cstInvokeDynamic, 0);
+                    return 5;
                 }
                 case ByteOps.NEWARRAY: {
                     return parseNewarray(offset, visitor);
@@ -784,8 +797,8 @@ public final class BytecodeArray {
                 case ByteOps.JSR_W: {
                     int target = offset + bytes.getInt(offset + 1);
                     int newop =
-                            (opcode == ByteOps.GOTO_W) ? ByteOps.GOTO :
-                                    ByteOps.JSR;
+                        (opcode == ByteOps.GOTO_W) ? ByteOps.GOTO :
+                        ByteOps.JSR;
                     visitor.visitBranch(newop, offset, 5, target);
                     return 5;
                 }
@@ -807,7 +820,7 @@ public final class BytecodeArray {
     /**
      * Helper to deal with {@code tableswitch}.
      *
-     * @param offset  the offset to the {@code tableswitch} opcode itself
+     * @param offset the offset to the {@code tableswitch} opcode itself
      * @param visitor {@code non-null;} visitor to use
      * @return instruction length, in bytes
      */
@@ -842,7 +855,7 @@ public final class BytecodeArray {
 
         int length = at - offset;
         visitor.visitSwitch(ByteOps.LOOKUPSWITCH, offset, length, cases,
-                padding);
+                            padding);
 
         return length;
     }
@@ -850,7 +863,7 @@ public final class BytecodeArray {
     /**
      * Helper to deal with {@code lookupswitch}.
      *
-     * @param offset  the offset to the {@code lookupswitch} opcode itself
+     * @param offset the offset to the {@code lookupswitch} opcode itself
      * @param visitor {@code non-null;} visitor to use
      * @return instruction length, in bytes
      */
@@ -880,7 +893,7 @@ public final class BytecodeArray {
 
         int length = at - offset;
         visitor.visitSwitch(ByteOps.LOOKUPSWITCH, offset, length, cases,
-                padding);
+                            padding);
 
         return length;
     }
@@ -888,7 +901,7 @@ public final class BytecodeArray {
     /**
      * Helper to deal with {@code newarray}.
      *
-     * @param offset  the offset to the {@code newarray} opcode itself
+     * @param offset the offset to the {@code newarray} opcode itself
      * @param visitor {@code non-null;} visitor to use
      * @return instruction length, in bytes
      */
@@ -964,7 +977,7 @@ public final class BytecodeArray {
          * where the index value will be incrimented sequentially from 0 up.
          */
         int nInit = 0;
-        int curOffset = offset + 2;
+        int curOffset = offset+2;
         int lastOffset = curOffset;
         ArrayList<Constant> initVals = new ArrayList<Constant>();
 
@@ -1071,13 +1084,13 @@ public final class BytecodeArray {
             visitor.visitNewarray(offset, lastOffset - offset, type, initVals);
             return lastOffset - offset;
         }
-    }
+     }
 
 
     /**
      * Helper to deal with {@code wide}.
      *
-     * @param offset  the offset to the {@code wide} opcode itself
+     * @param offset the offset to the {@code wide} opcode itself
      * @param visitor {@code non-null;} visitor to use
      * @return instruction length, in bytes
      */
@@ -1087,63 +1100,63 @@ public final class BytecodeArray {
         switch (opcode) {
             case ByteOps.ILOAD: {
                 visitor.visitLocal(ByteOps.ILOAD, offset, 4, idx,
-                        Type.INT, 0);
+                                   Type.INT, 0);
                 return 4;
             }
             case ByteOps.LLOAD: {
                 visitor.visitLocal(ByteOps.ILOAD, offset, 4, idx,
-                        Type.LONG, 0);
+                                   Type.LONG, 0);
                 return 4;
             }
             case ByteOps.FLOAD: {
                 visitor.visitLocal(ByteOps.ILOAD, offset, 4, idx,
-                        Type.FLOAT, 0);
+                                   Type.FLOAT, 0);
                 return 4;
             }
             case ByteOps.DLOAD: {
                 visitor.visitLocal(ByteOps.ILOAD, offset, 4, idx,
-                        Type.DOUBLE, 0);
+                                   Type.DOUBLE, 0);
                 return 4;
             }
             case ByteOps.ALOAD: {
                 visitor.visitLocal(ByteOps.ILOAD, offset, 4, idx,
-                        Type.OBJECT, 0);
+                                   Type.OBJECT, 0);
                 return 4;
             }
             case ByteOps.ISTORE: {
                 visitor.visitLocal(ByteOps.ISTORE, offset, 4, idx,
-                        Type.INT, 0);
+                                   Type.INT, 0);
                 return 4;
             }
             case ByteOps.LSTORE: {
                 visitor.visitLocal(ByteOps.ISTORE, offset, 4, idx,
-                        Type.LONG, 0);
+                                   Type.LONG, 0);
                 return 4;
             }
             case ByteOps.FSTORE: {
                 visitor.visitLocal(ByteOps.ISTORE, offset, 4, idx,
-                        Type.FLOAT, 0);
+                                   Type.FLOAT, 0);
                 return 4;
             }
             case ByteOps.DSTORE: {
                 visitor.visitLocal(ByteOps.ISTORE, offset, 4, idx,
-                        Type.DOUBLE, 0);
+                                   Type.DOUBLE, 0);
                 return 4;
             }
             case ByteOps.ASTORE: {
                 visitor.visitLocal(ByteOps.ISTORE, offset, 4, idx,
-                        Type.OBJECT, 0);
+                                   Type.OBJECT, 0);
                 return 4;
             }
             case ByteOps.RET: {
                 visitor.visitLocal(opcode, offset, 4, idx,
-                        Type.RETURN_ADDRESS, 0);
+                                   Type.RETURN_ADDRESS, 0);
                 return 4;
             }
             case ByteOps.IINC: {
                 int value = bytes.getShort(offset + 4);
                 visitor.visitLocal(opcode, offset, 6, idx,
-                        Type.INT, value);
+                                   Type.INT, value);
                 return 6;
             }
             default: {
@@ -1173,10 +1186,10 @@ public final class BytecodeArray {
          * @param opcode the opcode
          * @param offset offset to the instruction
          * @param length length of the instruction, in bytes
-         * @param type   {@code non-null;} type the instruction operates on
+         * @param type {@code non-null;} type the instruction operates on
          */
         public void visitNoArgs(int opcode, int offset, int length,
-                                Type type);
+                Type type);
 
         /**
          * Visits an instruction which has a local variable index argument.
@@ -1184,13 +1197,13 @@ public final class BytecodeArray {
          * @param opcode the opcode
          * @param offset offset to the instruction
          * @param length length of the instruction, in bytes
-         * @param idx    the local variable index
-         * @param type   {@code non-null;} the type of the accessed value
-         * @param value  additional literal integer argument, if salient (i.e.,
-         *               for {@code iinc})
+         * @param idx the local variable index
+         * @param type {@code non-null;} the type of the accessed value
+         * @param value additional literal integer argument, if salient (i.e.,
+         * for {@code iinc})
          */
         public void visitLocal(int opcode, int offset, int length,
-                               int idx, Type type, int value);
+                int idx, Type type, int value);
 
         /**
          * Visits an instruction which has a (possibly synthetic)
@@ -1212,12 +1225,12 @@ public final class BytecodeArray {
          * @param opcode the opcode
          * @param offset offset to the instruction
          * @param length length of the instruction, in bytes
-         * @param cst    {@code non-null;} the constant
-         * @param value  additional literal integer argument, if salient
-         *               (ignore if not)
+         * @param cst {@code non-null;} the constant
+         * @param value additional literal integer argument, if salient
+         * (ignore if not)
          */
         public void visitConstant(int opcode, int offset, int length,
-                                  Constant cst, int value);
+                Constant cst, int value);
 
         /**
          * Visits an instruction which has a branch target argument.
@@ -1228,44 +1241,42 @@ public final class BytecodeArray {
          * @param target the absolute (not relative) branch target
          */
         public void visitBranch(int opcode, int offset, int length,
-                                int target);
+                int target);
 
         /**
          * Visits a switch instruction.
          *
-         * @param opcode  the opcode
-         * @param offset  offset to the instruction
-         * @param length  length of the instruction, in bytes
-         * @param cases   {@code non-null;} list of (value, target)
-         *                pairs, plus the default target
+         * @param opcode the opcode
+         * @param offset offset to the instruction
+         * @param length length of the instruction, in bytes
+         * @param cases {@code non-null;} list of (value, target)
+         * pairs, plus the default target
          * @param padding the bytes found in the padding area (if any),
-         *                packed
+         * packed
          */
         public void visitSwitch(int opcode, int offset, int length,
-                                SwitchList cases, int padding);
+                SwitchList cases, int padding);
 
         /**
          * Visits a newarray instruction.
          *
          * @param offset   offset to the instruction
          * @param length   length of the instruction, in bytes
-         * @param type     {@code non-null;} the type of the array
+         * @param type {@code non-null;} the type of the array
          * @param initVals {@code non-null;} list of bytecode offsets
-         *                 for init values
+         * for init values
          */
         public void visitNewarray(int offset, int length, CstType type,
-                                  ArrayList<Constant> initVals);
+                ArrayList<Constant> initVals);
 
         /**
          * Set previous bytecode offset
-         *
-         * @param offset offset of the previous fully parsed bytecode
+         * @param offset    offset of the previous fully parsed bytecode
          */
         public void setPreviousOffset(int offset);
 
         /**
          * Get previous bytecode offset
-         *
          * @return return the recored offset of the previous bytecode
          */
         public int getPreviousOffset();
@@ -1277,80 +1288,69 @@ public final class BytecodeArray {
      */
     public static class BaseVisitor implements Visitor {
 
-        /**
-         * offset of the previously parsed bytecode
-         */
+        /** offset of the previously parsed bytecode */
         private int previousOffset;
 
         BaseVisitor() {
             previousOffset = -1;
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitInvalid(int opcode, int offset, int length) {
             // This space intentionally left blank.
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitNoArgs(int opcode, int offset, int length,
-                                Type type) {
+                Type type) {
             // This space intentionally left blank.
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitLocal(int opcode, int offset, int length,
-                               int idx, Type type, int value) {
+                int idx, Type type, int value) {
             // This space intentionally left blank.
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitConstant(int opcode, int offset, int length,
-                                  Constant cst, int value) {
+                Constant cst, int value) {
             // This space intentionally left blank.
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitBranch(int opcode, int offset, int length,
-                                int target) {
+                int target) {
             // This space intentionally left blank.
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitSwitch(int opcode, int offset, int length,
-                                SwitchList cases, int padding) {
+                SwitchList cases, int padding) {
             // This space intentionally left blank.
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void visitNewarray(int offset, int length, CstType type,
-                                  ArrayList<Constant> initValues) {
+                ArrayList<Constant> initValues) {
             // This space intentionally left blank.
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public void setPreviousOffset(int offset) {
             previousOffset = offset;
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
+        @Override
         public int getPreviousOffset() {
             return previousOffset;
         }
@@ -1365,9 +1365,7 @@ public final class BytecodeArray {
         int length;
         int value;
 
-        /**
-         * Empty constructor
-         */
+        /** Empty constructor */
         ConstantParserVisitor() {
         }
 
@@ -1375,81 +1373,63 @@ public final class BytecodeArray {
             length = 0;
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void visitInvalid(int opcode, int offset, int length) {
             clear();
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void visitNoArgs(int opcode, int offset, int length,
-                                Type type) {
+                Type type) {
             clear();
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void visitLocal(int opcode, int offset, int length,
-                               int idx, Type type, int value) {
+                int idx, Type type, int value) {
             clear();
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void visitConstant(int opcode, int offset, int length,
-                                  Constant cst, int value) {
+                Constant cst, int value) {
             this.cst = cst;
             this.length = length;
             this.value = value;
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void visitBranch(int opcode, int offset, int length,
-                                int target) {
+                int target) {
             clear();
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void visitSwitch(int opcode, int offset, int length,
-                                SwitchList cases, int padding) {
+                SwitchList cases, int padding) {
             clear();
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void visitNewarray(int offset, int length, CstType type,
-                                  ArrayList<Constant> initVals) {
+                ArrayList<Constant> initVals) {
             clear();
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public void setPreviousOffset(int offset) {
             // Intentionally left empty
         }
 
-        /**
-         * {@inheritDoc}
-         */
+        /** {@inheritDoc} */
         @Override
         public int getPreviousOffset() {
             // Intentionally left empty

@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.code;
 
@@ -10,9 +24,7 @@ import com.xiaoyv.dx.util.FixedSizeList;
  * method to extract an instance out of a {@link DalvInsnList}.
  */
 public final class PositionList extends FixedSizeList {
-    /**
-     * {@code non-null;} empty instance
-     */
+    /** {@code non-null;} empty instance */
     public static final PositionList EMPTY = new PositionList(0);
 
     /**
@@ -38,9 +50,9 @@ public final class PositionList extends FixedSizeList {
      * Extracts and returns the source position information out of an
      * instruction list.
      *
-     * @param insns   {@code non-null;} instructions to convert
+     * @param insns {@code non-null;} instructions to convert
      * @param howMuch how much information should be included; one of the
-     *                static constants defined by this class
+     * static constants defined by this class
      * @return {@code non-null;} the positions list
      */
     public static PositionList make(DalvInsnList insns, int howMuch) {
@@ -69,8 +81,7 @@ public final class PositionList extends FixedSizeList {
             DalvInsn insn = insns.get(i);
 
             if (insn instanceof CodeAddress) {
-                lastWasTarget = true;
-                ;
+                lastWasTarget = true;;
                 continue;
             }
 
@@ -124,7 +135,7 @@ public final class PositionList extends FixedSizeList {
     /**
      * Sets the entry at the given index.
      *
-     * @param n     {@code >= 0, < size();} which index
+     * @param n {@code >= 0, < size();} which index
      * @param entry {@code non-null;} the entry to set at {@code n}
      */
     public void set(int n, Entry entry) {
@@ -135,23 +146,19 @@ public final class PositionList extends FixedSizeList {
      * Entry in a position list.
      */
     public static class Entry {
-        /**
-         * {@code >= 0;} address of this entry
-         */
+        /** {@code >= 0;} address of this entry */
         private final int address;
 
-        /**
-         * {@code non-null;} corresponding source position information
-         */
+        /** {@code non-null;} corresponding source position information */
         private final SourcePosition position;
 
         /**
          * Constructs an instance.
          *
-         * @param address  {@code >= 0;} address of this entry
+         * @param address {@code >= 0;} address of this entry
          * @param position {@code non-null;} corresponding source position information
          */
-        public Entry(int address, SourcePosition position) {
+        public Entry (int address, SourcePosition position) {
             if (address < 0) {
                 throw new IllegalArgumentException("address < 0");
             }

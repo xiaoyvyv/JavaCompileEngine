@@ -19,6 +19,7 @@ import com.xiaoyv.javaengine.compile.listener.CompilerListener;
 import com.xiaoyv.javaengine.compile.listener.ExecuteListener;
 import com.xiaoyv.javaengine.console.JavaConsole;
 import com.xiaoyv.javaengine.utils.FileIOUtils;
+import com.xiaoyv.javaengine.utils.SPUtils;
 import com.xiaoyv.javaengine.utils.StringUtils;
 
 /**
@@ -65,6 +66,9 @@ public class SingleSampleActivity extends AppCompatActivity {
     }
 
     private void initEvent() {
+        SPUtils.getInstance(JavaEngineSetting.KEY).put("compile_source", "1.8");
+        SPUtils.getInstance(JavaEngineSetting.KEY).put("compile_target", "1.8");
+
         setOutputSample();
 
         // 新建一个控制台对象，传入输出监听（回调为主线程）
@@ -97,6 +101,21 @@ public class SingleSampleActivity extends AppCompatActivity {
                 }
 
                 compileJava();
+                return true;
+            }
+        }).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add("Run Project").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                // 先检查控制台是否已经有程序运行了（如等待输入状态）
+                if (javaConsole.isRunning()) {
+                    ToastUtils.showShort("上一个程序正在运行，请继续");
+                    return true;
+                }
+
+                runDex(PathUtils.getExternalAppFilesPath() + "/SingleExample/classes.dex");
+
+
                 return true;
             }
         }).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -144,6 +163,7 @@ public class SingleSampleActivity extends AppCompatActivity {
             public void onError(Throwable error) {
                 // 编译失败
                 printView.setText(Html.fromHtml("<font color=\"#F00\">" + error.toString() + "</font>"));
+                error.printStackTrace();
             }
         });
     }
@@ -169,7 +189,8 @@ public class SingleSampleActivity extends AppCompatActivity {
             @Override
             public void onError(Throwable error) {
                 // 转换失败
-                printView.setText(Html.fromHtml("<font color=\"#F00\">" + error.toString() + "</>"));
+                printView.setText(Html.fromHtml("<font color=\"#F00\">" + error.toString() + "</font>"));
+                error.printStackTrace();
             }
         });
     }
@@ -188,7 +209,7 @@ public class SingleSampleActivity extends AppCompatActivity {
 
         // 第二个参数为运行时，传入 main(String[] args)方法 的参数 args
         String[] args = new String[]{};
-        JavaEngine.getDexExecutor().exec(dexPath, args, new ExecuteListener() {
+        JavaEngine.getDexExecutor().exec(dexPath,  args, new ExecuteListener() {
             @Override
             public void onExecuteFinish() {
                 // 运行完成，关闭控制台
@@ -201,7 +222,8 @@ public class SingleSampleActivity extends AppCompatActivity {
                 javaConsole.stop();
 
                 // 执行出错
-                printView.setText(Html.fromHtml("<font color=\"#F00\">" + error.toString() + "</>"));
+                printView.setText(Html.fromHtml("<font color=\"#F00\">" + error.toString() + "</font>"));
+                error.printStackTrace();
             }
         });
 

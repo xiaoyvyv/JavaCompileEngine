@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.cst;
 
@@ -14,23 +28,19 @@ public final class CstNat extends Constant {
      * wrapped primitives
      */
     public static final CstNat PRIMITIVE_TYPE_NAT =
-            new CstNat(new CstString("TYPE"),
-                    new CstString("Ljava/lang/Class;"));
+        new CstNat(new CstString("TYPE"),
+                   new CstString("Ljava/lang/Class;"));
 
-    /**
-     * {@code non-null;} the name
-     */
+    /** {@code non-null;} the name */
     private final CstString name;
 
-    /**
-     * {@code non-null;} the descriptor (type)
-     */
+    /** {@code non-null;} the descriptor (type) */
     private final CstString descriptor;
 
     /**
      * Constructs an instance.
      *
-     * @param name       {@code non-null;} the name
+     * @param name {@code non-null;} the name
      * @param descriptor {@code non-null;} the descriptor
      */
     public CstNat(CstString name, CstString descriptor) {
@@ -46,9 +56,7 @@ public final class CstNat extends Constant {
         this.descriptor = descriptor;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof CstNat)) {
@@ -57,20 +65,16 @@ public final class CstNat extends Constant {
 
         CstNat otherNat = (CstNat) other;
         return name.equals(otherNat.name) &&
-                descriptor.equals(otherNat.descriptor);
+            descriptor.equals(otherNat.descriptor);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return (name.hashCode() * 31) ^ descriptor.hashCode();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected int compareTo0(Constant other) {
         CstNat otherNat = (CstNat) other;
@@ -83,25 +87,19 @@ public final class CstNat extends Constant {
         return descriptor.compareTo(otherNat.descriptor);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return "nat{" + toHuman() + '}';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String typeName() {
         return "nat";
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isCategory2() {
         return false;
@@ -131,6 +129,7 @@ public final class CstNat extends Constant {
      *
      * @return {@code non-null;} the human form
      */
+    @Override
     public String toHuman() {
         return name.toHuman() + ':' + descriptor.toHuman();
     }

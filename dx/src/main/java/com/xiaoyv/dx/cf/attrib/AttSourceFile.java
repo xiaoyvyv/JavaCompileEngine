@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.cf.attrib;
 
@@ -8,14 +22,10 @@ import com.xiaoyv.dx.rop.cst.CstString;
  * Attribute class for standard {@code SourceFile} attributes.
  */
 public final class AttSourceFile extends BaseAttribute {
-    /**
-     * {@code non-null;} attribute name for attributes of this type
-     */
+    /** {@code non-null;} attribute name for attributes of this type */
     public static final String ATTRIBUTE_NAME = "SourceFile";
 
-    /**
-     * {@code non-null;} name of the source file
-     */
+    /** {@code non-null;} name of the source file */
     private final CstString sourceFile;
 
     /**
@@ -33,9 +43,8 @@ public final class AttSourceFile extends BaseAttribute {
         this.sourceFile = sourceFile;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int byteLength() {
         return 8;
     }

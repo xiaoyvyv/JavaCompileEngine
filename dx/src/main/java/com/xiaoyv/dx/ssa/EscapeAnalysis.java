@@ -39,7 +39,6 @@ import com.xiaoyv.dx.rop.cst.Zeroes;
 import com.xiaoyv.dx.rop.type.StdTypeList;
 import com.xiaoyv.dx.rop.type.Type;
 import com.xiaoyv.dx.rop.type.TypeBearer;
-
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
@@ -54,32 +53,22 @@ public class EscapeAnalysis {
      * Struct used to generate and maintain escape analysis results.
      */
     static class EscapeSet {
-        /**
-         * set containing all registers related to an object
-         */
+        /** set containing all registers related to an object */
         BitSet regSet;
-        /**
-         * escape state of the object
-         */
+        /** escape state of the object */
         EscapeState escape;
-        /**
-         * list of objects that are put into this object
-         */
+        /** list of objects that are put into this object */
         ArrayList<EscapeSet> childSets;
-        /**
-         * list of objects that this object is put into
-         */
+        /** list of objects that this object is put into */
         ArrayList<EscapeSet> parentSets;
-        /**
-         * flag to indicate this object is a scalar replaceable array
-         */
+        /** flag to indicate this object is a scalar replaceable array */
         boolean replaceableArray;
 
         /**
          * Constructs an instance of an EscapeSet
          *
-         * @param reg      the SSA register that defines the object
-         * @param size     the number of registers in the method
+         * @param reg the SSA register that defines the object
+         * @param size the number of registers in the method
          * @param escState the lattice value to initially set this to
          */
         EscapeSet(int reg, int size, EscapeState escState) {
@@ -95,30 +84,24 @@ public class EscapeAnalysis {
     /**
      * Lattice values used to indicate escape state for an object. Analysis can
      * only raise escape state values, not lower them.
-     * <p>
+     *
      * TOP - Used for objects that haven't been analyzed yet
      * NONE - Object does not escape, and is eligible for scalar replacement.
      * METHOD - Object remains local to method, but can't be scalar replaced.
      * INTER - Object is passed between methods. (treated as globally escaping
-     * since this is an intraprocedural analysis)
+     *         since this is an intraprocedural analysis)
      * GLOBAL - Object escapes globally.
      */
     public enum EscapeState {
         TOP, NONE, METHOD, INTER, GLOBAL
     }
 
-    /**
-     * method we're processing
-     */
-    private SsaMethod ssaMeth;
-    /**
-     * ssaMeth.getRegCount()
-     */
-    private int regCount;
-    /**
-     * Lattice values for each object register group
-     */
-    private ArrayList<EscapeSet> latticeValues;
+    /** method we're processing */
+    private final SsaMethod ssaMeth;
+    /** ssaMeth.getRegCount() */
+    private final int regCount;
+    /** Lattice values for each object register group */
+    private final ArrayList<EscapeSet> latticeValues;
 
     /**
      * Constructs an instance.
@@ -159,14 +142,14 @@ public class EscapeAnalysis {
     private SsaInsn getInsnForMove(SsaInsn moveInsn) {
         int pred = moveInsn.getBlock().getPredecessors().nextSetBit(0);
         ArrayList<SsaInsn> predInsns = ssaMeth.getBlocks().get(pred).getInsns();
-        return predInsns.get(predInsns.size() - 1);
+        return predInsns.get(predInsns.size()-1);
     }
 
     /**
      * Finds the corresponding move result for a given instruction
      *
      * @param insn {@code non-null;} an instruction that must always be
-     *             followed by a move result
+     * followed by a move result
      * @return {@code non-null;} the move result for the given instruction
      */
     private SsaInsn getMoveForInsn(SsaInsn insn) {
@@ -182,8 +165,8 @@ public class EscapeAnalysis {
      * least as high as its parent.
      *
      * @param parentSet {@code non-null;} the EscapeSet for the object being put
-     *                  into
-     * @param childSet  {@code non-null;} the EscapeSet for the object being put
+     * into
+     * @param childSet {@code non-null;} the EscapeSet for the object being put
      */
     private void addEdge(EscapeSet parentSet, EscapeSet childSet) {
         if (!childSet.parentSets.contains(parentSet)) {
@@ -243,7 +226,7 @@ public class EscapeAnalysis {
             escSet = processMoveResultPseudoInsn(insn);
             processRegister(result, escSet);
         } else if (op == RegOps.MOVE_PARAM &&
-                result.getTypeBearer().getBasicType() == Type.BT_OBJECT) {
+                      result.getTypeBearer().getBasicType() == Type.BT_OBJECT) {
             // Track method arguments that are objects
             escSet = new EscapeSet(result.getReg(), regCount, EscapeState.NONE);
             latticeValues.add(escSet);
@@ -272,12 +255,12 @@ public class EscapeAnalysis {
         EscapeSet escSet;
         RegisterSpec prevSource;
 
-        switch (prevOpcode) {
-            // New instance / Constant
+        switch(prevOpcode) {
+           // New instance / Constant
             case RegOps.NEW_INSTANCE:
             case RegOps.CONST:
                 escSet = new EscapeSet(result.getReg(), regCount,
-                        EscapeState.NONE);
+                                           EscapeState.NONE);
                 break;
             // New array
             case RegOps.NEW_ARRAY:
@@ -286,18 +269,18 @@ public class EscapeAnalysis {
                 if (prevSource.getTypeBearer().isConstant()) {
                     // New fixed array
                     escSet = new EscapeSet(result.getReg(), regCount,
-                            EscapeState.NONE);
+                                               EscapeState.NONE);
                     escSet.replaceableArray = true;
                 } else {
                     // New variable array
                     escSet = new EscapeSet(result.getReg(), regCount,
-                            EscapeState.GLOBAL);
+                                               EscapeState.GLOBAL);
                 }
                 break;
             // Loading a static object
             case RegOps.GET_STATIC:
                 escSet = new EscapeSet(result.getReg(), regCount,
-                        EscapeState.GLOBAL);
+                                           EscapeState.GLOBAL);
                 break;
             // Type cast / load an object from a field or array
             case RegOps.CHECK_CAST:
@@ -316,10 +299,10 @@ public class EscapeAnalysis {
                 // Set not found, must be either null or unknown
                 if (prevSource.getType() == Type.KNOWN_NULL) {
                     escSet = new EscapeSet(result.getReg(), regCount,
-                            EscapeState.NONE);
-                } else {
+                                               EscapeState.NONE);
+               } else {
                     escSet = new EscapeSet(result.getReg(), regCount,
-                            EscapeState.GLOBAL);
+                                               EscapeState.GLOBAL);
                 }
                 break;
             default:
@@ -367,13 +350,13 @@ public class EscapeAnalysis {
      * into a single EscapeSet. Adds the result of the phi to the worklist so
      * its uses can be followed.
      *
-     * @param use         {@code non-null;} phi use being processed
-     * @param escSet      {@code non-null;} EscapeSet for the object
+     * @param use {@code non-null;} phi use being processed
+     * @param escSet {@code non-null;} EscapeSet for the object
      * @param regWorklist {@code non-null;} worklist of instructions left to
-     *                    process for this object
+     * process for this object
      */
     private void processPhiUse(SsaInsn use, EscapeSet escSet,
-                               ArrayList<RegisterSpec> regWorklist) {
+                                   ArrayList<RegisterSpec> regWorklist) {
         int setIndex = findSetIndex(use.getResult());
         if (setIndex != latticeValues.size()) {
             // Check if result is in a set already
@@ -399,14 +382,14 @@ public class EscapeAnalysis {
      * Handles non-phi uses of new objects. Checks to see how instruction is
      * used and updates the escape state accordingly.
      *
-     * @param def         {@code non-null;} register holding definition of new object
-     * @param use         {@code non-null;} use of object being processed
-     * @param escSet      {@code non-null;} EscapeSet for the object
+     * @param def {@code non-null;} register holding definition of new object
+     * @param use {@code non-null;} use of object being processed
+     * @param escSet {@code non-null;} EscapeSet for the object
      * @param regWorklist {@code non-null;} worklist of instructions left to
-     *                    process for this object
+     * process for this object
      */
     private void processUse(RegisterSpec def, SsaInsn use, EscapeSet escSet,
-                            ArrayList<RegisterSpec> regWorklist) {
+                                ArrayList<RegisterSpec> regWorklist) {
         int useOpcode = use.getOpcode().getOpcode();
         switch (useOpcode) {
             case RegOps.MOVE:
@@ -506,7 +489,7 @@ public class EscapeAnalysis {
             TypeBearer lengthReg = prev.getSources().get(0).getTypeBearer();
             int length = ((CstLiteralBits) lengthReg).getIntBits();
             ArrayList<RegisterSpec> newRegs =
-                    new ArrayList<RegisterSpec>(length);
+                new ArrayList<RegisterSpec>(length);
             HashSet<SsaInsn> deletedInsns = new HashSet<SsaInsn>();
 
             // Replace the definition of the array with registers
@@ -542,14 +525,14 @@ public class EscapeAnalysis {
      * A mapping between this register and the corresponding array index is
      * added.
      *
-     * @param def     {@code non-null;} move result instruction for array
-     * @param prev    {@code non-null;} instruction for instantiating new array
-     * @param length  size of the new array
+     * @param def {@code non-null;} move result instruction for array
+     * @param prev {@code non-null;} instruction for instantiating new array
+     * @param length size of the new array
      * @param newRegs {@code non-null;} mapping of array indices to new
-     *                registers to be populated
+     * registers to be populated
      */
     private void replaceDef(SsaInsn def, SsaInsn prev, int length,
-                            ArrayList<RegisterSpec> newRegs) {
+                                ArrayList<RegisterSpec> newRegs) {
         Type resultType = def.getResult().getType();
 
         // Create new zeroed out registers for each element in the array
@@ -557,10 +540,10 @@ public class EscapeAnalysis {
             Constant newZero = Zeroes.zeroFor(resultType.getComponentType());
             TypedConstant typedZero = (TypedConstant) newZero;
             RegisterSpec newReg =
-                    RegisterSpec.make(ssaMeth.makeNewSsaReg(), typedZero);
+                RegisterSpec.make(ssaMeth.makeNewSsaReg(), typedZero);
             newRegs.add(newReg);
             insertPlainInsnBefore(def, RegisterSpecList.EMPTY, newReg,
-                    RegOps.CONST, newZero);
+                                      RegOps.CONST, newZero);
         }
     }
 
@@ -569,16 +552,16 @@ public class EscapeAnalysis {
      * move instructions, and array lengths and fills are handled. Can also
      * identify ArrayIndexOutOfBounds exceptions and throw them if detected.
      *
-     * @param use          {@code non-null;} move result instruction for array
-     * @param prev         {@code non-null;} instruction for instantiating new array
-     * @param newRegs      {@code non-null;} mapping of array indices to new
-     *                     registers
+     * @param use {@code non-null;} move result instruction for array
+     * @param prev {@code non-null;} instruction for instantiating new array
+     * @param newRegs {@code non-null;} mapping of array indices to new
+     * registers
      * @param deletedInsns {@code non-null;} set of instructions marked for
-     *                     deletion
+     * deletion
      */
     private void replaceUse(SsaInsn use, SsaInsn prev,
-                            ArrayList<RegisterSpec> newRegs,
-                            HashSet<SsaInsn> deletedInsns) {
+                                ArrayList<RegisterSpec> newRegs,
+                                HashSet<SsaInsn> deletedInsns) {
         int index;
         int length = newRegs.size();
         SsaInsn next;
@@ -597,7 +580,7 @@ public class EscapeAnalysis {
                     source = newRegs.get(index);
                     result = source.withReg(next.getResult().getReg());
                     insertPlainInsnBefore(next, RegisterSpecList.make(source),
-                            result, RegOps.MOVE, null);
+                                              result, RegOps.MOVE, null);
                 } else {
                     // Throw an exception if the index is out of bounds
                     insertExceptionThrow(next, sources.get(1), deletedInsns);
@@ -614,7 +597,7 @@ public class EscapeAnalysis {
                     source = sources.get(0);
                     result = source.withReg(newRegs.get(index).getReg());
                     insertPlainInsnBefore(use, RegisterSpecList.make(source),
-                            result, RegOps.MOVE, null);
+                                              result, RegOps.MOVE, null);
                     // Update the newReg entry to mark value as unknown now
                     newRegs.set(index, result.withSimpleType());
                 } else {
@@ -628,8 +611,8 @@ public class EscapeAnalysis {
                 //CstInteger lengthReg = CstInteger.make(length);
                 next = getMoveForInsn(use);
                 insertPlainInsnBefore(next, RegisterSpecList.EMPTY,
-                        next.getResult(), RegOps.CONST,
-                        (Constant) lengthReg);
+                                          next.getResult(), RegOps.CONST,
+                                          (Constant) lengthReg);
                 deletedInsns.add(next);
                 break;
             case RegOps.MARK_LOCAL:
@@ -642,10 +625,10 @@ public class EscapeAnalysis {
                 ArrayList<Constant> constList = fill.getInitValues();
                 for (int i = 0; i < length; i++) {
                     RegisterSpec newFill =
-                            RegisterSpec.make(newRegs.get(i).getReg(),
-                                    (TypeBearer) constList.get(i));
+                        RegisterSpec.make(newRegs.get(i).getReg(),
+                                              (TypeBearer) constList.get(i));
                     insertPlainInsnBefore(use, RegisterSpecList.EMPTY, newFill,
-                            RegOps.CONST, constList.get(i));
+                                              RegOps.CONST, constList.get(i));
                     // Update the newRegs to hold the new const value
                     newRegs.set(i, newFill);
                 }
@@ -664,7 +647,7 @@ public class EscapeAnalysis {
 
             // Look for move instructions only
             if (insn == null || insn.getOpcode() == null ||
-                    insn.getOpcode().getOpcode() != RegOps.MOVE) {
+                insn.getOpcode().getOpcode() != RegOps.MOVE) {
                 continue;
             }
 
@@ -706,17 +689,21 @@ public class EscapeAnalysis {
      */
     private void run() {
         ssaMeth.forEachBlockDepthFirstDom(new SsaBasicBlock.Visitor() {
-            public void visitBlock(SsaBasicBlock block,
-                                   SsaBasicBlock unused) {
+            @Override
+            public void visitBlock (SsaBasicBlock block,
+                    SsaBasicBlock unused) {
                 block.forEachInsn(new SsaInsn.Visitor() {
+                    @Override
                     public void visitMoveInsn(NormalSsaInsn insn) {
                         // do nothing
                     }
 
+                    @Override
                     public void visitPhiInsn(PhiInsn insn) {
                         // do nothing
                     }
 
+                    @Override
                     public void visitNonMoveInsn(NormalSsaInsn insn) {
                         processInsn(insn);
                     }
@@ -743,47 +730,47 @@ public class EscapeAnalysis {
      * Replaces instructions that trigger an ArrayIndexOutofBounds exception
      * with an actual throw of the exception.
      *
-     * @param insn         {@code non-null;} instruction causing the exception
-     * @param index        {@code non-null;} index value that is out of bounds
+     * @param insn {@code non-null;} instruction causing the exception
+     * @param index {@code non-null;} index value that is out of bounds
      * @param deletedInsns {@code non-null;} set of instructions marked for
-     *                     deletion
+     * deletion
      */
     private void insertExceptionThrow(SsaInsn insn, RegisterSpec index,
-                                      HashSet<SsaInsn> deletedInsns) {
+                                          HashSet<SsaInsn> deletedInsns) {
         // Create a new ArrayIndexOutOfBoundsException
         CstType exception =
-                new CstType(Exceptions.TYPE_ArrayIndexOutOfBoundsException);
+            new CstType(Exceptions.TYPE_ArrayIndexOutOfBoundsException);
         insertThrowingInsnBefore(insn, RegisterSpecList.EMPTY, null,
-                RegOps.NEW_INSTANCE, exception);
+                                     RegOps.NEW_INSTANCE, exception);
 
         // Add a successor block with a move result pseudo for the exception
         SsaBasicBlock currBlock = insn.getBlock();
         SsaBasicBlock newBlock =
-                currBlock.insertNewSuccessor(currBlock.getPrimarySuccessor());
+            currBlock.insertNewSuccessor(currBlock.getPrimarySuccessor());
         SsaInsn newInsn = newBlock.getInsns().get(0);
         RegisterSpec newReg =
-                RegisterSpec.make(ssaMeth.makeNewSsaReg(), exception);
+            RegisterSpec.make(ssaMeth.makeNewSsaReg(), exception);
         insertPlainInsnBefore(newInsn, RegisterSpecList.EMPTY, newReg,
-                RegOps.MOVE_RESULT_PSEUDO, null);
+                                  RegOps.MOVE_RESULT_PSEUDO, null);
 
         // Add another successor block to initialize the exception
         SsaBasicBlock newBlock2 =
-                newBlock.insertNewSuccessor(newBlock.getPrimarySuccessor());
+            newBlock.insertNewSuccessor(newBlock.getPrimarySuccessor());
         SsaInsn newInsn2 = newBlock2.getInsns().get(0);
         CstNat newNat = new CstNat(new CstString("<init>"), new CstString("(I)V"));
         CstMethodRef newRef = new CstMethodRef(exception, newNat);
         insertThrowingInsnBefore(newInsn2, RegisterSpecList.make(newReg, index),
-                null, RegOps.INVOKE_DIRECT, newRef);
+                                     null, RegOps.INVOKE_DIRECT, newRef);
         deletedInsns.add(newInsn2);
 
         // Add another successor block to throw the new exception
         SsaBasicBlock newBlock3 =
-                newBlock2.insertNewSuccessor(newBlock2.getPrimarySuccessor());
+            newBlock2.insertNewSuccessor(newBlock2.getPrimarySuccessor());
         SsaInsn newInsn3 = newBlock3.getInsns().get(0);
         insertThrowingInsnBefore(newInsn3, RegisterSpecList.make(newReg), null,
-                RegOps.THROW, null);
+                                     RegOps.THROW, null);
         newBlock3.replaceSuccessor(newBlock3.getPrimarySuccessorIndex(),
-                ssaMeth.getExitBlock().getIndex());
+                                       ssaMeth.getExitBlock().getIndex());
         deletedInsns.add(newInsn3);
     }
 
@@ -791,15 +778,15 @@ public class EscapeAnalysis {
      * Inserts a new PlainInsn before the given instruction.
      * TODO: move this somewhere more appropriate
      *
-     * @param insn       {@code non-null;} instruction to insert before
+     * @param insn {@code non-null;} instruction to insert before
      * @param newSources {@code non-null;} sources of new instruction
-     * @param newResult  {@code non-null;} result of new instruction
-     * @param newOpcode  opcode of new instruction
-     * @param cst        {@code null-ok;} constant for new instruction, if any
+     * @param newResult {@code non-null;} result of new instruction
+     * @param newOpcode opcode of new instruction
+     * @param cst {@code null-ok;} constant for new instruction, if any
      */
     private void insertPlainInsnBefore(SsaInsn insn,
-                                       RegisterSpecList newSources, RegisterSpec newResult, int newOpcode,
-                                       Constant cst) {
+        RegisterSpecList newSources, RegisterSpec newResult, int newOpcode,
+        Constant cst) {
 
         Insn originalRopInsn = insn.getOriginalRopInsn();
         Rop newRop;
@@ -815,7 +802,7 @@ public class EscapeAnalysis {
                     originalRopInsn.getPosition(), newResult, newSources);
         } else {
             newRopInsn = new PlainCstInsn(newRop,
-                    originalRopInsn.getPosition(), newResult, newSources, cst);
+                originalRopInsn.getPosition(), newResult, newSources, cst);
         }
 
         NormalSsaInsn newInsn = new NormalSsaInsn(newRopInsn, insn.getBlock());
@@ -829,25 +816,25 @@ public class EscapeAnalysis {
      * Inserts a new ThrowingInsn before the given instruction.
      * TODO: move this somewhere more appropriate
      *
-     * @param insn       {@code non-null;} instruction to insert before
+     * @param insn {@code non-null;} instruction to insert before
      * @param newSources {@code non-null;} sources of new instruction
-     * @param newResult  {@code non-null;} result of new instruction
-     * @param newOpcode  opcode of new instruction
-     * @param cst        {@code null-ok;} constant for new instruction, if any
+     * @param newResult {@code non-null;} result of new instruction
+     * @param newOpcode opcode of new instruction
+     * @param cst {@code null-ok;} constant for new instruction, if any
      */
     private void insertThrowingInsnBefore(SsaInsn insn,
-                                          RegisterSpecList newSources, RegisterSpec newResult, int newOpcode,
-                                          Constant cst) {
+        RegisterSpecList newSources, RegisterSpec newResult, int newOpcode,
+        Constant cst) {
 
         Insn origRopInsn = insn.getOriginalRopInsn();
         Rop newRop = Rops.ropFor(newOpcode, newResult, newSources, cst);
         Insn newRopInsn;
         if (cst == null) {
             newRopInsn = new ThrowingInsn(newRop,
-                    origRopInsn.getPosition(), newSources, StdTypeList.EMPTY);
+                origRopInsn.getPosition(), newSources, StdTypeList.EMPTY);
         } else {
             newRopInsn = new ThrowingCstInsn(newRop,
-                    origRopInsn.getPosition(), newSources, StdTypeList.EMPTY, cst);
+                origRopInsn.getPosition(), newSources, StdTypeList.EMPTY, cst);
         }
 
         NormalSsaInsn newInsn = new NormalSsaInsn(newRopInsn, insn.getBlock());

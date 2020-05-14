@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa;
 
@@ -10,14 +24,10 @@ import com.xiaoyv.dx.util.IntList;
  * each mapping built up individually and added via addMapping()
  */
 public class BasicRegisterMapper extends RegisterMapper {
-    /**
-     * indexed by old register, containing new name
-     */
-    private IntList oldToNew;
+    /** indexed by old register, containing new name */
+    private final IntList oldToNew;
 
-    /**
-     * running count of used registers in new namespace
-     */
+    /** running count of used registers in new namespace */
     private int runningCountNewRegisters;
 
     /**
@@ -29,17 +39,13 @@ public class BasicRegisterMapper extends RegisterMapper {
         oldToNew = new IntList(countOldRegisters);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int getNewRegisterCount() {
         return runningCountNewRegisters;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public RegisterSpec map(RegisterSpec registerSpec) {
         if (registerSpec == null) {
@@ -75,9 +81,7 @@ public class BasicRegisterMapper extends RegisterMapper {
         return oldToNew.get(oldReg);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     public String toHuman() {
         StringBuilder sb = new StringBuilder();
 
@@ -103,8 +107,8 @@ public class BasicRegisterMapper extends RegisterMapper {
      * Adds a mapping to the mapper. If oldReg has already been mapped,
      * overwrites previous mapping with new mapping.
      *
-     * @param oldReg   {@code >= 0;} old register
-     * @param newReg   {@code >= 0;} new register
+     * @param oldReg {@code >= 0;} old register
+     * @param newReg {@code >= 0;} new register
      * @param category {@code 1..2;} width of reg
      */
     public void addMapping(int oldReg, int newReg, int category) {

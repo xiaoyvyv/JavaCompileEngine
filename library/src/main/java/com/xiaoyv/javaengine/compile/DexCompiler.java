@@ -3,7 +3,7 @@ package com.xiaoyv.javaengine.compile;
 import androidx.annotation.NonNull;
 
 import com.xiaoyv.dex.Dex;
-import com.xiaoyv.dx.command.dexer.Main;
+import com.xiaoyv.dx.command.dexer.DxContext;
 import com.xiaoyv.dx.merge.CollisionPolicy;
 import com.xiaoyv.dx.merge.DexMerger;
 import com.xiaoyv.javaengine.compile.listener.CompilerListener;
@@ -62,15 +62,20 @@ public class DexCompiler {
 
                 // 转换命令
                 String[] compileCmd = new String[]{
+                        "--dex",
                         "--verbose",
                         "--no-strict",
                         "--no-files",
+                        "--min-sdk-version=28",
                         "--output=" + distFile.getAbsolutePath(),
                         sourceFile.getAbsolutePath()
                 };
 
+                new Thread(() -> {
+
+                });
                 // 开始转换dex
-                Main.main(compileCmd);
+                com.xiaoyv.dx.command.Main.main(compileCmd);
 
                 // 返回转换后的dex文件路径
                 return distFile.getAbsolutePath();
@@ -141,14 +146,16 @@ public class DexCompiler {
 
                     // 转换命令
                     String[] compileCmd = new String[]{
+                            "--dex",
                             "--verbose",
                             "--no-strict",
                             "--no-files",
+                            "--min-sdk-version=26",
                             "--output=" + newDexFile,
                             file.getAbsolutePath()
                     };
                     // 开始转换dex
-                    Main.main(compileCmd);
+                    com.xiaoyv.dx.command.Main.main(compileCmd);
                 }
 
                 // 删除掉旧的Dex文件(不在当前转换集合的文件将被删除)
@@ -220,7 +227,7 @@ public class DexCompiler {
                     for (int i = 0; i < dexFiles.size(); i++) {
                         toBeMerge[i] = new Dex(dexFiles.get(i));
                     }
-                    DexMerger dexMerger = new DexMerger(toBeMerge, CollisionPolicy.FAIL);
+                    DexMerger dexMerger = new DexMerger(toBeMerge, CollisionPolicy.FAIL, new DxContext());
                     Dex merged = dexMerger.merge();
                     if (merged != null) {
                         merged.writeTo(distDexFile);

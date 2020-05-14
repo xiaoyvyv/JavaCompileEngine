@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.annotation;
 
@@ -6,7 +20,6 @@ import com.xiaoyv.dx.rop.cst.CstString;
 import com.xiaoyv.dx.rop.cst.CstType;
 import com.xiaoyv.dx.util.MutabilityControl;
 import com.xiaoyv.dx.util.ToHuman;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -19,25 +32,19 @@ import java.util.TreeMap;
  */
 public final class Annotation extends MutabilityControl
         implements Comparable<Annotation>, ToHuman {
-    /**
-     * {@code non-null;} type of the annotation
-     */
+    /** {@code non-null;} type of the annotation */
     private final CstType type;
 
-    /**
-     * {@code non-null;} the visibility of the annotation
-     */
+    /** {@code non-null;} the visibility of the annotation */
     private final AnnotationVisibility visibility;
 
-    /**
-     * {@code non-null;} map from names to {@link NameValuePair} instances
-     */
+    /** {@code non-null;} map from names to {@link NameValuePair} instances */
     private final TreeMap<CstString, NameValuePair> elements;
 
     /**
      * Construct an instance. It initially contains no elements.
      *
-     * @param type       {@code non-null;} type of the annotation
+     * @param type {@code non-null;} type of the annotation
      * @param visibility {@code non-null;} the visibility of the annotation
      */
     public Annotation(CstType type, AnnotationVisibility visibility) {
@@ -54,28 +61,25 @@ public final class Annotation extends MutabilityControl
         this.elements = new TreeMap<CstString, NameValuePair>();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof Annotation)) {
+        if (! (other instanceof Annotation)) {
             return false;
         }
 
         Annotation otherAnnotation = (Annotation) other;
 
-        if (!(type.equals(otherAnnotation.type)
-                && (visibility == otherAnnotation.visibility))) {
+        if (! (type.equals(otherAnnotation.type)
+                        && (visibility == otherAnnotation.visibility))) {
             return false;
         }
 
         return elements.equals(otherAnnotation.elements);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int hashCode() {
         int hash = type.hashCode();
         hash = (hash * 31) + elements.hashCode();
@@ -83,9 +87,8 @@ public final class Annotation extends MutabilityControl
         return hash;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public int compareTo(Annotation other) {
         int result = type.compareTo(other.type);
 
@@ -121,17 +124,14 @@ public final class Annotation extends MutabilityControl
         return 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return toHuman();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
     public String toHuman() {
         StringBuilder sb = new StringBuilder();
 

@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.code;
 
@@ -10,9 +24,7 @@ import com.xiaoyv.dx.util.MutabilityControl;
  */
 public final class RegisterSpecSet
         extends MutabilityControl {
-    /**
-     * {@code non-null;} no-element instance
-     */
+    /** {@code non-null;} no-element instance */
     public static final RegisterSpecSet EMPTY = new RegisterSpecSet(0);
 
     /**
@@ -22,16 +34,14 @@ public final class RegisterSpecSet
      */
     private final RegisterSpec[] specs;
 
-    /**
-     * {@code >= -1;} size of the set or {@code -1} if not yet calculated
-     */
+    /** {@code >= -1;} size of the set or {@code -1} if not yet calculated */
     private int size;
 
     /**
      * Constructs an instance. The instance is initially empty.
      *
      * @param maxSize {@code >= 0;} the maximum register number (exclusive) that
-     *                may be represented in this instance
+     * may be represented in this instance
      */
     public RegisterSpecSet(int maxSize) {
         super(maxSize != 0);
@@ -40,9 +50,7 @@ public final class RegisterSpecSet
         this.size = 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof RegisterSpecSet)) {
@@ -73,9 +81,7 @@ public final class RegisterSpecSet
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         int len = specs.length;
@@ -90,13 +96,11 @@ public final class RegisterSpecSet
         return hash;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         int len = specs.length;
-        StringBuffer sb = new StringBuffer(len * 25);
+        StringBuilder sb = new StringBuilder(len * 25);
 
         sb.append('{');
 
@@ -307,11 +311,11 @@ public final class RegisterSpecSet
      * {@link RegisterSpec#intersect} of corresponding elements from
      * this instance and the given one where both are non-null.
      *
-     * @param other        {@code non-null;} set to intersect with
+     * @param other {@code non-null;} set to intersect with
      * @param localPrimary whether local variables are primary to
-     *                     the intersection; if {@code true}, then the only non-null
-     *                     result elements occur when registers being intersected have
-     *                     equal names (or both have {@code null} names)
+     * the intersection; if {@code true}, then the only non-null
+     * result elements occur when registers being intersected have
+     * equal names (or both have {@code null} names)
      */
     public void intersect(RegisterSpecSet other, boolean localPrimary) {
         throwIfImmutable();
@@ -330,7 +334,7 @@ public final class RegisterSpecSet
             }
 
             RegisterSpec intersection =
-                    spec.intersect(otherSpecs[i], localPrimary);
+                spec.intersect(otherSpecs[i], localPrimary);
             if (intersection != spec) {
                 specs[i] = intersection;
             }

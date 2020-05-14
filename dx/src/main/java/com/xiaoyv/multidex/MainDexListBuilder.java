@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.multidex;
 
@@ -8,7 +22,6 @@ import com.xiaoyv.dx.cf.iface.Attribute;
 import com.xiaoyv.dx.cf.iface.FieldList;
 import com.xiaoyv.dx.cf.iface.HasAttribute;
 import com.xiaoyv.dx.cf.iface.MethodList;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
@@ -33,11 +46,11 @@ public class MainDexListBuilder {
 
     private static final String EOL = System.getProperty("line.separator");
 
-    private static String USAGE_MESSAGE =
+    private static final String USAGE_MESSAGE =
             "Usage:" + EOL + EOL +
-                    "Short version: Don't use this." + EOL + EOL +
-                    "Slightly longer version: This tool is used by mainDexClasses script to build" + EOL +
-                    "the main dex list." + EOL;
+            "Short version: Don't use this." + EOL + EOL +
+            "Slightly longer version: This tool is used by mainDexClasses script to build" + EOL +
+            "the main dex list." + EOL;
 
     /**
      * By default we force all classes annotated with runtime annotation to be kept in the
@@ -47,6 +60,7 @@ public class MainDexListBuilder {
      * parameter.
      *
      * @see <a href="https://code.google.com/p/android/issues/detail?id=78144">bug discussion</a>
+     *
      */
     private static final String DISABLE_ANNOTATION_RESOLUTION_WORKAROUND =
             "--disable-annotation-resolution-workaround";
@@ -57,23 +71,17 @@ public class MainDexListBuilder {
 
         int argIndex = 0;
         boolean keepAnnotated = true;
-        while (argIndex < args.length - 2) {
+        while (argIndex < args.length -2) {
             if (args[argIndex].equals(DISABLE_ANNOTATION_RESOLUTION_WORKAROUND)) {
                 keepAnnotated = false;
             } else {
                 System.err.println("Invalid option " + args[argIndex]);
                 printUsage();
-//                System.exit(STATUS_ERROR);
-                System.err.println("exit code " + STATUS_ERROR);
-
             }
             argIndex++;
         }
         if (args.length - argIndex != 2) {
             printUsage();
-//            System.exit(STATUS_ERROR);
-            System.err.println("exit code " + STATUS_ERROR);
-
         }
 
         try {
@@ -83,10 +91,6 @@ public class MainDexListBuilder {
             printList(toKeep);
         } catch (IOException e) {
             System.err.println("A fatal error occured: " + e.getMessage());
-//            System.exit(STATUS_ERROR);
-            System.err.println("exit code " + STATUS_ERROR);
-
-            return;
         }
     }
 
@@ -152,35 +156,35 @@ public class MainDexListBuilder {
     private void keepAnnotated(Path path) throws FileNotFoundException {
         for (ClassPathElement element : path.getElements()) {
             forClazz:
-            for (String name : element.list()) {
-                if (name.endsWith(CLASS_EXTENSION)) {
-                    DirectClassFile clazz = path.getClass(name);
-                    if (hasRuntimeVisibleAnnotation(clazz)) {
-                        filesToKeep.add(name);
-                    } else {
-                        MethodList methods = clazz.getMethods();
-                        for (int i = 0; i < methods.size(); i++) {
-                            if (hasRuntimeVisibleAnnotation(methods.get(i))) {
-                                filesToKeep.add(name);
-                                continue forClazz;
+                for (String name : element.list()) {
+                    if (name.endsWith(CLASS_EXTENSION)) {
+                        DirectClassFile clazz = path.getClass(name);
+                        if (hasRuntimeVisibleAnnotation(clazz)) {
+                            filesToKeep.add(name);
+                        } else {
+                            MethodList methods = clazz.getMethods();
+                            for (int i = 0; i<methods.size(); i++) {
+                                if (hasRuntimeVisibleAnnotation(methods.get(i))) {
+                                    filesToKeep.add(name);
+                                    continue forClazz;
+                                }
                             }
-                        }
-                        FieldList fields = clazz.getFields();
-                        for (int i = 0; i < fields.size(); i++) {
-                            if (hasRuntimeVisibleAnnotation(fields.get(i))) {
-                                filesToKeep.add(name);
-                                continue forClazz;
+                            FieldList fields = clazz.getFields();
+                            for (int i = 0; i<fields.size(); i++) {
+                                if (hasRuntimeVisibleAnnotation(fields.get(i))) {
+                                    filesToKeep.add(name);
+                                    continue forClazz;
+                                }
                             }
                         }
                     }
                 }
-            }
         }
     }
 
     private boolean hasRuntimeVisibleAnnotation(HasAttribute element) {
         Attribute att = element.getAttributes().findFirst(
                 AttRuntimeVisibleAnnotations.ATTRIBUTE_NAME);
-        return (att != null && ((AttRuntimeVisibleAnnotations) att).getAnnotations().size() > 0);
+        return (att != null && ((AttRuntimeVisibleAnnotations)att).getAnnotations().size()>0);
     }
 }

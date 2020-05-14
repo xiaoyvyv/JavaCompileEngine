@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.util;
 
@@ -14,9 +28,7 @@ public class LabeledList extends FixedSizeList {
      */
     private final IntList labelToIndex;
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
     public LabeledList(int size) {
         super(size);
 
@@ -53,8 +65,7 @@ public class LabeledList extends FixedSizeList {
         // Gobble any deleted labels that may be at the end.
         int i;
         for (i = sz - 1; (i >= 0) && (labelToIndex.get(i) < 0); i--)
-            /*empty*/
-            ;
+            /*empty*/ ;
 
         int newSize = i + 1;
 
@@ -111,7 +122,7 @@ public class LabeledList extends FixedSizeList {
      *
      * @return {@code non-null;} ordered array of labels
      * @throws NullPointerException thrown if there are any {@code null}
-     *                              items in this instance
+     * items in this instance
      */
     public final int[] getLabelsInOrder() {
         int sz = size();
@@ -129,9 +140,7 @@ public class LabeledList extends FixedSizeList {
         return result;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** {@inheritDoc} */
     @Override
     public void shrinkToFit() {
         super.shrinkToFit();
@@ -159,7 +168,7 @@ public class LabeledList extends FixedSizeList {
     /**
      * Sets the element at the given index.
      *
-     * @param n    {@code >= 0, < size();} which element
+     * @param n {@code >= 0, < size();} which element
      * @param item {@code null-ok;} the value to store
      */
     protected void set(int n, LabeledItem item) {

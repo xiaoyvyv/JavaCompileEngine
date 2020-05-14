@@ -1,11 +1,24 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.cf;
 
 import com.xiaoyv.dx.rop.code.RopMethod;
 import com.xiaoyv.dx.rop.code.TranslationAdvice;
 import com.xiaoyv.dx.ssa.Optimizer;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -21,35 +34,27 @@ public class OptimizerOptions {
      * should be optimized. {@code null} if this constraint was not
      * specified on the command line
      */
-    private static HashSet<String> optimizeList;
+    private HashSet<String> optimizeList;
 
     /**
      * {@code null-ok;} hash set of class name + method names that should NOT
      * be optimized.  null if this constraint was not specified on the
      * command line
      */
-    private static HashSet<String> dontOptimizeList;
+    private HashSet<String> dontOptimizeList;
 
-    /**
-     * true if the above lists have been loaded
-     */
-    private static boolean optimizeListsLoaded;
+    /** true if the above lists have been loaded */
+    private boolean optimizeListsLoaded;
 
-    /**
-     * This class is uninstantiable.
-     */
-    private OptimizerOptions() {
-        // This space intentionally left blank.
-    }
 
     /**
      * Loads the optimize/don't optimize lists from files.
      *
-     * @param optimizeListFile     Pathname
+     * @param optimizeListFile Pathname
      * @param dontOptimizeListFile Pathname
      */
-    public static void loadOptimizeLists(String optimizeListFile,
-                                         String dontOptimizeListFile) {
+    public void loadOptimizeLists(String optimizeListFile,
+            String dontOptimizeListFile) {
         if (optimizeListsLoaded) {
             return;
         }
@@ -109,15 +114,15 @@ public class OptimizerOptions {
      * some optional steps. Results are printed to stderr.
      *
      * @param nonOptRmeth {@code non-null;} origional rop method
-     * @param paramSize   {@code >= 0;} parameter size of method
-     * @param isStatic    true if this method has no 'this' pointer argument.
-     * @param args        {@code non-null;} translator arguments
-     * @param advice      {@code non-null;} translation advice
-     * @param rmeth       {@code non-null;} method with all optimization steps run.
+     * @param paramSize {@code >= 0;} parameter size of method
+     * @param isStatic true if this method has no 'this' pointer argument.
+     * @param args {@code non-null;} translator arguments
+     * @param advice {@code non-null;} translation advice
+     * @param rmeth {@code non-null;} method with all optimization steps run.
      */
-    public static void compareOptimizerStep(RopMethod nonOptRmeth,
-                                            int paramSize, boolean isStatic, CfOptions args,
-                                            TranslationAdvice advice, RopMethod rmeth) {
+    public void compareOptimizerStep(RopMethod nonOptRmeth,
+            int paramSize, boolean isStatic, CfOptions args,
+            TranslationAdvice advice, RopMethod rmeth) {
         EnumSet<Optimizer.OptionalStep> steps;
 
         steps = EnumSet.allOf(Optimizer.OptionalStep.class);
@@ -127,7 +132,7 @@ public class OptimizerOptions {
 
         RopMethod skipRopMethod
                 = Optimizer.optimize(nonOptRmeth,
-                paramSize, isStatic, args.localInfo, advice, steps);
+                        paramSize, isStatic, args.localInfo, advice, steps);
 
         int normalInsns
                 = rmeth.getBlocks().getEffectiveInstructionCount();
@@ -136,7 +141,7 @@ public class OptimizerOptions {
 
         System.err.printf(
                 "optimize step regs:(%d/%d/%.2f%%)"
-                        + " insns:(%d/%d/%.2f%%)\n",
+                + " insns:(%d/%d/%.2f%%)\n",
                 rmeth.getBlocks().getRegCount(),
                 skipRopMethod.getBlocks().getRegCount(),
                 100.0 * ((skipRopMethod.getBlocks().getRegCount()
@@ -152,7 +157,7 @@ public class OptimizerOptions {
      * @param canonicalMethodName name of method being considered
      * @return true if it should be optimized
      */
-    public static boolean shouldOptimize(String canonicalMethodName) {
+    public boolean shouldOptimize(String canonicalMethodName) {
         // Optimize only what's in the optimize list.
         if (optimizeList != null) {
             return optimizeList.contains(canonicalMethodName);

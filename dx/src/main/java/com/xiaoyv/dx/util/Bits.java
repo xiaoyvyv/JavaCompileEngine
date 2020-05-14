@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.util;
 
@@ -38,7 +52,7 @@ public final class Bits {
      * Gets the value of the bit at the given index.
      *
      * @param bits {@code non-null;} bit set to operate on
-     * @param idx  {@code >= 0, < getMax(set);} which bit
+     * @param idx {@code >= 0, < getMax(set);} which bit
      * @return the value of the indicated bit
      */
     public static boolean get(int[] bits, int idx) {
@@ -50,8 +64,8 @@ public final class Bits {
     /**
      * Sets the given bit to the given value.
      *
-     * @param bits  {@code non-null;} bit set to operate on
-     * @param idx   {@code >= 0, < getMax(set);} which bit
+     * @param bits {@code non-null;} bit set to operate on
+     * @param idx {@code >= 0, < getMax(set);} which bit
      * @param value the new value for the bit
      */
     public static void set(int[] bits, int idx, boolean value) {
@@ -69,7 +83,7 @@ public final class Bits {
      * Sets the given bit to {@code true}.
      *
      * @param bits {@code non-null;} bit set to operate on
-     * @param idx  {@code >= 0, < getMax(set);} which bit
+     * @param idx {@code >= 0, < getMax(set);} which bit
      */
     public static void set(int[] bits, int idx) {
         int arrayIdx = idx >> 5;
@@ -81,7 +95,7 @@ public final class Bits {
      * Sets the given bit to {@code false}.
      *
      * @param bits {@code non-null;} bit set to operate on
-     * @param idx  {@code >= 0, < getMax(set);} which bit
+     * @param idx {@code >= 0, < getMax(set);} which bit
      */
     public static void clear(int[] bits, int idx) {
         int arrayIdx = idx >> 5;
@@ -129,9 +143,9 @@ public final class Bits {
      * Returns whether any bits are set to {@code true} in the
      * specified range.
      *
-     * @param bits  {@code non-null;} bit set to operate on
+     * @param bits {@code non-null;} bit set to operate on
      * @param start {@code >= 0;} index of the first bit in the range (inclusive)
-     * @param end   {@code >= 0;} index of the last bit in the range (exclusive)
+     * @param end {@code >= 0;} index of the last bit in the range (exclusive)
      * @return {@code true} if any bit is set to {@code true} in
      * the indicated range
      */
@@ -145,7 +159,7 @@ public final class Bits {
      * given bit set.
      *
      * @param bits {@code non-null;} bit set to operate on
-     * @param idx  {@code >= 0;} minimum index to return
+     * @param idx {@code >= 0;} minimum index to return
      * @return {@code >= -1;} lowest-order bit set at or after {@code idx},
      * or {@code -1} if there is no appropriate bit index to return
      */
@@ -172,7 +186,7 @@ public final class Bits {
      * given {@code int}.
      *
      * @param value the value in question
-     * @param idx   0..31 the minimum bit index to return
+     * @param idx 0..31 the minimum bit index to return
      * @return {@code >= -1;} lowest-order bit set at or after {@code idx},
      * or {@code -1} if there is no appropriate bit index to return
      */
@@ -188,9 +202,9 @@ public final class Bits {
      * {@code b.length}.
      *
      * @param a {@code non-null;} int array to be ored with other argument. This
-     *          argument is modified.
+     * argument is modified.
      * @param b {@code non-null;} int array to be ored into {@code a}. This
-     *          argument is not modified.
+     * argument is not modified.
      */
     public static void or(int[] a, int[] b) {
         for (int i = 0; i < b.length; i++) {

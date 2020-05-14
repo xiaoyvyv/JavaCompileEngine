@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.rop.code;
 
@@ -10,24 +24,16 @@ import com.xiaoyv.dx.util.IntList;
  * a method.
  */
 public final class LocalVariableExtractor {
-    /**
-     * {@code non-null;} method being extracted from
-     */
+    /** {@code non-null;} method being extracted from */
     private final RopMethod method;
 
-    /**
-     * {@code non-null;} block list for the method
-     */
+    /** {@code non-null;} block list for the method */
     private final BasicBlockList blocks;
 
-    /**
-     * {@code non-null;} result in-progress
-     */
+    /** {@code non-null;} result in-progress */
     private final LocalVariableInfo resultInfo;
 
-    /**
-     * {@code non-null;} work set indicating blocks needing to be processed
-     */
+    /** {@code non-null;} work set indicating blocks needing to be processed */
     private final int[] workSet;
 
     /**
@@ -96,7 +102,7 @@ public final class LocalVariableExtractor {
          * exception targets.
          */
         boolean canThrowDuringLastInsn = block.hasExceptionHandlers() &&
-                (insns.getLast().getResult() != null);
+            (insns.getLast().getResult() != null);
         int freezeSecondaryStateAt = insnSz - 1;
         RegisterSpecSet secondaryState = primaryState;
 
@@ -175,7 +181,7 @@ public final class LocalVariableExtractor {
         for (int i = 0; i < succSz; i++) {
             int succ = successors.get(i);
             RegisterSpecSet state = (succ == primarySuccessor) ?
-                    primaryState : secondaryState;
+                primaryState : secondaryState;
 
             if (resultInfo.mergeStarts(succ, state)) {
                 Bits.set(workSet, succ);

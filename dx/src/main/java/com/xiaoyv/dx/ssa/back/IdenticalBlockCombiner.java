@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa.back;
 
@@ -7,7 +21,6 @@ import com.xiaoyv.dx.rop.code.BasicBlockList;
 import com.xiaoyv.dx.rop.code.RegOps;
 import com.xiaoyv.dx.rop.code.RopMethod;
 import com.xiaoyv.dx.util.IntList;
-
 import java.util.BitSet;
 
 /**
@@ -65,7 +78,7 @@ public class IdenticalBlockCombiner {
                 if (toDelete.get(iLabel)
                         || iBlock.getSuccessors().size() > 1
                         || iBlock.getFirstInsn().getOpcode().getOpcode() ==
-                        RegOps.MOVE_RESULT) {
+                            RegOps.MOVE_RESULT) {
                     continue;
                 }
 
@@ -139,7 +152,7 @@ public class IdenticalBlockCombiner {
      * Replaces one of a block's successors with a different label. Constructs
      * an updated BasicBlock instance and places it in {@code newBlocks}.
      *
-     * @param block    block to replace
+     * @param block block to replace
      * @param oldLabel label of successor to replace
      * @param newLabel label of new successor
      */

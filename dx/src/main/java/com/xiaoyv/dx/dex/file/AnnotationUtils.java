@@ -1,8 +1,23 @@
-
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.dex.file;
 
 import com.xiaoyv.dx.rop.annotation.Annotation;
+import static com.xiaoyv.dx.rop.annotation.AnnotationVisibility.SYSTEM;
 import com.xiaoyv.dx.rop.annotation.NameValuePair;
 import com.xiaoyv.dx.rop.cst.Constant;
 import com.xiaoyv.dx.rop.cst.CstAnnotation;
@@ -14,71 +29,52 @@ import com.xiaoyv.dx.rop.cst.CstString;
 import com.xiaoyv.dx.rop.cst.CstType;
 import com.xiaoyv.dx.rop.type.Type;
 import com.xiaoyv.dx.rop.type.TypeList;
-
 import java.util.ArrayList;
-
-import static com.xiaoyv.dx.rop.annotation.AnnotationVisibility.SYSTEM;
 
 /**
  * Utility class for dealing with annotations.
  */
 public final class AnnotationUtils {
 
-    /**
-     * {@code non-null;} type for {@code AnnotationDefault} annotations
-     */
+    /** {@code non-null;} type for {@code AnnotationDefault} annotations */
     private static final CstType ANNOTATION_DEFAULT_TYPE =
-            CstType.intern(Type.intern("Ldalvik/annotation/AnnotationDefault;"));
+        CstType.intern(Type.intern("Ldalvik/annotation/AnnotationDefault;"));
 
-    /**
-     * {@code non-null;} type for {@code EnclosingClass} annotations
-     */
+    /** {@code non-null;} type for {@code EnclosingClass} annotations */
     private static final CstType ENCLOSING_CLASS_TYPE =
-            CstType.intern(Type.intern("Ldalvik/annotation/EnclosingClass;"));
+        CstType.intern(Type.intern("Ldalvik/annotation/EnclosingClass;"));
 
-    /**
-     * {@code non-null;} type for {@code EnclosingMethod} annotations
-     */
+    /** {@code non-null;} type for {@code EnclosingMethod} annotations */
     private static final CstType ENCLOSING_METHOD_TYPE =
-            CstType.intern(Type.intern("Ldalvik/annotation/EnclosingMethod;"));
+        CstType.intern(Type.intern("Ldalvik/annotation/EnclosingMethod;"));
 
-    /**
-     * {@code non-null;} type for {@code InnerClass} annotations
-     */
+    /** {@code non-null;} type for {@code InnerClass} annotations */
     private static final CstType INNER_CLASS_TYPE =
-            CstType.intern(Type.intern("Ldalvik/annotation/InnerClass;"));
+        CstType.intern(Type.intern("Ldalvik/annotation/InnerClass;"));
 
-    /**
-     * {@code non-null;} type for {@code MemberClasses} annotations
-     */
+    /** {@code non-null;} type for {@code MemberClasses} annotations */
     private static final CstType MEMBER_CLASSES_TYPE =
-            CstType.intern(Type.intern("Ldalvik/annotation/MemberClasses;"));
+        CstType.intern(Type.intern("Ldalvik/annotation/MemberClasses;"));
 
-    /**
-     * {@code non-null;} type for {@code Signature} annotations
-     */
+    /** {@code non-null;} type for {@code Signature} annotations */
     private static final CstType SIGNATURE_TYPE =
-            CstType.intern(Type.intern("Ldalvik/annotation/Signature;"));
+        CstType.intern(Type.intern("Ldalvik/annotation/Signature;"));
 
-    /**
-     * {@code non-null;} type for {@code Throws} annotations
-     */
+        /** {@code non-null;} type for {@code SourceDebugExtension} annotations */
+    private static final CstType SOURCE_DEBUG_EXTENSION_TYPE =
+        CstType.intern(Type.intern("Ldalvik/annotation/SourceDebugExtension;"));
+
+    /** {@code non-null;} type for {@code Throws} annotations */
     private static final CstType THROWS_TYPE =
-            CstType.intern(Type.intern("Ldalvik/annotation/Throws;"));
+        CstType.intern(Type.intern("Ldalvik/annotation/Throws;"));
 
-    /**
-     * {@code non-null;} the UTF-8 constant {@code "accessFlags"}
-     */
+    /** {@code non-null;} the UTF-8 constant {@code "accessFlags"} */
     private static final CstString ACCESS_FLAGS_STRING = new CstString("accessFlags");
 
-    /**
-     * {@code non-null;} the UTF-8 constant {@code "name"}
-     */
+    /** {@code non-null;} the UTF-8 constant {@code "name"} */
     private static final CstString NAME_STRING = new CstString("name");
 
-    /**
-     * {@code non-null;} the UTF-8 constant {@code "value"}
-     */
+    /** {@code non-null;} the UTF-8 constant {@code "value"} */
     private static final CstString VALUE_STRING = new CstString("value");
 
     /**
@@ -133,8 +129,8 @@ public final class AnnotationUtils {
     /**
      * Constructs a standard {@code InnerClass} annotation.
      *
-     * @param name        {@code null-ok;} the original name of the class, or
-     *                    {@code null} to represent an anonymous class
+     * @param name {@code null-ok;} the original name of the class, or
+     * {@code null} to represent an anonymous class
      * @param accessFlags the original access flags
      * @return {@code non-null;} the annotation
      */
@@ -144,7 +140,7 @@ public final class AnnotationUtils {
 
         result.put(new NameValuePair(NAME_STRING, nameCst));
         result.put(new NameValuePair(ACCESS_FLAGS_STRING,
-                CstInteger.make(accessFlags)));
+                        CstInteger.make(accessFlags)));
         result.setImmutable();
         return result;
     }
@@ -221,6 +217,20 @@ public final class AnnotationUtils {
         list.setImmutable();
 
         result.put(new NameValuePair(VALUE_STRING, new CstArray(list)));
+        result.setImmutable();
+        return result;
+    }
+
+    /**
+     * Constructs a standard {@code SourceDebugExtension} annotation.
+     *
+     * @param smapString {@code non-null;} the SMAP string associated with
+     * @return {@code non-null;} the annotation
+     */
+    public static Annotation makeSourceDebugExtension(CstString smapString) {
+        Annotation result = new Annotation(SOURCE_DEBUG_EXTENSION_TYPE, SYSTEM);
+
+        result.put(new NameValuePair(VALUE_STRING, smapString));
         result.setImmutable();
         return result;
     }

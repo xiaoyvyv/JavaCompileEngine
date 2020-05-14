@@ -1,10 +1,24 @@
-
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.xiaoyv.dx.ssa;
 
 /**
  * <h1>An introduction to SSA Form</h1>
- * <p>
+ *
  * This package contains classes associated with dx's {@code SSA}
  * intermediate form. This form is a static-single-assignment representation of
  * Rop-form a method with Rop-form-like instructions (with the addition of a
@@ -29,7 +43,7 @@ package com.xiaoyv.dx.ssa;
  * <li> A {@link SsaMethod} instance represents a method.
  * <li> A {@link SsaBasicBlock} instance represents a basic block, whose
  * semantics are quite similar to basic blocks in
- * {@link com.xiaoyv.dx .rop Rop form}.
+ * {@link com.xiaoyv.dx.rop Rop form}.
  * <li> {@link PhiInsn} instances represent "phi" operators defined in SSA
  * literature. They must be the first N instructions in a basic block.
  * <li> {@link NormalSsaInsn} instances represent instructions that directly
@@ -59,7 +73,7 @@ package com.xiaoyv.dx.ssa;
  * into or out of SSA form.
  *
  * <h3>Conversion into SSA Form</h3>
- * <p>
+ *
  * {@link SsaConverter#convertToSsaMethod} takes a {@code RopMethod} and
  * returns a fully-converted {@code SsaMethod}. The conversion process
  * is roughly as follows:
@@ -85,4 +99,5 @@ package com.xiaoyv.dx.ssa;
  * exist in SSA). Move instructions are eliminated except where necessary
  * to preserve local variable assignments.
  * </ol>
+ *
  */
