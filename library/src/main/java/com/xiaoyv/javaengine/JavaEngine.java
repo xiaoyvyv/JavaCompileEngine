@@ -22,7 +22,7 @@ public class JavaEngine {
     public static void init(Application application) {
         Utils.init(application);
         boolean b = checkRtJar();
-        Log.e("checkRtJar", "复制" + b);
+        Log.i("checkRtJar", "Java Runtime 编译文件----复制：" + b);
     }
 
     /**
@@ -30,8 +30,6 @@ public class JavaEngine {
      */
     public static boolean checkRtJar() {
         String rtPath = JavaEngineSetting.getRtPath();
-        Log.e("checkRtJar", rtPath);
-
         // 不存在时从 Assets 复制
         boolean fileExists = FileUtils.isFileExists(rtPath);
         if (!fileExists) {
