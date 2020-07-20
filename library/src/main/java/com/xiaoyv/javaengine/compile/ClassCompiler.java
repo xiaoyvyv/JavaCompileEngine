@@ -141,12 +141,8 @@ public class ClassCompiler {
                     @Override
                     protected void onProgress(final String task, final int progress) {
                         // 编译文件监听，UI线程回调正在编译文件名和进度
-                        Utils.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                compilerListener.onProgress(task, progress);
-                            }
-                        });
+                        Utils.runOnUiThread(() ->
+                                compilerListener.onProgress(task, progress));
                     }
                 });
 
@@ -155,12 +151,25 @@ public class ClassCompiler {
                     // 编译完成，若编译的为文件，返回class类文件的路径，若编译的文件夹，返回jar路径
                     if (FileUtils.isFile(sourceFileOrDir)) {
                         String source = sourceFileOrDir.getAbsolutePath();
-                        String classFileName = FileUtils.getFileNameNoExtension(source)+".class";
+                        String classFileName = FileUtils.getFileNameNoExtension(source) + ".class";
+                        // 检测源码单文件是否含有 package xxx.xxx;
+                        String codeStr = FileIOUtils.readFile2String(sourceFileOrDir);
+
                         // 返回文件路径（Class文件路径）
                         String classFilePath = saveFolder.getAbsolutePath() + "/" + classFileName;
-                        Log.e("编译完成", "class文件路径：" + classFilePath);
-                        // 返回编译完成的 Class文件路径
-                        return classFilePath;
+
+                        if (codeStr.contains("package")) {
+                            try {
+                                String packageName = codeStr.substring(codeStr.indexOf("package") + 7, codeStr.indexOf(";"));
+                                packageName = packageName.replace(" ", "");
+                                packageName = packageName.replace(".", "/");
+
+                                classFilePath = saveFolder.getAbsolutePath() + "/" + packageName + "/" + classFileName;
+                                return classFilePath;
+                            } catch (Exception e) {
+                                return classFilePath;
+                            }
+                        } else return classFilePath;
                     }
                     // 当编译的是文件夹项目时
                     else {
