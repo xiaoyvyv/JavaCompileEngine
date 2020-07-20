@@ -31,7 +31,7 @@ public class JavaEngine {
     public static boolean checkRtJar() {
         String rtPath = JavaEngineSetting.getRtPath();
         // 不存在时从 Assets 复制
-        boolean fileExists = FileUtils.isFileExists(rtPath);
+        boolean fileExists = FileUtils.isFileExists(rtPath) && FileUtils.getFileLength(rtPath) != 0;
         if (!fileExists) {
             return ResourceUtils.copyFileFromAssets("rt.jar", rtPath);
         }
