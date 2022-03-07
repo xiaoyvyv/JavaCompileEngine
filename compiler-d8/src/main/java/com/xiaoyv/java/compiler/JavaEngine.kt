@@ -6,6 +6,7 @@ import com.xiaoyv.java.compiler.dex.JavaDexCompiler
 import com.xiaoyv.java.compiler.java.JavaClassCompiler
 import com.xiaoyv.java.compiler.utils.GlobalUtils
 import com.xiaoyv.java.compiler.utils.ResourceUtils
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +22,10 @@ import java.io.File
  */
 object JavaEngine {
     private const val TAG = "JavaEngine"
+
+    val CompileExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+        logError(throwable)
+    }
 
     /**
      * 编译器设置
@@ -73,5 +78,17 @@ object JavaEngine {
         } else {
             emit(ResourceUtils.copyFileFromAssets("rt.jar", rtJar.absolutePath))
         }
+    }
+
+    internal fun logInfo(msg: String) {
+        Log.i(TAG, msg)
+    }
+
+    internal fun logError(msg: String) {
+        Log.e(TAG, msg)
+    }
+
+    internal fun logError(e: Throwable) {
+        Log.e(TAG, e.toString(), e)
     }
 }

@@ -2,9 +2,10 @@
 
 package com.xiaoyv.java.compiler
 
-import com.blankj.utilcode.util.PathUtils
-import com.blankj.utilcode.util.SPUtils
-import com.blankj.utilcode.util.StringUtils
+import com.xiaoyv.java.compiler.utils.FileUtils
+import com.xiaoyv.java.compiler.utils.GlobalUtils
+import com.xiaoyv.java.compiler.utils.SPUtils
+import java.io.File
 
 class JavaEngineSetting {
     /**
@@ -16,7 +17,7 @@ class JavaEngineSetting {
      * 恢复默认配置
      */
     fun restore() {
-        setting.put(SP_KEY_RT_PATH, DEFAULT_RT_PATH)
+        setting.put(SP_KEY_RT_PATH, defaultRtJar)
         setting.put(SP_KEY_COMPILE_SOURCE, DEFAULT_SOURCE_VERSION)
         setting.put(SP_KEY_COMPILE_TARGET, DEFAULT_TARGET_VERSION)
         setting.put(SP_KEY_COMPILE_ENCODING, DEFAULT_COMPILE_CHARSET)
@@ -25,13 +26,23 @@ class JavaEngineSetting {
     }
 
     /**
+     * 删除旧日志并创建空白日志文件（用于储存每次编译的信息）
+     */
+    fun restLog(): String {
+        synchronized(this) {
+            FileUtils.createFileByDeleteOldFile(logFilePath)
+        }
+        return logFilePath
+    }
+
+    /**
      * Java runtime jar
      */
     var rtPath: String
-        set(value) = setting.put(SP_KEY_RT_PATH, value.ifEmpty { DEFAULT_RT_PATH })
+        set(value) = setting.put(SP_KEY_RT_PATH, value.ifEmpty { defaultRtJar })
         get() {
             val path = setting.getString(SP_KEY_RT_PATH)
-            return if (StringUtils.isEmpty(path)) DEFAULT_RT_PATH else path
+            return path.ifEmpty { defaultRtJar }
         }
 
     /**
@@ -90,6 +101,15 @@ class JavaEngineSetting {
         /**
          * 默认的 rt.jar 路径
          */
-        private val DEFAULT_RT_PATH = PathUtils.getFilesPathExternalFirst() + "/lib/rt.jar"
+        private val defaultRtJar: String
+            get() = GlobalUtils.getApp().filesDir.absolutePath + "/lib/rt.jar"
+
+        /**
+         * 编译日志文件保存路径
+         */
+        val logFilePath: String
+            get() = GlobalUtils.getApp().cacheDir.absolutePath +
+                    File.separator + "class_compile.log"
+
     }
 }

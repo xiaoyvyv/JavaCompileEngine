@@ -8,5 +8,4 @@ package com.xiaoyv.java.compiler.dex
  */
 class JavaDexCompiler {
 
-
 }
