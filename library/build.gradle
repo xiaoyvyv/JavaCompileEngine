@@ -20,7 +20,7 @@ android {
         }
     }
 
-    compileOptions{
+    compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -32,7 +32,8 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.1'
 
     // Eclipse 内置编译器
-    implementation 'org.eclipse.jdt:ecj:3.28.0'
+    // noinspection GradleDependency
+    implementation 'org.eclipse.jdt:ecj:3.26.0'
 
     // Jar 转 Dex
     implementation project(':dx')
