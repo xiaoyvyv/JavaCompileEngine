@@ -13,6 +13,8 @@ android {
         versionCode 1
         versionName "1.0"
 
+        multiDexEnabled true
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -36,7 +38,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.5.0'
     implementation 'com.blankj:utilcodex:1.31.0'
 
-    implementation project(':library')
+//    implementation project(':library')
+    implementation project(':compiler-d8')
 
     //implementation 'com.github.xiaoyvyv.JavaCompileEngine:library:1.1'
     //implementation 'com.github.xiaoyvyv.JavaCompileEngine:dx:1.1'

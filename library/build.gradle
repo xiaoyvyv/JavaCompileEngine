@@ -27,16 +27,20 @@ android {
 }
 
 dependencies {
+    api files('libs/d8.jar')
+
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'androidx.appcompat:appcompat:1.4.1'
 
-    // Eclipse 内置编译器
-    implementation 'org.eclipse.jdt:ecj:3.28.0'
+    // Eclipse 内置编译器 v3.26.0 以后需要 jdk9, Android 平台不在适用
+    // noinspection GradleDependency
+    implementation 'org.eclipse.jdt:ecj:3.26.0'
 
-    // Jar 转 Dex
-    implementation project(':dx')
-
-    // Jdk Java Compiler
-    implementation project(':compiler')
+//    // Jar 转 Dex
+//    implementation project(':dx')
+//
+//    // Jdk Java Compiler
+//    implementation project(':compiler')
 }

@@ -33,33 +33,54 @@
             app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="5dp">
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:onClick="openSingleActivity"
-                android:focusable="true"
-                android:gravity="center"
-                android:text="Java Engine 示例程序"
-                android:textColor="#333333"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:onClick="openSingleActivity"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="Java Engine 示例程序"
+                    android:textColor="#333333"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:onClick="testR8"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="Java R8 示例程序"
+                    android:textColor="#333333"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.cardview.widget.CardView>
     </androidx.core.widget.NestedScrollView>
 
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:layout_gravity="bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
+        android:layout_gravity="bottom"
+        android:alpha="0.7"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
-        android:onClick="openGithub"
         android:focusable="true"
         android:gravity="center"
-        android:alpha="0.7"
+        android:onClick="openGithub"
+        android:padding="10dp"
         android:text="Copyright github.com@xiaoyvyv"
         android:textColor="#333333"
         android:textSize="14sp"

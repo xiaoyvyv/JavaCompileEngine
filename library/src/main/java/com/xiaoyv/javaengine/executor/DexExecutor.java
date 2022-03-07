@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.xiaoyv.dex.Dex;
 import com.xiaoyv.dex.MethodId;
+import com.xiaoyv.javaengine.JavaEngineSetting;
 import com.xiaoyv.javaengine.compile.listener.ExecuteListener;
 import com.xiaoyv.javaengine.utils.FileUtils;
 import com.xiaoyv.javaengine.utils.StringUtils;
@@ -82,7 +83,7 @@ public class DexExecutor {
                 String optimizedDirectory = Utils.getApp().getCacheDir().getAbsolutePath() + "/dex";
                 FileUtils.createOrExistsDir(optimizedDirectory);
                 DexClassLoader dexClassLoader = new DexClassLoader(dexFile.getAbsolutePath(), optimizedDirectory,
-                        null, ClassLoader.getSystemClassLoader());
+                        JavaEngineSetting.getRtPath(), ClassLoader.getSystemClassLoader());
                 // 加载 Class
                 Class<?> clazz = dexClassLoader.loadClass(className);
                 // 获取main方法
