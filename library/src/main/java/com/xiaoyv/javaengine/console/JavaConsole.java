@@ -70,12 +70,10 @@ public class JavaConsole {
 
     private AppendStdListener appendStdListener;
 
-
     /**
      * 程序是否在运行
      */
     private AtomicBoolean mIsRunning = new AtomicBoolean(false);
-
 
     private byte[] mReceiveBuffer;
 

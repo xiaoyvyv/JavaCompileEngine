@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -11,7 +12,6 @@ import com.blankj.utilcode.util.FileIOUtils
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.PathUtils
 import com.xiaoyv.java.compiler.JavaEngine
-import com.xiaoyv.java.compiler.exception.CompileException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -19,8 +19,10 @@ import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.coroutines.resume
 
+
 class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     private lateinit var toolbar: Toolbar
+    private lateinit var tvPrint: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +34,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     private fun initView() {
         toolbar = findViewById(R.id.toolbar)
+        tvPrint = findViewById(R.id.tv_print)
     }
 
     private fun initEvent() {}
@@ -72,17 +75,22 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             val dexFile = JavaEngine.dexCompiler.compile(jarFile, buildDir)
             LogUtils.e("编译结束 dexFile: $dexFile")
 
-            JavaEngine.javaProgram.run(dexFile, chooseMainClassToRun = { list, continuation ->
-                System.err.println(list)
+            JavaEngine.javaProgram.run(dexFile,
+                chooseMainClassToRun = { list, continuation ->
+                    System.err.println(list)
 
-                val create = AlertDialog.Builder(this@MainActivity)
-                    .setPositiveButton("第一个") { p0, p1 ->
-                        p0.dismiss()
-                        continuation.cancel(CompileException("取消"))
-                    }
-                    .create()
-                create.show()
-            })
+                    val create = AlertDialog.Builder(this@MainActivity)
+                        .setPositiveButton("第一个") { p0, p1 ->
+                            p0.dismiss()
+                            continuation.resume(list.first())
+                        }
+                        .create()
+                    create.show()
+                },
+                logPrint = { log, normal ->
+                    tvPrint.append((if (normal) "正常：" else "错误：") + log)
+                    tvPrint.append("\n")
+                })
 
             LogUtils.e("运行结束")
         }
@@ -93,6 +101,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     override fun onDestroy() {
         super.onDestroy()
         cancel()
+
+
     }
 
 
@@ -104,8 +114,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
                 "\n" +
                 "    public static void main(String[] args) {\n" +
                 "        System.out.println(\"Start Thread!\");\n" +
+                "        try { Thread.sleep(3000); }catch(Exception e){}" +
                 "        new Thread(()-> System.out.println(\"Hello World!\")).start();\n" +
                 "    }\n" +
                 "}"
+
     }
 }
