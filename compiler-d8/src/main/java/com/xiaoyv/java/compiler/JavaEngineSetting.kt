@@ -2,12 +2,14 @@
 
 package com.xiaoyv.java.compiler
 
+import com.android.tools.r8.DiagnosticsLevel
 import com.xiaoyv.java.compiler.utils.FileUtils
 import com.xiaoyv.java.compiler.utils.GlobalUtils
 import com.xiaoyv.java.compiler.utils.SPUtils
 import java.io.File
 
 class JavaEngineSetting {
+
     /**
      * 设置相关的 SP
      */
@@ -29,9 +31,7 @@ class JavaEngineSetting {
      * 删除旧日志并创建空白日志文件（用于储存每次编译的信息）
      */
     fun restLog(): String {
-        synchronized(this) {
-            FileUtils.createFileByDeleteOldFile(logFilePath)
-        }
+        createAndCleanFile(logFilePath)
         return logFilePath
     }
 
@@ -80,9 +80,19 @@ class JavaEngineSetting {
         set(value) = setting.put(SP_KEY_RUN_ARGS, value.ifEmpty { "" })
         get() = setting.getString(SP_KEY_RUN_ARGS).ifEmpty { "" }
 
+    /**
+     * 运行参数
+     */
+    var dexLogLevel: String
+        set(value) = setting.put(SP_KEY_COMPILE_DEX_LOG_LEVEL, value.ifEmpty {
+            DiagnosticsLevel.INFO.name
+        })
+        get() = setting.getString(SP_KEY_COMPILE_DEX_LOG_LEVEL).ifEmpty {
+            DiagnosticsLevel.INFO.name
+        }
+
 
     companion object {
-
         private const val SETTING_KEY = "JavaSetting"
         private const val DEFAULT_SOURCE_VERSION = "1.8"
         private const val DEFAULT_TARGET_VERSION = "1.8"
@@ -98,11 +108,19 @@ class JavaEngineSetting {
         private const val SP_KEY_COMPILE_VERBOSE = "compile_verbose"
         private const val SP_KEY_RUN_ARGS = "run_args"
 
+        private const val SP_KEY_COMPILE_DEX_LOG_LEVEL = "compile_dex_log_level"
+
         /**
          * 默认的 rt.jar 路径
          */
         private val defaultRtJar: String
             get() = GlobalUtils.getApp().filesDir.absolutePath + "/lib/rt.jar"
+
+        /**
+         * 默认缓存路径
+         */
+        val defaultCacheDir: String
+            get() = createAndCleanDir(GlobalUtils.getApp().filesDir.absolutePath + "/tmp/compiler")
 
         /**
          * 编译日志文件保存路径
@@ -111,5 +129,23 @@ class JavaEngineSetting {
             get() = GlobalUtils.getApp().cacheDir.absolutePath +
                     File.separator + "class_compile.log"
 
+        /**
+         * 创建并清空目标文件夹
+         */
+        fun createAndCleanDir(dirPath: String) = createAndCleanDir(File(dirPath))
+        fun createAndCleanDir(dir: File): String {
+            FileUtils.createOrExistsDir(dir)
+            FileUtils.deleteAllInDir(dir)
+            return dir.absolutePath
+        }
+
+        /**
+         * 创建并清空目标文件
+         */
+        fun createAndCleanFile(filePath: String) = createAndCleanFile(File(filePath))
+        fun createAndCleanFile(file: File): String {
+            FileUtils.createFileByDeleteOldFile(file)
+            return file.absolutePath
+        }
     }
 }

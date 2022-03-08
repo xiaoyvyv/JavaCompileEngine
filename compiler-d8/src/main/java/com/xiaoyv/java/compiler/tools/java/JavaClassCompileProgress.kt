@@ -1,8 +1,7 @@
 @file:Suppress("MemberVisibilityCanBePrivate")
 
-package com.xiaoyv.java.compiler.listener
+package com.xiaoyv.java.compiler.tools.java
 
-import android.util.Log
 import org.eclipse.jdt.core.compiler.CompilationProgress
 
 /**
@@ -11,7 +10,7 @@ import org.eclipse.jdt.core.compiler.CompilationProgress
  * @author why
  * @since 2022/3/7
  */
-abstract class CompileProgress : CompilationProgress() {
+abstract class JavaClassCompileProgress : CompilationProgress() {
     /**
      * 编译总数目
      */

@@ -2,8 +2,9 @@ package com.xiaoyv.java.compiler
 
 import android.app.Application
 import android.util.Log
-import com.xiaoyv.java.compiler.dex.JavaDexCompiler
-import com.xiaoyv.java.compiler.java.JavaClassCompiler
+import com.xiaoyv.java.compiler.tools.dex.JavaDexCompiler
+import com.xiaoyv.java.compiler.tools.exec.JavaProgram
+import com.xiaoyv.java.compiler.tools.java.JavaClassCompiler
 import com.xiaoyv.java.compiler.utils.GlobalUtils
 import com.xiaoyv.java.compiler.utils.ResourceUtils
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -52,6 +53,14 @@ object JavaEngine {
     }
 
     /**
+     * Dex 执行器
+     */
+    @JvmStatic
+    val javaProgram: JavaProgram by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        JavaProgram()
+    }
+
+    /**
      * 初始化
      */
     @JvmStatic
@@ -89,6 +98,6 @@ object JavaEngine {
     }
 
     internal fun logError(e: Throwable) {
-        Log.e(TAG, e.toString(), e)
+        Log.e(TAG, "GlobalError: $e", e)
     }
 }
