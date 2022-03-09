@@ -5,14 +5,18 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.blankj.utilcode.util.*
+import com.blankj.utilcode.util.FileIOUtils
+import com.blankj.utilcode.util.LogUtils
+import com.blankj.utilcode.util.PathUtils
+import com.blankj.utilcode.util.ToastUtils
 import com.xiaoyv.java.compiler.JavaEngine
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import java.io.File
-import kotlin.coroutines.resume
 
 
 class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
