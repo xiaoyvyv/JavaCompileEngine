@@ -42,8 +42,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.5.0'
     implementation 'com.blankj:utilcodex:1.31.0'
 
-    implementation 'io.github.xiaoyvyv:compiler-d8:1.0.1'
-//    implementation project(':compiler-d8')
+//    implementation 'io.github.xiaoyvyv:compiler-d8:1.0.1'
+    implementation project(':compiler-d8')
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

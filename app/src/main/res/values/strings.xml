@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">JavaCompileEngine</string>
-    <string name="app_principle">运行原理：\n\n1、将 *.java 文件编译为 *.class 类文件。\n2、通过 Google 的 R8 | D8 工具将 *.class 文件编译为 Android 平台能够运行的 *.dex 文件。这一步可以脱糖，可以在安卓平台运行 JDK 高版本的语法糖，其内部实现基本上还是语法糖转换成了低版本兼容的代码。\n3、将 *.dex 文件通过 DexClassLoader 加载到应用程序中，并寻找 main 方法反射调用。\n4、代理系统的输入 System.in 和输出 System.in 。</string>
+    <string name="app_principle">运行原理：\n\n1、将 *.java 文件编译为 *.class 类文件。\n2、通过 Google 的 R8 | D8 工具将 *.class 文件编译为 Android 平台能够运行的 *.dex 文件。这一步可以脱糖，可以在安卓平台运行 JDK 高版本的语法糖，其内部实现基本上还是语法糖转换成了低版本兼容的代码。\n3、将 *.dex 文件通过 DexClassLoader 加载到应用程序中，并寻找 main 方法反射调用。\n4、代理系统的输入 System.in 和输出 System.out 。</string>
 </resources>
 

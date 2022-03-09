@@ -2,7 +2,9 @@ package com.xiaoyv.javaengine
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.Html
 import android.view.MenuItem
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.blankj.utilcode.util.FileIOUtils
 import com.blankj.utilcode.util.PathUtils
@@ -10,6 +12,8 @@ import com.xiaoyv.java.compiler.JavaEngine
 import com.xiaoyv.javaengine.databinding.ActivitySingleSampleBinding
 import kotlinx.coroutines.*
 import java.io.File
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * CompileActivity
@@ -52,7 +56,14 @@ class CompileActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     }
 
-    private fun runProgram() = launch {
+    /**
+     * [JavaEngine.CompileExceptionHandler] 为内部编译相关的协程作用域 默认异常捕获实现。
+     *
+     * - 你可以自定义获取整个流程抛出的异常信息
+     */
+    private fun runProgram() = launch(JavaEngine.CompileExceptionHandler) {
+        binding.printView.text = null
+
         // build 文件夹
         val buildDir = PathUtils.getExternalAppFilesPath() + "/SingleExample/build"
 
@@ -79,11 +90,49 @@ class CompileActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         ) { taskName, progress ->
 
             // 这里是进度，回调在主线程...
+            binding.printView.append(String.format("%3d%% Compiling: %s\n", progress, taskName))
         }
+        binding.printView.append("Compiling class success!\n\n")
+
+        binding.printView.append("Compiling dex start...\n")
 
         // 编译 classes.dex，这一步相关的信息通过 System.xxx.print 输出
         val dexFile = JavaEngine.dexCompiler.compile(compileJar.absolutePath, buildDir)
 
+        binding.printView.append("Compiling dex success!\n\n")
+
+        binding.printView.append("Run dex start...\n\n")
+
+        // JavaEngine.
+        val programConsole = JavaEngine.javaProgram.run(dexFile, arrayOf("args"),
+            chooseMainClassToRun = { classes, continuation ->
+                val dialog = AlertDialog.Builder(this@CompileActivity)
+                    .setTitle("请选择一个主函数运行")
+                    .setItems(classes.toTypedArray()) { p0, p1 ->
+                        p0.dismiss()
+                        continuation.resume(classes[p1])
+                    }
+                    .setCancelable(false)
+                    .setNegativeButton("取消") { d, v ->
+                        d.dismiss()
+                        continuation.resumeWithException(Exception("取消操作"))
+                    }.create()
+
+                dialog.show()
+                dialog.setCanceledOnTouchOutside(false)
+            },
+            printOut = {
+                binding.printView.append(it)
+            },
+            printErr = {
+                binding.printView.append(Html.fromHtml("<font color=\"#FF0000\">$it</font>"))
+            })
+
+        binding.btSend.setOnClickListener {
+            val input = binding.inputEdit.text.toString()
+            programConsole.inputStdin(input)
+            binding.inputEdit.text = null
+        }
     }
 
 
@@ -95,10 +144,9 @@ class CompileActivity : AppCompatActivity(), CoroutineScope by MainScope() {
                     " */\n" +
                     "public class Main {\n" +
                     "\n" +
-                    "    @SuppressWarnings(\"AlibabaAvoidManuallyCreateThread\")\n" +
                     "    public static void main(String[] args) {\n" +
                     "        System.out.println(\"Start Thread!\");\n" +
-                    "        new Thread(()-> System.out.println(\"Hello World!\")).start();\n" +
+                    "        new Thread(()-> System.err.println(\"Hello World!\")).start();\n" +
                     "    }\n" +
                     "}"
         )

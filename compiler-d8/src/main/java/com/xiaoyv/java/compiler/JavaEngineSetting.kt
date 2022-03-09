@@ -2,6 +2,8 @@
 
 package com.xiaoyv.java.compiler
 
+import android.graphics.Color
+import androidx.annotation.ColorInt
 import com.android.tools.r8.DiagnosticsLevel
 import com.xiaoyv.java.compiler.utils.FileUtils
 import com.xiaoyv.java.compiler.utils.GlobalUtils
@@ -91,6 +93,19 @@ class JavaEngineSetting {
             DiagnosticsLevel.INFO.name
         }
 
+    /**
+     * 控制台输出颜色
+     */
+    var normalLogColor: Int
+        set(@ColorInt value) = setting.put(SP_KEY_CONSOLE_COLOR_OUTPUT, value)
+        @ColorInt get() = setting.getInt(SP_KEY_CONSOLE_COLOR_OUTPUT, Color.WHITE)
+
+    /**
+     * 控制台错误颜色
+     */
+    var errorLogColor: Int
+        set(@ColorInt value) = setting.put(SP_KEY_CONSOLE_COLOR_ERROR, value)
+        @ColorInt get() = setting.getInt(SP_KEY_CONSOLE_COLOR_ERROR, Color.RED)
 
     companion object {
         private const val SETTING_KEY = "JavaSetting"
@@ -109,6 +124,8 @@ class JavaEngineSetting {
         private const val SP_KEY_RUN_ARGS = "run_args"
 
         private const val SP_KEY_COMPILE_DEX_LOG_LEVEL = "compile_dex_log_level"
+        private const val SP_KEY_CONSOLE_COLOR_OUTPUT = "console_color_out"
+        private const val SP_KEY_CONSOLE_COLOR_ERROR = "console_color_err"
 
         /**
          * 默认的 rt.jar 路径

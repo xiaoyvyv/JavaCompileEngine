@@ -1,5 +1,7 @@
 package com.xiaoyv.java.compiler.tools.exec
 
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import com.xiaoyv.java.compiler.JavaEngine
 import com.xiaoyv.java.compiler.JavaEngineSetting
 import com.xiaoyv.java.compiler.exception.CompileException
@@ -44,16 +46,16 @@ class JavaProgram {
         dexFile: String,
         args: Array<String> = emptyArray(),
         chooseMainClassToRun: (List<String>, CancellableContinuation<String>) -> Unit = defaultChooseMainClassToRun,
-        printOut: (String) -> Unit = { },
-        printErr: (String) -> Unit = { },
+        printOut: (CharSequence) -> Unit = { },
+        printErr: (CharSequence) -> Unit = { },
     ) = run(File(dexFile), args, chooseMainClassToRun, printOut, printErr)
 
     suspend fun run(
         dexFile: File,
         args: Array<String> = emptyArray(),
         chooseMainClassToRun: (List<String>, CancellableContinuation<String>) -> Unit = defaultChooseMainClassToRun,
-        printOut: (String) -> Unit = { },
-        printErr: (String) -> Unit = { },
+        printOut: (CharSequence) -> Unit = { },
+        printErr: (CharSequence) -> Unit = { },
     ) = withContext(Dispatchers.IO) {
         JavaEngine.resetProgram()
 
@@ -79,21 +81,37 @@ class JavaProgram {
 
         JavaProgramConsole().apply {
             logNormalListener = {
-                printOut.invoke(it)
+                runCatching {
+                    // 输出样式
+                    val colorSpan = ForegroundColorSpan(JavaEngine.compilerSetting.normalLogColor)
+                    printOut.invoke(SpannableStringBuilder().apply {
+                        append(it)
+                        setSpan(colorSpan, 0, it.length, 0)
+                    })
+                }
             }
             logErrorListener = {
-                printErr.invoke(it)
+                runCatching {
+                    // 错误样式
+                    val colorSpan = ForegroundColorSpan(JavaEngine.compilerSetting.errorLogColor)
+                    printErr.invoke(SpannableStringBuilder().apply {
+                        append(it)
+                        setSpan(colorSpan, 0, it.length, 0)
+                    })
+                }
             }
 
             // 开启日志代理
             interceptSystemPrint()
 
-            // 调用静态方法可以直接传 null
-            delay(100)
-            method.invoke(null, args)
-            delay(100)
-
             JavaEngine.lastProgram = this
+
+            launch(Dispatchers.IO) {
+                // 调用静态方法可以直接传 null
+                delay(100)
+                method.invoke(null, args)
+                delay(100)
+            }
         }
     }
 }

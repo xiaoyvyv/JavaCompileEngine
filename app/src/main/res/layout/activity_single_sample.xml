@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -15,8 +16,8 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:titleTextAppearance="@style/AppTheme.ToolbarTitle"
-            app:title="编译单个Java文件示例" />
+            app:title="编译单个Java文件示例"
+            app:titleTextAppearance="@style/AppTheme.ToolbarTitle" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -36,7 +37,7 @@
             android:background="#00000000"
             android:gravity="top"
             android:padding="5dp"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
         <ScrollView
             android:layout_width="match_parent"
@@ -48,13 +49,14 @@
                 android:id="@+id/printView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="monospace"
                 android:textColor="#ffffff"
-                android:textSize="14sp" />
+                android:textSize="10sp"
+                tools:ignore="SmallSp" />
 
         </ScrollView>
 
     </LinearLayout>
-
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -76,11 +78,11 @@
             android:textColor="#ffffff" />
 
         <Button
+            android:id="@+id/bt_send"
             android:layout_width="wrap_content"
             android:layout_height="45dp"
             android:layout_marginEnd="5dp"
             android:backgroundTint="#ff80ab"
-            android:onClick="sendStr"
             android:stateListAnimator="@null"
             android:text="控制台输入"
             android:textColor="#ffffff"

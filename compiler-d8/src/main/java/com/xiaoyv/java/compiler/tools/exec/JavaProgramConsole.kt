@@ -112,11 +112,40 @@ class JavaProgramConsole : CoroutineScope by MainScope() {
     }
 
     /**
+     * 写入用户输入信息
+     *
+     * @param stdin 输入信息
+     */
+    fun inputStdin(stdin: String): Boolean {
+        if (!isRunning.get()) {
+            return false
+        }
+        runCatching {
+            // 获取输入信息的字节
+            val bytes = stdin.toByteArray()
+            // 向输入流写入
+            inputBuffer.write(bytes, 0, bytes.size)
+            // 提交
+            val submitBytes = byteArrayOf('\n'.toByte(), (-1).toByte())
+            inputBuffer.write(submitBytes, 0, submitBytes.size)
+            return true
+        }.onFailure {
+            it.printStackTrace()
+        }
+        return false
+    }
+
+    /**
      * 关闭程序运行
      */
     fun close() {
         isRunning.set(false)
         JavaEngine.resetStdStream()
+
+        // 置空
+        inputBuffer.reset()
+        stdoutBuffer.reset()
+        stderrBuffer.reset()
 
         // 取消作用域
         cancel()
