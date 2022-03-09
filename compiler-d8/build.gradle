@@ -3,6 +3,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+apply from: '../maven.gradle'
+
 android {
     compileSdk 32
 

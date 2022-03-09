@@ -12,3 +12,5 @@
 /captures
 .externalNativeBuild
 .cxx
+/key/
+/maven.gradle
