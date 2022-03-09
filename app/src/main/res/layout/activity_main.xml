@@ -67,6 +67,20 @@
 
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="match_parent"
+                    android:id="@+id/tv_close"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingVertical="20dp"
+                    android:text="关闭"
+                    android:textColor="#333333"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tv_print"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />

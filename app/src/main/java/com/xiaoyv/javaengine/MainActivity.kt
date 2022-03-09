@@ -8,14 +8,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.blankj.utilcode.util.FileIOUtils
-import com.blankj.utilcode.util.LogUtils
-import com.blankj.utilcode.util.PathUtils
+import com.blankj.utilcode.util.*
 import com.xiaoyv.java.compiler.JavaEngine
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 import kotlin.coroutines.resume
 
@@ -23,6 +18,7 @@ import kotlin.coroutines.resume
 class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     private lateinit var toolbar: Toolbar
     private lateinit var tvPrint: TextView
+    private lateinit var tvClose: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +31,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     private fun initView() {
         toolbar = findViewById(R.id.toolbar)
         tvPrint = findViewById(R.id.tv_print)
+        tvClose = findViewById(R.id.tv_close)
     }
 
     private fun initEvent() {}
@@ -75,34 +72,30 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             val dexFile = JavaEngine.dexCompiler.compile(jarFile, buildDir)
             LogUtils.e("编译结束 dexFile: $dexFile")
 
-            JavaEngine.javaProgram.run(dexFile,
-                chooseMainClassToRun = { list, continuation ->
-                    System.err.println(list)
-
-                    val create = AlertDialog.Builder(this@MainActivity)
-                        .setPositiveButton("第一个") { p0, p1 ->
-                            p0.dismiss()
-                            continuation.resume(list.first())
-                        }
-                        .create()
-                    create.show()
+            val handle = JavaEngine.javaProgram.run(dexFile,
+                printOut = {
+                    tvPrint.append(it)
                 },
-                logPrint = { log, normal ->
-                    tvPrint.append((if (normal) "正常：" else "错误：") + log)
-                    tvPrint.append("\n")
+                printErr = {
+                    tvPrint.append(it)
                 })
 
-            LogUtils.e("运行结束")
-        }
+            LogUtils.e("main 执行完成, current thread: ${Thread.currentThread().name}")
 
-        LogUtils.e("编译结束")
+            tvClose.setOnClickListener {
+                handle.close()
+            }
+
+            toolbar.setOnClickListener {
+                System.err.println("xxxxxxxxxxxx")
+                ToastUtils.showShort("关闭")
+            }
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         cancel()
-
-
     }
 
 
@@ -113,9 +106,17 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
                 "public class Main {\n" +
                 "\n" +
                 "    public static void main(String[] args) {\n" +
-                "        System.out.println(\"Start Thread!\");\n" +
-                "        try { Thread.sleep(3000); }catch(Exception e){}" +
-                "        new Thread(()-> System.out.println(\"Hello World!\")).start();\n" +
+                "        System.out.println(\"Hello 0000\");\n" +
+                "        try { Thread.sleep(2000); }catch(Exception e){}" +
+                "      Thread t=  new Thread(()->{ " +
+                "try { Thread.sleep(2000); }catch(Exception e){}" +
+                "System.out.println(\"Hello 3333\");" +
+                "System.err.println(\"Hello 4444\");" +
+                "System.out.println(\"Hello 5555\");});" +
+                "t.start();     " +
+//                "try {    t.join();}catch(Exception e){}" +
+                "System.err.println(\"Hello 第一名!\");" +
+                "System.out.println(\"Hello 2222!\");\n" +
                 "    }\n" +
                 "}"
 
