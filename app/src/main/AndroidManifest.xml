@@ -19,9 +19,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-<!--        <activity
-            android:name=".SingleSampleActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />-->
+
+        <activity android:name=".CompileActivity" />
+
+
+        <!--        <activity
+                    android:name=".SingleSampleActivity"
+                    android:windowSoftInputMode="adjustResize|stateHidden" />-->
     </application>
 
 </manifest>

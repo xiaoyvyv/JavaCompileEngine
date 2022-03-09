@@ -14,9 +14,11 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
+            app:titleTextAppearance="@style/AppTheme.ToolbarTitle"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:title="@string/app_name" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -39,57 +41,39 @@
                 android:orientation="vertical">
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_example"
                     android:layout_width="match_parent"
                     android:layout_height="100dp"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
-                    android:onClick="openSingleActivity"
-                    android:text="Java Engine 示例程序"
+                    android:text="Java Engine D8 示例程序（支持 JDK8）"
                     android:textColor="#333333"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_principle"
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:onClick="testR8"
-                    android:text="Java R8 示例程序"
-                    android:textColor="#333333"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="match_parent"
-                    android:id="@+id/tv_close"
                     android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:paddingVertical="20dp"
-                    android:text="关闭"
-                    android:textColor="#333333"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:gravity="start"
+                    android:lineSpacingExtra="5dp"
+                    android:padding="20dp"
+                    android:text="@string/app_principle"
+                    android:textColor="#E34178"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tv_print"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
             </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.cardview.widget.CardView>
     </androidx.core.widget.NestedScrollView>
 
 
     <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_github"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
@@ -98,7 +82,6 @@
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
-        android:onClick="openGithub"
         android:padding="10dp"
         android:text="Copyright github.com@xiaoyvyv"
         android:textColor="#333333"
