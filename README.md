@@ -86,7 +86,7 @@ val dexFile = JavaEngine.dexCompiler.compile(compileJar.absolutePath, buildDir)
 ## 5、运行 dex文件
 `JavaProgram.kt` 提供了相关的方法，具体请查阅 JavaProgram.kt](https://github.com/xiaoyvyv/JavaCompileEngine/blob/master-d8/compiler-d8/src/main/java/com/xiaoyv/java/compiler/tools/exec/JavaProgram.kt)
 
-注意 `chooseMainClassToRun` 默认实现是选中匹配到的第一个 `main` 方法进行运行，你可以自己在该方法回调内去选择需要执行的方法。
+注意 `chooseMainClassToRun` 默认实现是选中匹配到的第一个 `main` 方法进行运行，你可以自己在该方法回调内去选择需要执行的的指定某个类。
 - chooseMainClassToRun 第一个回调参数：匹配到的包含 `main` 方法的类
 - chooseMainClassToRun 第二个回调参数：协程相关的回调，需要将选择的类回调回去
 
