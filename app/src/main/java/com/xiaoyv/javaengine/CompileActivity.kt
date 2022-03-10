@@ -54,6 +54,7 @@ class CompileActivity : AppCompatActivity(), CoroutineScope by MainScope() {
                 true
             }.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
+
     }
 
     /**
@@ -103,30 +104,30 @@ class CompileActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         binding.printView.append("Run dex start...\n\n")
 
-        // JavaEngine.
-        val programConsole = JavaEngine.javaProgram.run(dexFile, arrayOf("args"),
-            chooseMainClassToRun = { classes, continuation ->
-                val dialog = AlertDialog.Builder(this@CompileActivity)
-                    .setTitle("请选择一个主函数运行")
-                    .setItems(classes.toTypedArray()) { p0, p1 ->
-                        p0.dismiss()
-                        continuation.resume(classes[p1])
-                    }
-                    .setCancelable(false)
-                    .setNegativeButton("取消") { d, v ->
-                        d.dismiss()
-                        continuation.resumeWithException(Exception("取消操作"))
-                    }.create()
+// JavaEngine.
+val programConsole = JavaEngine.javaProgram.run(dexFile, arrayOf("args"),
+    chooseMainClassToRun = { classes, continuation ->
+        val dialog = AlertDialog.Builder(this@CompileActivity)
+            .setTitle("请选择一个主函数运行")
+            .setItems(classes.toTypedArray()) { p0, p1 ->
+                p0.dismiss()
+                continuation.resume(classes[p1])
+            }
+            .setCancelable(false)
+            .setNegativeButton("取消") { d, v ->
+                d.dismiss()
+                continuation.resumeWithException(Exception("取消操作"))
+            }.create()
 
-                dialog.show()
-                dialog.setCanceledOnTouchOutside(false)
-            },
-            printOut = {
-                binding.printView.append(it)
-            },
-            printErr = {
-                binding.printView.append(Html.fromHtml("<font color=\"#FF0000\">$it</font>"))
-            })
+        dialog.show()
+        dialog.setCanceledOnTouchOutside(false)
+    },
+    printOut = {
+        binding.printView.append(it)
+    },
+    printErr = {
+        binding.printView.append(Html.fromHtml("<font color=\"#FF0000\">$it</font>"))
+    })
 
         binding.btSend.setOnClickListener {
             val input = binding.inputEdit.text.toString()
