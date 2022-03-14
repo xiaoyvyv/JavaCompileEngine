@@ -29,7 +29,7 @@ android {
         }
     }
 
-    compileOptions{
+    compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -42,8 +42,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.5.0'
     implementation 'com.blankj:utilcodex:1.31.0'
 
-    implementation 'io.github.xiaoyvyv:compiler-d8:1.0.2'
-    // implementation project(':compiler-d8')
+//    implementation 'io.github.xiaoyvyv:compiler-d8:1.0.2'
+    implementation project(':compiler-d8')
     implementation project(':compiler-format')
 
     testImplementation 'junit:junit:4.13.2'

@@ -12,7 +12,6 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/compiler" />
             <option value="$PROJECT_DIR$/compiler-d8" />
             <option value="$PROJECT_DIR$/compiler-format" />
             <option value="$PROJECT_DIR$/compiler-jdk8" />

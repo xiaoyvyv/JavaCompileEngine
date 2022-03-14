@@ -40,7 +40,7 @@ dependencies {
     implementation 'org.eclipse.jdt:ecj:3.26.0'
     
     // Jdk Java Compiler
-    implementation project(':compiler')
+    implementation project(':compiler-jdk8')
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'

@@ -54,7 +54,7 @@ class CompileActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         binding.toolbar.menu.add("Run")
             .setOnMenuItemClickListener {
                 formatCode()
-//                runProgram()
+                runProgram()
                 true
             }.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
@@ -64,7 +64,7 @@ class CompileActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     private fun formatCode() {
         val codeText = binding.codeText.text.toString()
         val formatSource = Formatter(JavaFormatterOptions.builder()
-            .style(JavaFormatterOptions.Style.GOOGLE)
+            .style(JavaFormatterOptions.Style.AOSP)
             .build())
             .formatSource(codeText)
         binding.codeText.setText(formatSource)

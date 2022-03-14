@@ -39,7 +39,6 @@ dependencyResolutionManagement {
 }
 rootProject.name='JavaCompileEngine'
 include ':app'
-include ':compiler'
 include ':compiler-d8'
 include ':compiler-format'
 include ':compiler-jdk8'
