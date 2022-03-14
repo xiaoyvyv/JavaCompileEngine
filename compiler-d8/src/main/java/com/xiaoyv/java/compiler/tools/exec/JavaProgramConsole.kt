@@ -126,7 +126,7 @@ class JavaProgramConsole : CoroutineScope by MainScope() {
             // 向输入流写入
             inputBuffer.write(bytes, 0, bytes.size)
             // 提交
-            val submitBytes = byteArrayOf('\n'.toByte(), (-1).toByte())
+            val submitBytes = byteArrayOf('\n'.code.toByte(), (-1).toByte())
             inputBuffer.write(submitBytes, 0, submitBytes.size)
             return true
         }.onFailure {
