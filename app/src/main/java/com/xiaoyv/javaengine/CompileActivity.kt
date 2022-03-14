@@ -8,12 +8,15 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.blankj.utilcode.util.FileIOUtils
 import com.blankj.utilcode.util.PathUtils
+import com.google.googlejavaformat.java.Formatter
+import com.google.googlejavaformat.java.JavaFormatterOptions
 import com.xiaoyv.java.compiler.JavaEngine
 import com.xiaoyv.javaengine.databinding.ActivitySingleSampleBinding
 import kotlinx.coroutines.*
 import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+
 
 /**
  * CompileActivity
@@ -50,11 +53,21 @@ class CompileActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         binding.toolbar.menu.add("Run")
             .setOnMenuItemClickListener {
-                runProgram()
+                formatCode()
+//                runProgram()
                 true
             }.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
 
+    }
+
+    private fun formatCode() {
+        val codeText = binding.codeText.text.toString()
+        val formatSource = Formatter(JavaFormatterOptions.builder()
+            .style(JavaFormatterOptions.Style.GOOGLE)
+            .build())
+            .formatSource(codeText)
+        binding.codeText.setText(formatSource)
     }
 
     /**
@@ -104,30 +117,30 @@ class CompileActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         binding.printView.append("Run dex start...\n\n")
 
-// JavaEngine.
-val programConsole = JavaEngine.javaProgram.run(dexFile, arrayOf("args"),
-    chooseMainClassToRun = { classes, continuation ->
-        val dialog = AlertDialog.Builder(this@CompileActivity)
-            .setTitle("请选择一个主函数运行")
-            .setItems(classes.toTypedArray()) { p0, p1 ->
-                p0.dismiss()
-                continuation.resume(classes[p1])
-            }
-            .setCancelable(false)
-            .setNegativeButton("取消") { d, v ->
-                d.dismiss()
-                continuation.resumeWithException(Exception("取消操作"))
-            }.create()
+        // JavaEngine.
+        val programConsole = JavaEngine.javaProgram.run(dexFile, arrayOf("args"),
+            chooseMainClassToRun = { classes, continuation ->
+                val dialog = AlertDialog.Builder(this@CompileActivity)
+                    .setTitle("请选择一个主函数运行")
+                    .setItems(classes.toTypedArray()) { p0, p1 ->
+                        p0.dismiss()
+                        continuation.resume(classes[p1])
+                    }
+                    .setCancelable(false)
+                    .setNegativeButton("取消") { d, v ->
+                        d.dismiss()
+                        continuation.resumeWithException(Exception("取消操作"))
+                    }.create()
 
-        dialog.show()
-        dialog.setCanceledOnTouchOutside(false)
-    },
-    printOut = {
-        binding.printView.append(it)
-    },
-    printErr = {
-        binding.printView.append(Html.fromHtml("<font color=\"#FF0000\">$it</font>"))
-    })
+                dialog.show()
+                dialog.setCanceledOnTouchOutside(false)
+            },
+            printOut = {
+                binding.printView.append(it)
+            },
+            printErr = {
+                binding.printView.append(Html.fromHtml("<font color=\"#FF0000\">$it</font>"))
+            })
 
         binding.btSend.setOnClickListener {
             val input = binding.inputEdit.text.toString()

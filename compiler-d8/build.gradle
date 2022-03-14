@@ -6,14 +6,13 @@ plugins {
 apply from: '../maven.gradle'
 
 android {
-    compileSdk 32
+    compileSdk rootProject.targetSdk
 
     defaultConfig {
-        minSdk 21
-        targetSdk 32
+        minSdk rootProject.minSdkVersion
+        targetSdk rootProject.targetSdk
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles "consumer-rules.pro"
     }
 
     buildTypes {

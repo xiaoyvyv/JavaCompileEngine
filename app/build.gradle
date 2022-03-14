@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk rootProject.targetSdk
 
     buildFeatures {
         viewBinding true
@@ -12,8 +12,8 @@ android {
 
     defaultConfig {
         applicationId "com.xiaoyv.javaengine"
-        minSdkVersion 21
-        targetSdkVersion 32
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdk
         versionCode 1
         versionName "1.0"
 
@@ -43,7 +43,8 @@ dependencies {
     implementation 'com.blankj:utilcodex:1.31.0'
 
     implementation 'io.github.xiaoyvyv:compiler-d8:1.0.2'
-//    implementation project(':compiler-d8')
+    // implementation project(':compiler-d8')
+    implementation project(':compiler-format')
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
