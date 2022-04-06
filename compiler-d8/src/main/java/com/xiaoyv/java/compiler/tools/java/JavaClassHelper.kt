@@ -1,7 +1,11 @@
 package com.xiaoyv.java.compiler.tools.java
 
+import android.util.Log
 import com.xiaoyv.java.compiler.utils.FileUtils
 import java.io.File
+import java.util.*
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
 
 /**
  * @author 王怀玉
@@ -34,5 +38,37 @@ object JavaClassHelper {
             classpath.append(javaLibrary.absolutePath)
         }
         return classpath.toString()
+    }
+
+    @JvmStatic
+    fun getClasses(jarPath: String) = getClasses(File(jarPath))
+
+    @JvmStatic
+    fun getClasses(file: File): List<Class<*>> {
+        if (file.exists().not()) {
+            return arrayListOf()
+        }
+        val classes: MutableList<Class<*>> = arrayListOf()
+        runCatching {
+            val jarFile = JarFile(file)
+            val entries: Enumeration<JarEntry> = jarFile.entries()
+            while (entries.hasMoreElements()) {
+                val jarEntry: JarEntry = entries.nextElement()
+                if (jarEntry.isDirectory ||
+                    jarEntry.name.endsWith(".class").not() ||
+                    jarEntry.name.contains("$")
+                ) {
+                    continue
+                }
+                var className = jarEntry.name.substring(0, jarEntry.name.length - 6)
+                className = className.replace('/', '.')
+                runCatching {
+                    classes.add(ClassLoader.getSystemClassLoader().loadClass(className))
+                }.onFailure {
+                    Log.e("JavaClassHelper", "编译器未适配该类： $className")
+                }
+            }
+        }
+        return classes
     }
 }
